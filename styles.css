@@ -37,15 +37,13 @@ header h1 {
   line-height: 1.75;
 }
 
-/* Оптический акцент (Вариант 1): ключевые слова мягко вспыхивают чистым белым */
+/* Оптический акцент: только цвет, без добавления жирности */
 .description strong {
-  font-weight: 500;
+  font-weight: inherit;
   color: #ffffff;
-  letter-spacing: -0.01em;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.18);
 }
 
-/* Подпись автора под манифестом */
+/* Авторский титр под текстом */
 .author-line {
   display: block;
   margin-top: 2.8rem;
@@ -134,7 +132,7 @@ header h1 {
   border-radius: 2px;
 }
 
-/* Мобильная адаптация */
+/* Адаптивность для мобильных экранов */
 @media (max-width: 768px) {
   body {
     padding: 3.5rem 1.25rem 8rem;
