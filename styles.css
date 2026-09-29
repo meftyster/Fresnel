@@ -31,10 +31,12 @@ header h1 {
   color: rgba(245, 245, 247, 0.75);
 }
 
-/* Акцент на «Френеля»: тон балтийского янтаря на просвет */
-header h1 .title-accent {
+/* Акцент в заголовке: span, strong, b — одинаковая толщина и цвет янтаря */
+header h1 .title-accent,
+header h1 strong,
+header h1 b {
   font-weight: inherit !important;
-  color: #f7e5c8;
+  color: #f7e5c8 !important;
 }
 
 .description {
@@ -45,10 +47,13 @@ header h1 .title-accent {
   font-weight: 400;
 }
 
-/* Акцентные слова («Калининград», «школа», «море») без прибавки жирности */
-.description .highlight {
+/* Перехват любого выделения в описании: строгий сброс веса и цвет #f7e5c8 */
+.description .highlight,
+.description strong,
+.description b {
+  font-weight: inherit !important;
   font-weight: 400 !important;
-  color: #f7e5c8;
+  color: #f7e5c8 !important;
 }
 
 /* Подпись автора под текстом */
@@ -112,7 +117,6 @@ header h1 .title-accent {
   transition: color 0.25s ease;
 }
 
-/* Ховер ссылок: янтарный рефлекс в тон текстовых акцентов */
 .site-footer a:hover {
   color: #f7e5c8;
 }
