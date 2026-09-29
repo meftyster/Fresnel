@@ -14,7 +14,7 @@ body {
   min-height: 100vh;
   background-color: #0b0d10;
   background-repeat: no-repeat;
-  background-attachment: scroll;
+  background-size: 100% 100%;
   padding: 5rem 2rem 14rem;
 }
 
@@ -50,7 +50,6 @@ header h1 {
 .photo-item {
   display: flex;
   flex-direction: column;
-  /* Получаем индивидуальный сдвиг для конкретного фото из JS */
   margin-top: var(--offset, 0rem);
 }
 
@@ -102,6 +101,6 @@ header h1 {
     row-gap: 4rem;
   }
   .photo-item {
-    margin-top: 0 !important; /* На смартфонах убираем вертикальный разброс */
+    margin-top: 0 !important;
   }
 }
