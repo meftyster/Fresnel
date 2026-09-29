@@ -70,7 +70,7 @@ header h1 {
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6);
 }
 
-/* Подвал и контакты — отступ синхронизирован с шапкой */
+/* Подвал и контакты */
 .site-footer {
   max-width: 1080px;
   margin: 16rem auto 0;
@@ -82,16 +82,13 @@ header h1 {
 }
 
 .site-footer a {
-  color: rgba(245, 245, 247, 0.85);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(245, 245, 247, 0.25);
-  padding-bottom: 2px;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  color: inherit; /* Наследует цвет текста подвала */
+  text-decoration: none; /* Убираем подчеркивание */
+  transition: color 0.2s ease;
 }
 
 .site-footer a:hover {
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.8);
+  color: #ffffff; /* Плавное посветление до чисто-белого при наведении */
 }
 
 /* Полноэкранный просмотр */
