@@ -31,10 +31,29 @@ header h1 {
 }
 
 .description {
-  margin-top: 1.2rem;
-  color: rgba(245, 245, 247, 0.75);
-  font-size: 1.1rem;
-  line-height: 1.7;
+  margin-top: 1.4rem;
+  color: rgba(245, 245, 247, 0.72);
+  font-size: 1.12rem;
+  line-height: 1.75;
+}
+
+/* Оптический акцент (Вариант 1): ключевые слова мягко вспыхивают чистым белым */
+.description strong {
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.18);
+}
+
+/* Подпись автора под манифестом */
+.author-line {
+  display: block;
+  margin-top: 2.8rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 247, 0.45);
+  font-weight: 400;
 }
 
 /* Двухколоночная сетка */
@@ -82,13 +101,13 @@ header h1 {
 }
 
 .site-footer a {
-  color: inherit; /* Наследует цвет текста подвала */
-  text-decoration: none; /* Убираем подчеркивание */
+  color: inherit;
+  text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .site-footer a:hover {
-  color: #ffffff; /* Плавное посветление до чисто-белого при наведении */
+  color: #ffffff;
 }
 
 /* Полноэкранный просмотр */
@@ -117,14 +136,32 @@ header h1 {
 
 /* Мобильная адаптация */
 @media (max-width: 768px) {
+  body {
+    padding: 3.5rem 1.25rem 8rem;
+  }
+
+  header {
+    margin-bottom: 4.5rem;
+  }
+
+  header h1 {
+    font-size: 2.2rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
   .gallery-grid {
     grid-template-columns: 1fr;
-    row-gap: 4rem;
+    row-gap: 3.5rem;
   }
+
   .photo-item {
     margin-top: 0 !important;
   }
+
   .site-footer {
-    margin-top: 9rem;
+    margin-top: 8rem;
   }
 }
