@@ -16,6 +16,7 @@ body {
   background-repeat: no-repeat;
   background-size: 100% 100%;
   padding: 5rem 2rem 12rem;
+  overflow-x: hidden; /* Защита от горизонтальной прокрутки при смещении фото */
 }
 
 /* Шапка: компактная книжная колонка и увеличенный воздух до первой пары фото */
@@ -73,7 +74,7 @@ header h1 b {
   text-align: center;
 }
 
-/* Двухколоночная сетка */
+/* Двухколоночная сетка для десктопа */
 .gallery-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -151,19 +152,19 @@ header h1 b {
   border-radius: 2px;
 }
 
-/* Мобильная адаптация */
+/* Мобильная адаптация: галерейное дыхание и деликатная лесенка */
 @media (max-width: 768px) {
   body {
     padding: 3.5rem 1.25rem 8rem;
   }
 
   header {
-    margin-bottom: 5rem;
+    margin-bottom: 5.5rem;
     max-width: 100%;
   }
 
   header h1 {
-    font-size: 2.2rem;
+    font-size: 2.1rem;
     margin-bottom: 1.8rem;
   }
 
@@ -177,15 +178,25 @@ header h1 b {
   }
 
   .gallery-grid {
-    grid-template-columns: 1fr;
-    row-gap: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 5.5rem; /* Щедрый вертикальный воздух между кадрами */
+    width: 100%;
   }
 
   .photo-item {
     margin-top: 0 !important;
+    width: 84%; /* Фотографии дышат полями слева и справа */
+    max-width: 360px;
+    transform: translateX(var(--x-offset, 0%)); /* Ненавязчивый волновой сдвиг */
+  }
+
+  .photo-item img {
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
   }
 
   .site-footer {
-    margin-top: 8rem;
+    margin-top: 9rem;
   }
 }
