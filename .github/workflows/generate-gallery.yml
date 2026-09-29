@@ -1,0 +1,118 @@
+YAML
+
+name: Generate Gallery Data
+
+on:
+  push:
+    paths:
+      - 'images/**'
+      - 'content.md'
+      - 'gradient.txt'
+    branches:
+      - main  # Если ваша главная ветка master — замените на master
+  workflow_dispatch: # Позволяет запускать сборку вручную кнопкой
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate data.json
+        run: |
+          node -e '
+          const fs = require("fs");
+          const path = require("path");
+
+          // 1. Считываем content.md
+          let title = "Архив";
+          let description = "";
+          if (fs.existsSync("./content.md")) {
+            const lines = fs.readFileSync("./content.md", "utf-8").trim().split("\n");
+            const idx = lines.findIndex(l => l.startsWith("# "));
+            if (idx !== -1) {
+              title = lines[idx].replace(/^#\s+/, "").trim();
+              description = lines.slice(idx + 1).join("\n").trim();
+            } else {
+              description = lines.join("\n").trim();
+            }
+          }
+
+          // 2. Сканируем папку images
+          const dir = "./images";
+          let items = [];
+          if (fs.existsSync(dir)) {
+            const validExts = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
+            const files = fs.readdirSync(dir).filter(f =>
+              validExts.includes(path.extname(f).toLowerCase())
+            );
+
+            items = files.map(file => {
+              const ext = path.extname(file);
+              const baseName = path.basename(file, ext);
+              const match = baseName.match(/^(.*?)(?:-(\d+))?$/);
+              const rawTitle = match && match[1] ? match[1] : baseName;
+              const order = match && match[2] ? parseInt(match[2], 10) : 9999;
+
+              const cleanTitle = rawTitle
+                .replace(/[-_]+/g, " ")
+                .trim()
+                .replace(/^\w/, c => c.toUpperCase());
+
+              return {
+                src: "images/" + file,
+                title: cleanTitle,
+                order: order
+              };
+            });
+
+            items.sort((a, b) => a.order - b.order);
+          }
+
+          // 3. Вычисляем градиент из gradient.txt
+          let gradientCss = "none";
+          if (fs.existsSync("./gradient.txt")) {
+            const rawColors = fs.readFileSync("./gradient.txt", "utf-8")
+              .split("\n")
+              .map(l => l.trim())
+              .filter(l => l && !l.startsWith("//") && !l.startsWith("# "));
+
+            if (rawColors.length === 1) {
+              gradientCss = rawColors[0];
+            } else if (rawColors.length > 1) {
+              const totalStops = rawColors.length;
+              const stops = rawColors.map((color, index) => {
+                const percent = Math.round((index / (totalStops - 1)) * 100);
+                return `${color} ${percent}%`;
+              });
+              gradientCss = `linear-gradient(180deg, ${stops.join(", ")})`;
+            }
+          }
+
+          // 4. Формируем data.json
+          const result = {
+            title,
+            description,
+            gradient: gradientCss,
+            images: items
+          };
+
+          fs.writeFileSync("data.json", JSON.stringify(result, null, 2));
+          console.log(`data.json готов: ${items.length} фото, градиент собран.`);
+          '
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --staged --quiet || (git commit -m "Auto-generate data.json [skip ci]" && git pu
