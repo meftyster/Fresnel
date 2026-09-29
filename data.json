@@ -2,5 +2,186 @@
   "title": "Эффект Френеля",
   "description": "Солнце садится в Балтийское море каждый день без участия человека. Но именно угол взгляда конкретного наблюдателя определяет топределяют цветовое многообразие: вспыхнет ли вода зеркальной пастелью заката или проявит свою холодную иссиня-стальную толщу. Физика здесь неотделима от оптики присутствия, что рождается в точке встречи человека со стихией.\r\n\r\nВ Калининграде это чувствуется особенно остро, где привычная маятниковая миграция мегаполиса «спальник–центр» сменяется постоянным движением «город–побережье».\r\n\r\nЕсли Калининград — это школа, то один из ее уроков заключается в проживании этого движения. Работа с ним невозможна как без дороги к морю, настраивающей взгляд на встречу, так и без дороги обратно - необходимой, чтобы выйти из состояния чистого наблюдения.",
   "gradient": "linear-gradient(180deg, #0a1b26 0%, #0f2a3a 5%, #1c2838 10%, #122a36 15%, #283438 20%, #3d2f2c 25%, #1b2e38 30%, #262d28 35%, #3c2c24 40%, #1b3236 45%, #2e1f26 50%, #1a2d33 55%, #302c28 60%, #1c2430 65%, #2c2420 70%, #182e2c 75%, #2e2530 80%, #27221e 85%, #1d242c 90%, #261c18 95%, #0b0f14 100%)",
-  "images": []
+  "images": [
+    {
+      "src": "images/CreamAqua-01.jpg",
+      "title": "CreamAqua",
+      "order": 1
+    },
+    {
+      "src": "images/CobaltWhite-02.jpg",
+      "title": "CobaltWhite",
+      "order": 2
+    },
+    {
+      "src": "images/AmberSun-03.jpg",
+      "title": "AmberSun",
+      "order": 3
+    },
+    {
+      "src": "images/StormWhite-04.jpg",
+      "title": "StormWhite",
+      "order": 4
+    },
+    {
+      "src": "images/SlateSand-05.jpg",
+      "title": "SlateSand",
+      "order": 5
+    },
+    {
+      "src": "images/IndigoSteel-06.jpg",
+      "title": "IndigoSteel",
+      "order": 6
+    },
+    {
+      "src": "images/TealAmber-07.jpg",
+      "title": "TealAmber",
+      "order": 7
+    },
+    {
+      "src": "images/RoseSmoke-08.jpg",
+      "title": "RoseSmoke",
+      "order": 8
+    },
+    {
+      "src": "images/BlueCoral-09.jpg",
+      "title": "BlueCoral",
+      "order": 9
+    },
+    {
+      "src": "images/TealCream-10.jpg",
+      "title": "TealCream",
+      "order": 10
+    },
+    {
+      "src": "images/SageTeal-11.jpg",
+      "title": "SageTeal",
+      "order": 11
+    },
+    {
+      "src": "images/AmberCharcoal-12.jpg",
+      "title": "AmberCharcoal",
+      "order": 12
+    },
+    {
+      "src": "images/AmberNoir-13.jpg",
+      "title": "AmberNoir",
+      "order": 13
+    },
+    {
+      "src": "images/MistSlate-14.jpg",
+      "title": "MistSlate",
+      "order": 14
+    },
+    {
+      "src": "images/EmeraldCream-15.jpg",
+      "title": "EmeraldCream",
+      "order": 15
+    },
+    {
+      "src": "images/CoralAzure-16.jpg",
+      "title": "CoralAzure",
+      "order": 16
+    },
+    {
+      "src": "images/CrimsonMaroon-17.jpg",
+      "title": "CrimsonMaroon",
+      "order": 17
+    },
+    {
+      "src": "images/SkyCream-18.jpg",
+      "title": "SkyCream",
+      "order": 18
+    },
+    {
+      "src": "images/StormCharcoal-19.jpg",
+      "title": "StormCharcoal",
+      "order": 19
+    },
+    {
+      "src": "images/HoneyAmber-20.jpg",
+      "title": "HoneyAmber",
+      "order": 20
+    },
+    {
+      "src": "images/PearlSlate-21.jpg",
+      "title": "PearlSlate",
+      "order": 21
+    },
+    {
+      "src": "images/NavySage-22.jpg",
+      "title": "NavySage",
+      "order": 22
+    },
+    {
+      "src": "images/TealSand-23.jpg",
+      "title": "TealSand",
+      "order": 23
+    },
+    {
+      "src": "images/AmberNavy-24.jpg",
+      "title": "AmberNavy",
+      "order": 24
+    },
+    {
+      "src": "images/SlateLilac-25.jpg",
+      "title": "SlateLilac",
+      "order": 25
+    },
+    {
+      "src": "images/PetroleumAmber-26.jpg",
+      "title": "PetroleumAmber",
+      "order": 26
+    },
+    {
+      "src": "images/PlumIndigo-27.jpg",
+      "title": "PlumIndigo",
+      "order": 27
+    },
+    {
+      "src": "images/AmberSteel-28.jpg",
+      "title": "AmberSteel",
+      "order": 28
+    },
+    {
+      "src": "images/CyanTeal-29.jpg",
+      "title": "CyanTeal",
+      "order": 29
+    },
+    {
+      "src": "images/OnyxAmber-30.jpg",
+      "title": "OnyxAmber",
+      "order": 30
+    },
+    {
+      "src": "images/AmberPetrol-31.jpg",
+      "title": "AmberPetrol",
+      "order": 31
+    },
+    {
+      "src": "images/PinkIndigo-32.jpg",
+      "title": "PinkIndigo",
+      "order": 32
+    },
+    {
+      "src": "images/AmberNight-33.jpg",
+      "title": "AmberNight",
+      "order": 33
+    },
+    {
+      "src": "images/CoralViolet-34.jpg",
+      "title": "CoralViolet",
+      "order": 34
+    },
+    {
+      "src": "images/SageSand-35.jpg",
+      "title": "SageSand",
+      "order": 35
+    },
+    {
+      "src": "images/MidnightBronze-36.jpg",
+      "title": "MidnightBronze",
+      "order": 36
+    }
+  ]
 }
