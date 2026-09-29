@@ -1,0 +1,17 @@
+{
+  "title": "Моя фотогалерея",
+  "description": "Коллекция снимков и визуальных заметок.",
+  "gradient": "linear-gradient(180deg, #0e1117 0%, #1b2838 50%, #0d1b2a 100%)",
+  "images": [
+    {
+      "src": "images/DSCF3041-01.jpg",
+      "title": "DSCF3041",
+      "order": 1
+    },
+    {
+      "src": "images/DSCF7194-02.jpg",
+      "title": "DSCF7194",
+      "order": 2
+    }
+  ]
+}
