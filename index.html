@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Галерея</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <h1 id="title">...</h1>
+    <div id="desc" class="description"></div>
+  </header>
+
+  <main class="gallery-grid" id="gallery"></main>
+
+  <div class="modal" id="modal">
+    <img id="modalImg" src="" alt="Fullscreen">
+  </div>
+
+  <script>
+    const gallery = document.getElementById('gallery');
+    const pageTitle = document.getElementById('title');
+    const pageDesc = document.getElementById('desc');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modalImg');
+
+    async function init() {
+      try {
+        const res = await fetch('data.json?v=' + Date.now());
+        const data = await res.json();
+
+        // 1. Градиент
+        if (data.gradient && data.gradient !== "none") {
+          document.body.style.background = data.gradient;
+        }
+
+        // 2. Тексты
+        if (data.title) {
+          pageTitle.textContent = data.title;
+          document.title = data.title;
+        }
+        if (data.description) {
+          pageDesc.innerHTML = data.description.replace(/\n/g, '<br>');
+        }
+
+        // 3. Вывод фото парами со смещением
+        gallery.innerHTML = '';
+        (data.images || []).forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'photo-item';
+          el.innerHTML = `
+            <img src="${item.src}" alt="${item.title}" loading="lazy">
+            <span class="photo-title">${item.title}</span>
+          `;
+
+          el.querySelector('img').addEventListener('click', () => {
+            modalImg.src = item.src;
+            modal.classList.add('active');
+          });
+
+          gallery.appendChild(el);
+        });
+
+      } catch (e) {
+        console.error("Ошибка загрузки:", e);
+      }
+    }
+
+    modal.addEventListener('click', () => modal.classList.remove('active'));
+    init();
+  </script>
+</body>
+</html>
