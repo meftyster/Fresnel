@@ -28,6 +28,13 @@ header h1 {
   font-size: 2.8rem;
   font-weight: 500;
   letter-spacing: -0.03em;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+/* Акцент на слове «Френеля» */
+header h1 .title-accent {
+  color: #ffffff;
+  font-weight: 500;
 }
 
 .description {
@@ -35,15 +42,16 @@ header h1 {
   color: rgba(245, 245, 247, 0.72);
   font-size: 1.12rem;
   line-height: 1.75;
+  font-weight: 400;
 }
 
-/* Оптический акцент: только цвет, без добавления жирности */
-.description strong {
-  font-weight: inherit;
+/* Акцентные слова: гарантированно обычная толщина, только цвет */
+.description .highlight {
+  font-weight: 400 !important;
   color: #ffffff;
 }
 
-/* Авторский титр под текстом */
+/* Подпись автора под текстом */
 .author-line {
   display: block;
   margin-top: 2.8rem;
@@ -132,7 +140,7 @@ header h1 {
   border-radius: 2px;
 }
 
-/* Адаптивность для мобильных экранов */
+/* Мобильная адаптация */
 @media (max-width: 768px) {
   body {
     padding: 3.5rem 1.25rem 8rem;
