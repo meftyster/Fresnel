@@ -18,10 +18,11 @@ body {
   padding: 5rem 2rem 12rem;
 }
 
+/* Шапка: компактная книжная колонка и увеличенный воздух до первой пары фото */
 header {
-  max-width: 800px;
-  margin: 0 auto 7rem;
-  text-align: center;
+  max-width: 660px;
+  margin: 0 auto 10.5rem;
+  text-align: left;
 }
 
 header h1 {
@@ -29,6 +30,8 @@ header h1 {
   font-weight: 500;
   letter-spacing: -0.03em;
   color: rgba(245, 245, 247, 0.75);
+  text-align: center;
+  margin-bottom: 2.5rem;
 }
 
 /* Акцент в заголовке */
@@ -39,12 +42,14 @@ header h1 b {
   color: #f3dfc0 !important;
 }
 
+/* Текстовый манифест: комфортная длина строки и академический ритм */
 .description {
-  margin-top: 1.4rem;
+  margin-top: 0;
   color: rgba(245, 245, 247, 0.72);
   font-size: 1.12rem;
-  line-height: 1.75;
+  line-height: 1.8;
   font-weight: 400;
+  text-align: left;
 }
 
 /* Акцентные слова в манифесте */
@@ -56,15 +61,16 @@ header h1 b {
   color: #f3dfc0 !important;
 }
 
-/* Авторская подпись под текстом */
+/* Авторская подпись под манифестом */
 .author-line {
   display: block;
-  margin-top: 2.8rem;
-  font-size: 0.95rem;
-  letter-spacing: 0.1em;
+  margin-top: 3.5rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(245, 245, 247, 0.45);
   font-weight: 400;
+  text-align: center;
 }
 
 /* Двухколоночная сетка */
@@ -152,15 +158,22 @@ header h1 b {
   }
 
   header {
-    margin-bottom: 4.5rem;
+    margin-bottom: 5rem;
+    max-width: 100%;
   }
 
   header h1 {
     font-size: 2.2rem;
+    margin-bottom: 1.8rem;
   }
 
   .description {
     font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .author-line {
+    margin-top: 2.5rem;
   }
 
   .gallery-grid {
