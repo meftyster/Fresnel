@@ -33,14 +33,24 @@ jobs:
 
           let title = "Архив";
           let description = "";
+          let footer = "";
+
           if (fs.existsSync("./content.md")) {
-            const lines = fs.readFileSync("./content.md", "utf-8").trim().split("\n");
+            const raw = fs.readFileSync("./content.md", "utf-8").trim();
+            // Разделяем шапку и подвал по "---"
+            const parts = raw.split(/\n\s*---\s*\n/);
+            const headerPart = parts[0] || "";
+            if (parts.length > 1) {
+              footer = parts.slice(1).join("\n").trim();
+            }
+
+            const lines = headerPart.split("\n");
             const idx = lines.findIndex(l => l.startsWith("# "));
             if (idx !== -1) {
               title = lines[idx].replace(/^#\s+/, "").trim();
               description = lines.slice(idx + 1).join("\n").trim();
             } else {
-              description = lines.join("\n").trim();
+              description = headerPart.trim();
             }
           }
 
@@ -74,34 +84,24 @@ jobs:
             items.sort((a, b) => a.order - b.order);
           }
 
-          let gradientCss = "none";
+          let colors = [];
           if (fs.existsSync("./gradient.txt")) {
-            const rawColors = fs.readFileSync("./gradient.txt", "utf-8")
+            colors = fs.readFileSync("./gradient.txt", "utf-8")
               .split("\n")
               .map(l => l.trim())
               .filter(l => l && !l.startsWith("//") && !l.startsWith("# "));
-
-            if (rawColors.length === 1) {
-              gradientCss = rawColors[0];
-            } else if (rawColors.length > 1) {
-              const totalStops = rawColors.length;
-              const stops = rawColors.map((color, index) => {
-                const percent = Math.round((index / (totalStops - 1)) * 100);
-                return `${color} ${percent}%`;
-              });
-              gradientCss = `linear-gradient(180deg, ${stops.join(", ")})`;
-            }
           }
 
           const result = {
             title,
             description,
-            gradient: gradientCss,
+            footer,
+            colors: colors,
             images: items
           };
 
           fs.writeFileSync("data.json", JSON.stringify(result, null, 2));
-          console.log(`data.json готов: ${items.length} фото.`);
+          console.log(`data.json готов: ${items.length} фото, ${colors.length} цветов.`);
           '
 
       - name: Commit and push changes
