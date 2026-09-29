@@ -1,16 +1,14 @@
-YAML
-
 name: Generate Gallery Data
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'images/**'
       - 'content.md'
       - 'gradient.txt'
     branches:
-      - main  # Если ваша главная ветка master — замените на master
-  workflow_dispatch: # Позволяет запускать сборку вручную кнопкой
+      - main
 
 permissions:
   contents: write
@@ -33,7 +31,6 @@ jobs:
           const fs = require("fs");
           const path = require("path");
 
-          // 1. Считываем content.md
           let title = "Архив";
           let description = "";
           if (fs.existsSync("./content.md")) {
@@ -47,7 +44,6 @@ jobs:
             }
           }
 
-          // 2. Сканируем папку images
           const dir = "./images";
           let items = [];
           if (fs.existsSync(dir)) {
@@ -78,7 +74,6 @@ jobs:
             items.sort((a, b) => a.order - b.order);
           }
 
-          // 3. Вычисляем градиент из gradient.txt
           let gradientCss = "none";
           if (fs.existsSync("./gradient.txt")) {
             const rawColors = fs.readFileSync("./gradient.txt", "utf-8")
@@ -98,7 +93,6 @@ jobs:
             }
           }
 
-          // 4. Формируем data.json
           const result = {
             title,
             description,
@@ -107,7 +101,7 @@ jobs:
           };
 
           fs.writeFileSync("data.json", JSON.stringify(result, null, 2));
-          console.log(`data.json готов: ${items.length} фото, градиент собран.`);
+          console.log(`data.json готов: ${items.length} фото.`);
           '
 
       - name: Commit and push changes
@@ -115,4 +109,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
-          git diff --staged --quiet || (git commit -m "Auto-generate data.json [skip ci]" && git pu
+          git diff --staged --quiet || (git commit -m "Auto-generate data.json [skip ci]" && git push)
