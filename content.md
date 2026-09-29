@@ -11,4 +11,4 @@
 ---
 [Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)
 
-© [year] Anton Ivchenko / Rick Antilles. All rights reserved.
+© [year] Антон Ивченко / Rick Antilles. All rights reserved.
