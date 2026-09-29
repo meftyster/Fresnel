@@ -69,29 +69,26 @@
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
 
-        // 1. Шапка: Заголовок и парсинг **акцента**
+        // 1. Шапка: Заголовок с акцентным словом
         if (data.title) {
           document.title = data.title.replace(/\*\*(.*?)\*\*/g, '$1').trim();
           pageTitle.innerHTML = data.title.replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
         }
 
-        // 2. Описание: парсинг **слов** и переносов строк
+        // 2. Описание: замена ** на span.highlight (без жирности)
         if (data.description) {
           pageDesc.innerHTML = data.description
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>')
             .replace(/\n/g, '<br>');
         }
 
-        // 3. Подвал: контакты и авто-подстановка года
+        // 3. Подвал: ссылки и актуальный год
         const currentYear = new Date().getFullYear();
         let footerText = data.footer && data.footer.trim() 
           ? data.footer 
           : `[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Anton Ivchenko / Rick Antilles. All rights reserved.`;
 
-        // Парсинг Markdown-ссылок
         footerText = footerText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-
-        // Подстановка актуального года
         footerText = footerText.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
         pageFooter.innerHTML = footerText.replace(/\n/g, '<br>');
 
@@ -123,7 +120,7 @@
           gallery.appendChild(el);
         });
 
-        // 5. Градиент
+        // 5. Применение градиента
         const pairCount = Math.ceil(images.length / 2);
         applyDynamicGradient(data, pairCount);
 
