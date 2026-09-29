@@ -31,10 +31,10 @@ header h1 {
   color: rgba(245, 245, 247, 0.75);
 }
 
-/* Акцент на слове «Френеля» */
+/* Акцент на слове «Френеля»: строго та же толщина шрифта, только белый цвет */
 header h1 .title-accent {
+  font-weight: inherit !important;
   color: #ffffff;
-  font-weight: 500;
 }
 
 .description {
@@ -45,13 +45,13 @@ header h1 .title-accent {
   font-weight: 400;
 }
 
-/* Акцентные слова: гарантированно обычная толщина, только цвет */
+/* Акцентные слова в тексте: обычная толщина, только цвет */
 .description .highlight {
   font-weight: 400 !important;
   color: #ffffff;
 }
 
-/* Подпись автора под текстом */
+/* Авторская подпись под текстом */
 .author-line {
   display: block;
   margin-top: 2.8rem;
