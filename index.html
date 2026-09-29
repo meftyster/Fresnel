@@ -15,6 +15,8 @@
 
   <main class="gallery-grid" id="gallery"></main>
 
+  <footer id="footer" class="site-footer"></footer>
+
   <div class="modal" id="modal">
     <img id="modalImg" src="" alt="Fullscreen">
   </div>
@@ -23,10 +25,10 @@
     const gallery = document.getElementById('gallery');
     const pageTitle = document.getElementById('title');
     const pageDesc = document.getElementById('desc');
+    const pageFooter = document.getElementById('footer');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
-    // 20 ритмов смещения
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
@@ -34,25 +36,19 @@
 
     function applyDynamicGradient(data, pairCount) {
       let colors = [];
-
-      // 1. Проверяем, в каком виде пришли цвета
       if (Array.isArray(data.colors) && data.colors.length > 0) {
         colors = data.colors;
       } else if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
-        // Если в data.json старая строка — аккуратно достаем из нее все HEX-коды
         colors = data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || [];
       }
 
       if (colors.length === 0) return;
-
       if (colors.length === 1) {
         document.body.style.backgroundColor = colors[0];
         return;
       }
 
-      // Привязка: старт + шапка/текст + пары + подвал
       const totalStopsNeeded = Math.max(pairCount + 3, colors.length);
-
       const stopColors = [];
       for (let i = 0; i < totalStopsNeeded; i++) {
         stopColors.push(colors[i % colors.length]);
@@ -63,7 +59,6 @@
         return `${color} ${percent}%`;
       });
 
-      // Применяем градиент под углом 168deg
       const gradientStyle = `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
       document.body.style.backgroundImage = gradientStyle;
       document.documentElement.style.backgroundImage = gradientStyle;
@@ -74,7 +69,7 @@
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
 
-        // Тексты
+        // 1. Шапка
         if (data.title) {
           pageTitle.textContent = data.title;
           document.title = data.title;
@@ -83,7 +78,17 @@
           pageDesc.innerHTML = data.description.replace(/\n/g, '<br>');
         }
 
-        // Фотографии
+        // 2. Подвал с авто-подстановкой текущего года
+        const currentYear = new Date().getFullYear();
+        let footerText = data.footer && data.footer.trim() 
+          ? data.footer 
+          : `© ${currentYear} Anton Ivchenko / Rick Antilles. All rights reserved.`;
+        
+        // Заменяем токен [year] или любой жестко прописанный 4-значный год на актуальный
+        footerText = footerText.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
+        pageFooter.innerHTML = footerText.replace(/\n/g, '<br>');
+
+        // 3. Вывод фото карточек со смещением
         gallery.innerHTML = '';
         const images = data.images || [];
         images.forEach((item, index) => {
@@ -111,7 +116,7 @@
           gallery.appendChild(el);
         });
 
-        // Наложение градиента
+        // 4. Градиент
         const pairCount = Math.ceil(images.length / 2);
         applyDynamicGradient(data, pairCount);
 
