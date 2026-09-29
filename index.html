@@ -26,20 +26,31 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
-    // 20 ритмов вертикального смещения пар
+    // 20 ритмов смещения
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
     ];
 
-    function applyDynamicGradient(colors, pairCount) {
-      if (!colors || colors.length === 0) return;
+    function applyDynamicGradient(data, pairCount) {
+      let colors = [];
+
+      // 1. Проверяем, в каком виде пришли цвета
+      if (Array.isArray(data.colors) && data.colors.length > 0) {
+        colors = data.colors;
+      } else if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
+        // Если в data.json старая строка — аккуратно достаем из нее все HEX-коды
+        colors = data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || [];
+      }
+
+      if (colors.length === 0) return;
+
       if (colors.length === 1) {
         document.body.style.backgroundColor = colors[0];
         return;
       }
 
-      // Точки привязки: 1 (верх) + 1 (текст) + N (пар) + 1 (низ/подвал)
+      // Привязка: старт + шапка/текст + пары + подвал
       const totalStopsNeeded = Math.max(pairCount + 3, colors.length);
 
       const stopColors = [];
@@ -52,8 +63,10 @@
         return `${color} ${percent}%`;
       });
 
-      // Единый мягкий диагональный угол 168deg
-      document.body.style.background = `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
+      // Применяем градиент под углом 168deg
+      const gradientStyle = `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
+      document.body.style.backgroundImage = gradientStyle;
+      document.documentElement.style.backgroundImage = gradientStyle;
     }
 
     async function init() {
@@ -61,7 +74,7 @@
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
 
-        // 1. Тексты
+        // Тексты
         if (data.title) {
           pageTitle.textContent = data.title;
           document.title = data.title;
@@ -70,7 +83,7 @@
           pageDesc.innerHTML = data.description.replace(/\n/g, '<br>');
         }
 
-        // 2. Карточки 9:16 со смещением
+        // Фотографии
         gallery.innerHTML = '';
         const images = data.images || [];
         images.forEach((item, index) => {
@@ -98,13 +111,12 @@
           gallery.appendChild(el);
         });
 
-        // 3. Вычисление градиента
+        // Наложение градиента
         const pairCount = Math.ceil(images.length / 2);
-        const colorsList = data.colors && data.colors.length > 0 ? data.colors : (data.gradient ? [data.gradient] : []);
-        applyDynamicGradient(colorsList, pairCount);
+        applyDynamicGradient(data, pairCount);
 
       } catch (e) {
-        console.error("Ошибка инициализации:", e);
+        console.error("Ошибка загрузки:", e);
       }
     }
 
