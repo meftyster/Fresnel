@@ -26,17 +26,43 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
+    // Наш паттерн сдвигов на 20 пар (значения в rem)
+    // Положительное число = правое фото ниже левого
+    // Отрицательное число = левое фото ниже правого (зеркальный шаг)
+    const offsets = [
+      7,    // Пара 01
+      3.5,  // Пара 02
+      11,   // Пара 03
+      -6,   // Пара 04 (зеркало)
+      8,    // Пара 05
+      2.5,  // Пара 06
+      10.5, // Пара 07
+      -4,   // Пара 08 (зеркало)
+      6.5,  // Пара 09
+      12,   // Пара 10
+      4,    // Пара 11
+      8.5,  // Пара 12
+      -7,   // Пара 13 (зеркало)
+      3,    // Пара 14
+      11.5, // Пара 15
+      6,    // Пара 16
+      -5,   // Пара 17 (зеркало)
+      9,    // Пара 18
+      3.5,  // Пара 19
+      7.5   // Пара 20
+    ];
+
     async function init() {
       try {
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
 
-        // 1. Градиент
+        // 1. Применяем градиент
         if (data.gradient && data.gradient !== "none") {
           document.body.style.background = data.gradient;
         }
 
-        // 2. Тексты
+        // 2. Заголовки и текст
         if (data.title) {
           pageTitle.textContent = data.title;
           document.title = data.title;
@@ -45,15 +71,31 @@
           pageDesc.innerHTML = data.description.replace(/\n/g, '<br>');
         }
 
-        // 3. Вывод фото парами со смещением
+        // 3. Вывод фото с динамическим ритмическим сдвигом
         gallery.innerHTML = '';
-        (data.images || []).forEach(item => {
+        (data.images || []).forEach((item, index) => {
           const el = document.createElement('div');
           el.className = 'photo-item';
-          el.innerHTML = `
-            <img src="${item.src}" alt="${item.title}" loading="lazy">
-            <span class="photo-title">${item.title}</span>
-          `;
+
+          // Вычисляем номер пары (0, 1, 2...)
+          const pairIndex = Math.floor(index / 2);
+          // Берем сдвиг из массива с зацикливанием по остатку от деления
+          const shiftValue = offsets[pairIndex % offsets.length];
+
+          // Для четного индекса (левое фото) или нечетного (правое фото)
+          let itemOffset = 0;
+          if (index % 2 === 0) {
+            // Если сдвиг отрицательный — опускаем левое фото
+            itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
+          } else {
+            // Если положительный — опускаем правое фото
+            itemOffset = shiftValue > 0 ? shiftValue : 0;
+          }
+
+          // Передаем точное смещение в CSS-переменную
+          el.style.setProperty('--offset', `${itemOffset}rem`);
+
+          el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
 
           el.querySelector('img').addEventListener('click', () => {
             modalImg.src = item.src;
