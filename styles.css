@@ -31,12 +31,12 @@ header h1 {
   color: rgba(245, 245, 247, 0.75);
 }
 
-/* Акцент в заголовке: span, strong, b — одинаковая толщина и цвет янтаря */
+/* Акцент в заголовке */
 header h1 .title-accent,
 header h1 strong,
 header h1 b {
   font-weight: inherit !important;
-  color: #f7e5c8 !important;
+  color: #f3dfc0 !important;
 }
 
 .description {
@@ -47,16 +47,16 @@ header h1 b {
   font-weight: 400;
 }
 
-/* Перехват любого выделения в описании: строгий сброс веса и цвет #f7e5c8 */
+/* Акцентные слова в манифесте */
 .description .highlight,
 .description strong,
 .description b {
   font-weight: inherit !important;
   font-weight: 400 !important;
-  color: #f7e5c8 !important;
+  color: #f3dfc0 !important;
 }
 
-/* Подпись автора под текстом */
+/* Авторская подпись под текстом */
 .author-line {
   display: block;
   margin-top: 2.8rem;
@@ -118,7 +118,7 @@ header h1 b {
 }
 
 .site-footer a:hover {
-  color: #f7e5c8;
+  color: #f3dfc0;
 }
 
 /* Полноэкранный просмотр */
