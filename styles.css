@@ -15,7 +15,7 @@ body {
   background-color: #0b0d10;
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  padding: 5rem 2rem 14rem;
+  padding: 5rem 2rem 8rem;
 }
 
 header {
@@ -70,6 +70,17 @@ header h1 {
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6);
 }
 
+/* Подвал */
+.site-footer {
+  max-width: 1080px;
+  margin: 12rem auto 0;
+  text-align: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: rgba(245, 245, 247, 0.45);
+  line-height: 1.6;
+}
+
 /* Полноэкранный просмотр */
 .modal {
   display: none;
@@ -102,5 +113,8 @@ header h1 {
   }
   .photo-item {
     margin-top: 0 !important;
+  }
+  .site-footer {
+    margin-top: 6rem;
   }
 }
