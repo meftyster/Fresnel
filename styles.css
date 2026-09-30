@@ -1,215 +1,148 @@
+:root {
+  --bg-color: #0b0c10;
+  --text-main: #e6e6e6;
+  --text-dim: #8a8d93;
+  --accent: #f3dfc0;
+  --glass-bg: rgba(20, 22, 28, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(243, 223, 192, 0.12);
+  --glass-hover-border: rgba(243, 223, 192, 0.35);
+  --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ==========================================================================
-   ГЛОБАЛЬНЫЙ ПУЛЬТ УПРАВЛЕНИЯ СВЕТОМ
-   ========================================================================== */
-:root {
-  --glow-x: 0px;
-  --glow-y: 16px;
-  --glow-blur: 80px;
-  --glow-spread: 10px;
-  --glow-alpha: 0.4;
-
-  /* Настройки при наведении (hover) */
-  --glow-hover-x: 24px;
-  --glow-hover-y: 44px;
-  --glow-hover-blur: 56px;
-  --glow-hover-spread: -12px;
-  --glow-hover-alpha: 0.85;
-}
-
-html {
-  min-height: 100%;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #f5f5f7;
+html, body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   min-height: 100vh;
-  background-color: #0b0d10;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  overflow-x: hidden;
+  transition: background-image 1.2s ease, background-color 1.2s ease;
 }
 
-/* ==========================================================================
-   ГЛАВНАЯ СТРАНИЦА: ШАПКА И СЕТКА (index.html)
-   ========================================================================== */
-body.page-index {
-  padding: 5rem 2rem 12rem;
+/* Блокировка прокрутки при открытии модалки */
+body.modal-open {
+  overflow: hidden !important;
 }
 
-header {
-  max-width: 660px;
-  margin: 0 auto 10.5rem;
-  text-align: left;
-}
-
-header h1 {
-  font-size: 2.8rem;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  color: rgba(245, 245, 247, 0.75);
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-header h1 .title-accent,
-header h1 strong,
-header h1 b {
-  font-weight: inherit !important;
-  color: #f3dfc0 !important;
-}
-
-.description {
-  margin-top: 0;
-  color: rgba(245, 245, 247, 0.72);
-  font-size: 1.12rem;
-  line-height: 1.8;
-  font-weight: 400;
-  text-align: left;
-}
-
-.description .highlight,
-.description strong,
-.description b {
-  font-weight: inherit !important;
-  font-weight: 400 !important;
-  color: #f3dfc0 !important;
-}
-
-.author-line {
-  display: block;
-  margin-top: 3.5rem;
-  font-size: 0.92rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(245, 245, 247, 0.45);
-  font-weight: 400;
-  text-align: center;
-}
-
-/* ==========================================================================
-   ОБЩАЯ ДВУХКОЛОНОЧНАЯ СЕТКА (1080px) ДЛЯ INDEX И STREAM
-   ========================================================================== */
-.gallery-grid,
-.stream-group {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 4.5rem;
-  row-gap: 8rem;
+/* Специфика страницы непрерывного потока */
+body.page-stream {
   width: 100%;
-  max-width: 1080px;
-  margin: 0 auto;
-  box-sizing: border-box;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.stream-group {
-  padding: 8rem 2rem;
+.stream-viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  cursor: grab;
 }
 
-/* ==========================================================================
-   КАРТОЧКИ ФОТО: ФИЗИКА СВЕТА И СМЕЩЕНИЕ ПО X / Y
-   ========================================================================== */
-.photo-item,
-.photo-card {
+.stream-viewport:active {
+  cursor: grabbing;
+}
+
+.stream-track {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 100%;
   display: flex;
   flex-direction: column;
-  margin-top: var(--offset, 0rem);
-  box-sizing: border-box;
+  align-items: center;
+  will-change: transform;
 }
 
-.photo-item img,
+.stream-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3.5rem 4rem;
+  max-width: 1200px;
+  width: 100%;
+  padding: 5rem 1.5rem;
+}
+
+/* Элементы потока */
+.photo-card {
+  width: calc(50% - 2rem);
+  max-width: 500px;
+  margin-top: var(--offset, 0rem);
+  transform: translateX(var(--x-offset, 0%));
+  transition: transform 0.4s var(--ease-smooth);
+}
+
 .photo-card img {
   width: 100%;
   height: auto;
-  aspect-ratio: 9 / 16;
-  object-fit: cover;
   display: block;
   border-radius: 4px;
-  box-shadow: var(--glow-x) var(--glow-y) var(--glow-blur) var(--glow-spread) 
-              rgb(from var(--glow-color, #f5f5f7) r g b / var(--glow-alpha));
-  cursor: zoom-in;
-  pointer-events: auto;
-  transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.photo-card img {
+  box-shadow: 0 10px 30px -10px var(--glow-color, rgba(0, 0, 0, 0.5));
   cursor: pointer;
+  transition: transform 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
 }
 
-.photo-item img:hover,
 .photo-card img:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--glow-hover-x) var(--glow-hover-y) var(--glow-hover-blur) var(--glow-spread) 
-              rgb(from var(--glow-color, #f5f5f7) r g b / var(--glow-hover-alpha));
+  transform: scale(1.02);
+  box-shadow: 0 18px 45px -10px var(--glow-color, rgba(0, 0, 0, 0.7));
 }
 
-/* ==========================================================================
-   КНОПКИ ИНТЕРФЕЙСА: НАЗАД, ЗВУК И ПЕРЕХОД В СТРИМ
-   ========================================================================== */
-.back-btn,
+/* Верхние плавающие кнопки */
 .sound-btn,
-.stream-nav-btn {
+.stream-nav-btn,
+.back-btn {
   position: fixed;
   z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: rgba(11, 13, 16, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(245, 245, 247, 0.08);
-  color: rgba(245, 245, 247, 0.6);
-  text-decoration: none;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  outline: none;
+  color: var(--text-main);
+  text-decoration: none;
   opacity: 0;
-  visibility: hidden;
-  transform: scale(0.92);
-  transition: opacity 0.5s cubic-bezier(0.2, 0, 0, 1),
-              transform 0.5s cubic-bezier(0.2, 0, 0, 1),
-              visibility 0.5s ease,
-              color 0.25s ease,
-              background 0.25s ease,
-              border-color 0.25s ease;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
-.back-btn {
-  top: 1.8rem;
-  left: 1.8rem;
-}
-
-.sound-btn {
-  top: 1.8rem;
-  right: 1.8rem;
-}
-
-.stream-nav-btn {
-  top: 5.2rem;
-  right: 1.8rem;
-}
-
-.back-btn.visible,
 .sound-btn.visible,
-.stream-nav-btn.visible {
+.stream-nav-btn.visible,
+.back-btn.visible {
   opacity: 1;
-  visibility: visible;
-  transform: scale(1);
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
-.back-btn svg,
+.sound-btn:hover,
+.stream-nav-btn:hover,
+.back-btn:hover {
+  background: var(--glass-hover);
+  border-color: var(--glass-hover-border);
+  color: var(--accent);
+}
+
 .sound-btn svg,
-.stream-nav-btn svg {
+.stream-nav-btn svg,
+.back-btn svg {
   width: 18px;
   height: 18px;
   stroke: currentColor;
@@ -217,242 +150,184 @@ header h1 b {
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
-  transition: transform 0.25s ease, stroke 0.25s ease;
 }
 
-.sound-btn svg,
-.sound-btn svg *,
-.stream-nav-btn svg,
-.stream-nav-btn svg * {
-  pointer-events: none;
+.sound-btn {
+  top: 1.5rem;
+  right: 1.5rem;
 }
 
-.back-btn:hover,
-.sound-btn:hover,
-.stream-nav-btn:hover {
-  color: #f3dfc0;
-  background: rgba(20, 24, 30, 0.75);
-  border-color: rgba(243, 223, 192, 0.3);
+.stream-nav-btn {
+  top: 4.8rem;
+  right: 1.5rem;
 }
 
-.back-btn:hover svg {
-  transform: translateX(-2px);
+.back-btn {
+  top: 1.5rem;
+  left: 1.5rem;
 }
 
-.stream-nav-btn:hover svg {
-  transform: scale(1.08);
-}
+.sound-btn .icon-sound { display: none; }
+.sound-btn .icon-mute { display: block; }
+.sound-btn.playing .icon-sound { display: block; }
+.sound-btn.playing .icon-mute { display: none; }
 
-.sound-btn.playing {
-  color: #f3dfc0;
-  border-color: rgba(243, 223, 192, 0.28);
-}
-
-.sound-btn .icon-mute {
-  display: block;
-}
-
-.sound-btn .icon-sound {
-  display: none;
-}
-
-.sound-btn.playing .icon-mute {
-  display: none;
-}
-
-.sound-btn.playing .icon-sound {
-  display: block;
-}
-
-/* ==========================================================================
-   ПОДВАЛ (index.html)
-   ========================================================================== */
-.site-footer {
-  max-width: 1080px;
-  margin: 16rem auto 0;
+/* Галерея (index.html) */
+header {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 7rem 1.5rem 3rem 1.5rem;
   text-align: center;
-  font-size: 0.9rem;
-  letter-spacing: 0.04em;
-  color: rgba(245, 245, 247, 0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.footer-mode-link {
-  margin-bottom: 3.2rem;
+h1 {
+  font-size: 2.2rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  color: #fff;
 }
 
-.footer-mode-link a {
+.title-accent,
+.highlight {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.description {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-dim);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.author-line {
   display: inline-block;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-main);
+  opacity: 0.75;
+}
+
+.gallery-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4rem 4.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 6rem 1.5rem;
+}
+
+.photo-item {
+  width: calc(50% - 2.25rem);
+  max-width: 520px;
+  margin-top: var(--offset, 0rem);
+  transform: translateX(var(--x-offset, 0%));
+}
+
+.photo-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px -10px var(--glow-color, rgba(0, 0, 0, 0.5));
+  cursor: pointer;
+  transition: transform 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
+}
+
+.photo-item img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 18px 45px -10px var(--glow-color, rgba(0, 0, 0, 0.7));
+}
+
+/* Футер */
+.site-footer {
+  text-align: center;
+  padding: 4rem 1.5rem 6rem 1.5rem;
+  color: var(--text-dim);
   font-size: 0.95rem;
-  letter-spacing: 0.08em;
-  text-transform: lowercase;
-  color: rgba(243, 223, 192, 0.75);
-  text-decoration: none;
-  transition: color 0.25s ease, opacity 0.25s ease;
+  line-height: 1.8;
 }
 
-.footer-mode-link a:hover {
-  color: #f3dfc0;
-  opacity: 1;
-}
-
-.footer-contacts {
-  margin-bottom: 1.2rem;
-}
-
-.footer-contacts a {
-  color: inherit;
+.site-footer a {
+  color: var(--text-main);
   text-decoration: none;
   transition: color 0.25s ease;
 }
 
-.footer-contacts a:hover {
-  color: #f3dfc0;
+.site-footer a:hover {
+  color: var(--accent);
+}
+
+.footer-mode-link {
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+}
+
+.footer-contacts {
+  margin-bottom: 1.5rem;
 }
 
 .footer-copyright {
   font-size: 0.85rem;
-  color: rgba(245, 245, 247, 0.35);
-  line-height: 1.6;
+  opacity: 0.6;
 }
 
-/* ==========================================================================
-   МОДАЛЬНОЕ ОКНО ФОКУСА
-   ========================================================================== */
+/* Модальное окно */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(4, 5, 7, 0.98);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   z-index: 1000;
+  background: rgba(10, 11, 14, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  cursor: zoom-out;
-  padding: 2rem;
+  justify-content: center;
   opacity: 0;
-  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.35s cubic-bezier(0.2, 0, 0, 1), visibility 0.35s ease;
+  transition: opacity 0.35s var(--ease-smooth);
 }
 
 .modal.active {
   opacity: 1;
-  visibility: visible;
   pointer-events: auto;
 }
 
 .modal img {
-  max-width: 92vw;
+  max-width: 90vw;
   max-height: 90vh;
   object-fit: contain;
   border-radius: 4px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 245, 247, 0.08);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
   transform: scale(0.96);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.35s var(--ease-smooth);
 }
 
 .modal.active img {
   transform: scale(1);
 }
 
-/* ==========================================================================
-   МОБИЛЬНАЯ ВЕРСИЯ (<= 768px)
-   ========================================================================== */
+/* Адаптив для мобильных устройств */
 @media (max-width: 768px) {
-  body.page-index {
-    padding: 3.5rem 1rem 8rem;
-  }
-
-  header {
-    margin-bottom: 5.5rem;
-    max-width: 100%;
-    padding: 0 0.5rem;
-  }
-
-  header h1 {
-    font-size: 2.1rem;
-    margin-bottom: 1.8rem;
-  }
-
-  .description {
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-
-  .author-line {
-    margin-top: 2.5rem;
+  .photo-item,
+  .photo-card {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 0 !important;
   }
 
   .gallery-grid,
   .stream-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    row-gap: 5rem;
-    column-gap: 0;
-    width: 100%;
+    gap: 3rem 0;
+    padding-top: 2rem;
   }
 
-  .stream-group {
-    padding: 6rem 1rem;
-  }
-
-  .photo-item,
-  .photo-card {
-    margin-top: 0 !important;
-    width: 91%;
-    max-width: 430px;
-    transform: translateX(var(--x-offset, 0%));
-  }
-
-  .photo-item img,
-  .photo-card img {
-    box-shadow: var(--glow-x) var(--glow-y) var(--glow-blur) var(--glow-spread) 
-                rgb(from var(--glow-color, #f5f5f7) r g b / var(--glow-alpha));
-  }
-
-  .back-btn,
-  .sound-btn,
-  .stream-nav-btn {
-    width: 38px;
-    height: 38px;
-  }
-
-  .back-btn {
-    top: 1.2rem;
-    left: 1.2rem;
-  }
-
-  .sound-btn {
-    top: 1.2rem;
-    right: 1.2rem;
-  }
-
-  .stream-nav-btn {
-    top: 4.2rem;
-    right: 1.2rem;
-  }
-
-  .back-btn svg,
-  .sound-btn svg,
-  .stream-nav-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .site-footer {
-    margin-top: 9rem;
-  }
-
-  .footer-mode-link {
-    margin-bottom: 2.6rem;
-  }
-
-  .footer-contacts {
-    margin-bottom: 1rem;
+  h1 {
+    font-size: 1.75rem;
   }
 }
