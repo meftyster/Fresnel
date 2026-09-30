@@ -6,6 +6,25 @@
   <title>Эффект Френеля — Поток</title>
   <link rel="stylesheet" href="styles.css?v=26">
   <script src="./gallery-core.js?v=5"></script>
+  <style>
+    /* Стили для подписи в модальном окне */
+    .modal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-caption {
+      margin-top: 1rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.75);
+      text-align: center;
+      pointer-events: none;
+      text-transform: lowercase;
+    }
+  </style>
 </head>
 <body class="page-stream">
 
@@ -41,6 +60,7 @@
   <!-- Модальное окно фокуса -->
   <div class="modal" id="modal" aria-hidden="true">
     <img id="modalImg" src="" alt="Фокус на изображении">
+    <div class="modal-caption" id="modalCaption"></div>
   </div>
 
   <script>
@@ -50,6 +70,7 @@
     const groupClone = document.getElementById('groupClone');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
+    const modalCaption = document.getElementById('modalCaption');
     const backBtn = document.getElementById('backBtn');
     const soundBtn = document.getElementById('soundBtn');
 
@@ -296,7 +317,6 @@
         return;
       }
 
-      // Стандартный полноценный градиент с заменой последнего цвета на первый для петли
       const stopsNeeded = Math.max(count + 2, colors.length);
       const singleCycleColors = [];
       for (let i = 0; i < stopsNeeded; i++) {
@@ -340,6 +360,9 @@
 
     function openModal(src) {
       modalImg.src = src;
+      const fileName = src.split('/').pop().replace(/\.[^/.]+$/, '');
+      modalCaption.textContent = fileName;
+
       modal.classList.add('active');
       modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('modal-open');
@@ -352,6 +375,7 @@
       setTimeout(() => {
         if (!modal.classList.contains('active')) {
           modalImg.src = '';
+          modalCaption.textContent = '';
         }
       }, 300);
     }
@@ -471,8 +495,6 @@
 
         const images = GalleryCore.sortImages(rawImages);
         const allColors = GalleryCore.extractColors(data);
-        
-        // Палитра для глоу на стриме начинается со 2-го цвета (индекс 1)
         const photoColors = allColors.slice(1, 19);
 
         groupOriginal.innerHTML = '';
