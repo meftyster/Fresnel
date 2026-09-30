@@ -316,7 +316,7 @@ h1 {
   font-weight: 600;
 }
 
-/* === КНОПКА ЯЗЫКА В ПОТОКЕ (ДЕСКТОП: 18px с учетом рамки 20x20) === */
+/* === КНОПКА ЯЗЫКА В ПОТОКЕ (ДЕСКТОП: 20x20 с рамкой, поднята на 2px выше) === */
 .lang-switch-btn {
   display: inline-grid;
   place-items: center;
@@ -333,7 +333,7 @@ h1 {
   padding: 0;
   margin: 0 0 0 0.6rem;
   
-  top: -0.16em;
+  top: -0.23em;
   
   background: var(--glass-bg);
   backdrop-filter: blur(16px) saturate(160%);
@@ -537,7 +537,7 @@ h1 {
   }
 }
 
-/* === АДАПТИВНОСТЬ: ДО 768px (ПЛАНШЕТЫ: 15px с учетом рамки 17x17) === */
+/* === АДАПТИВНОСТЬ: ДО 768px (ПЛАНШЕТЫ: 17x17, поднята на 1px выше) === */
 @media (max-width: 768px) {
   header {
     text-align: left;
@@ -566,6 +566,7 @@ h1 {
     min-width: 17px;
     min-height: 17px;
     margin-left: 0.5rem;
+    top: -0.22em;
   }
 
   .lang-switch-btn .icon-cross {
@@ -619,7 +620,7 @@ h1 {
   }
 }
 
-/* === АДАПТИВНОСТЬ: ДО 480px (МОБИЛКИ: 12px с учетом рамки 14x14) === */
+/* === АДАПТИВНОСТЬ: ДО 480px (МОБИЛКИ: 14x14, поднята на 1px выше) === */
 @media (max-width: 480px) {
   header {
     padding-top: 1.5rem;
@@ -649,6 +650,7 @@ h1 {
     min-width: 14px;
     min-height: 14px;
     margin-left: 0.4rem;
+    top: -0.22em;
   }
 
   .lang-switch-btn .icon-cross {
