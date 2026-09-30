@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Эффект Френеля — Поток</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* Скрываем системный скроллбар */
+      background-color: #0b0d10;
+    }
+
+    /* Фоновый градиент на весь экран */
+    .background-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    /* Окно просмотра */
+    .stream-viewport {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Бегущая лента */
+    .stream-track {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 440px; /* Элегантная ширина ленты по центру экрана */
+      padding: 0 1rem;
+      /* Регулировка скорости: 120s для медитативного хода */
+      animation: infiniteScroll 120s linear infinite;
+      will-change: transform;
+    }
+
+    /* Пауза при наведении мыши */
+    .stream-viewport:hover .stream-track {
+      animation-play-state: paused;
+    }
+
+    /* Группа фотографий (оригинал и клон) */
+    .stream-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4.5rem; /* Дистанция между кадрами */
+      padding-bottom: 4.5rem;
+      width: 100%;
+    }
+
+    .photo-card {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      transform: translateX(var(--x-offset, 0%));
+    }
+
+    .photo-card img {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .photo-card img:hover {
+      transform: scale(1.02);
+    }
+
+    /* Цикл бесконечного скольжения */
+    @keyframes infiniteScroll {
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        transform: translateY(-50%); /* Смещаем ровно на высоту первой группы */
+      }
+    }
+
+    /* Модальное окно */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 2rem;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal img {
+      max-width: 94vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-canvas" id="bg"></div>
+
+  <div class="stream-viewport">
+    <div class="stream-track" id="track">
+      <!-- Группа 1 (оригинал) -->
+      <div class="stream-group" id="groupOriginal"></div>
+      <!-- Группа 2 (клон для бесшовного зацикливания) -->
+      <div class="stream-group" id="groupClone" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <img id="modalImg" src="" alt="Fullscreen">
+  </div>
+
+  <script>
+    const groupOriginal = document.getElementById('groupOriginal');
+    const groupClone = document.getElementById('groupClone');
+    const bg = document.getElementById('bg');
+    const track = document.getElementById('track');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modalImg');
+
+    // Тот самый живой ритмичный дрейф
+    const mobileOffsets = [
+      -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
+       3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
+       1.2, -1.0,  3.6, -3.5, -1.8,  2.2,  3.2, -2.5,  0.0,  3.4,
+      -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
+    ];
+
+    function applyDynamicGradient(data, count) {
+      let colors = [];
+      if (Array.isArray(data.colors) && data.colors.length > 0) {
+        colors = data.colors;
+      } else if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
+        colors = data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || [];
+      }
+
+      if (colors.length === 0) return;
+      if (colors.length === 1) {
+        bg.style.backgroundColor = colors[0];
+        return;
+      }
+
+      const totalStopsNeeded = Math.max(count + 3, colors.length);
+      const stopColors = [];
+      for (let i = 0; i < totalStopsNeeded; i++) {
+        stopColors.push(colors[i % colors.length]);
+      }
+
+      const stopsWithPercents = stopColors.map((color, index) => {
+        const percent = Math.round((index / (totalStopsNeeded - 1)) * 100);
+        return `${color} ${percent}%`;
+      });
+
+      bg.style.backgroundImage = `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
+    }
+
+    function createPhotoElement(item, index) {
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+
+      const shift = mobileOffsets[index % mobileOffsets.length];
+      card.style.setProperty('--x-offset', `${shift}%`);
+
+      const img = document.createElement('img');
+      img.src = item.src;
+      img.loading = 'lazy';
+
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modalImg.src = item.src;
+        modal.classList.add('active');
+      });
+
+      card.appendChild(img);
+      return card;
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('data.json?v=' + Date.now());
+        const data = await res.json();
+        const images = data.images || [];
+
+        if (images.length === 0) return;
+
+        // Создаем оригинальную ленту и её дубликат
+        images.forEach((item, index) => {
+          groupOriginal.appendChild(createPhotoElement(item, index));
+          groupClone.appendChild(createPhotoElement(item, index));
+        });
+
+        // Динамический расчёт длительности: ~3.5 секунды на кадр для плавного созерцания
+        const totalDuration = Math.max(45, images.length * 3.5);
+        track.style.animationDuration = `${totalDuration}s`;
+
+        // Применяем градиент
+        applyDynamicGradient(data, images.length);
+
+      } catch (err) {
+        console.error('Ошибка инициализации потока:', err);
+      }
+    }
+
+    // Закрытие модального окна
+    modal.addEventListener('click', () => modal.classList.remove('active'));
+
+    init();
+  </script>
+</body>
+</html>
