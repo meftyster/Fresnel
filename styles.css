@@ -146,12 +146,12 @@ body.page-stream {
   pointer-events: none;
 }
 
-/* Элементы потока */
+/* Элементы потока: горизонтальный сдвиг + вертикальный микро-дрейф */
 .photo-card {
   width: calc(50% - 2rem);
   max-width: 500px;
   margin-top: var(--offset, 0rem);
-  transform: translateX(var(--x-offset, 0%));
+  transform: translate(var(--x-offset, 0%), var(--y-nudge, 0%));
   transition: transform 0.6s var(--ease-smooth);
 }
 
@@ -343,11 +343,12 @@ h1 {
   padding: 2rem 1.5rem 6rem 1.5rem;
 }
 
+/* Элементы галереи: горизонтальный сдвиг + вертикальный микро-дрейф */
 .photo-item {
   width: calc(50% - 2.25rem);
   max-width: 520px;
   margin-top: var(--offset, 0rem);
-  transform: translateX(var(--x-offset, 0%));
+  transform: translate(var(--x-offset, 0%), var(--y-nudge, 0%));
   transition: transform 0.6s var(--ease-smooth);
 }
 
@@ -458,7 +459,7 @@ h1 {
   transform: scale(1);
 }
 
-/* Диапазон от 1280px до 769px: свободные поля под горизонтальный сдвиг */
+/* Диапазон от 1280px до 769px: свободные поля под сдвиг */
 @media (max-width: 1280px) and (min-width: 769px) {
   .gallery-grid,
   .stream-group {
@@ -475,7 +476,7 @@ h1 {
   }
 }
 
-/* Мобильные экраны до 768px: верх 1.5rem вровень с верхней кнопкой, отступ справа 5rem под 3 кнопки */
+/* Мобильные экраны до 768px */
 @media (max-width: 768px) {
   header {
     text-align: left;
@@ -524,10 +525,10 @@ h1 {
     margin-top: 0 !important;
   }
 
-  /* Первая фотография стоит строго в левом створе без смещения */
+  /* Первое фото: X фиксируется на 0, а вертикальный микро-дрейф Y разрешён */
   .photo-item:first-child,
   .photo-card:first-child {
-    transform: none !important;
+    transform: translate(0, var(--y-nudge, 0%)) !important;
   }
 
   .site-footer {
@@ -535,7 +536,7 @@ h1 {
   }
 }
 
-/* Экраны 480px и ниже: размер фото 75%, текст 12px, строгий створ первой фото */
+/* Экраны 480px и ниже */
 @media (max-width: 480px) {
   header {
     padding-top: 1.5rem;
@@ -581,8 +582,9 @@ h1 {
     margin-top: 0 !important;
   }
 
+  /* Первое фото: X фиксируется на 0, а вертикальный микро-дрейф Y разрешён */
   .photo-item:first-child,
   .photo-card:first-child {
-    transform: none !important;
+    transform: translate(0, var(--y-nudge, 0%)) !important;
   }
 }
