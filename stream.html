@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <!-- Все визуальные стили, карточки, сетка и модалка подключены из styles.css -->
+  <!-- Все визуальные стили карточек, сетки, света и модалки берутся из styles.css -->
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Исключительно правила кинематики виртуального скролла */
+    /* Исключительно правила кинематики виртуального полотна */
     html, body {
       width: 100%;
       height: 100%;
@@ -130,7 +130,7 @@
     let lastTime = 0;
     let isDragThresholdPassed = false;
 
-    // Сортировка строго по числовому индексу в имени файла
+    // Сортировка по числовому номеру в имени файла (1, 2, ... 10)
     function sortImagesByNumericIndex(images) {
       return [...images].sort((a, b) => {
         const nameA = (a.src || '').split('/').pop();
@@ -143,26 +143,24 @@
       });
     }
 
-    function hexToRgba(hex, alpha) {
-      let c = (hex || '#f5f5f7').replace('#', '').trim();
-      if (c.length === 3) {
-        c = c.split('').map(x => x + x).join('');
+    function extractColors(data) {
+      if (Array.isArray(data.colors) && data.colors.length > 0) return data.colors;
+      if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
+        return data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || ['#f5f5f7'];
       }
-      const num = parseInt(c, 16);
-      const r = (num >> 16) & 255;
-      const g = (num >> 8) & 255;
-      const b = num & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      return ['#f5f5f7'];
+    }
+
+    // Исключаем цвет начала (0), акцент текста (1) и подвал (последний)
+    function getPhotoPalette(allColors) {
+      if (allColors.length > 3) {
+        return allColors.slice(2, -1);
+      }
+      return allColors.filter((_, idx) => idx !== 1);
     }
 
     function applyMovingGradient(data, count) {
-      let colors = [];
-      if (Array.isArray(data.colors) && data.colors.length > 0) {
-        colors = data.colors;
-      } else if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
-        colors = data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || [];
-      }
-
+      const colors = extractColors(data);
       if (colors.length === 0) return;
       if (colors.length === 1) {
         track.style.backgroundColor = colors[0];
@@ -188,10 +186,11 @@
       track.style.backgroundImage = `linear-gradient(180deg, ${allStops.join(', ')})`;
     }
 
-    function createPhotoElement(item, index, colors) {
+    function createPhotoElement(item, index, photoColors) {
       const card = document.createElement('div');
       card.className = 'photo-card';
 
+      // Вертикальный ритм для десктопа
       const pairIndex = Math.floor(index / 2);
       const shiftValue = offsets[pairIndex % offsets.length];
       let itemOffset = 0;
@@ -202,13 +201,13 @@
       }
       card.style.setProperty('--offset', `${itemOffset}rem`);
 
+      // Горизонтальный ритм для мобильных экранов
       const mobileShift = mobileOffsets[index % mobileOffsets.length];
       card.style.setProperty('--x-offset', `${mobileShift}%`);
 
-      // Назначаем задний цвет из таблицы цветов для текущей пары
-      const pairColorHex = colors[pairIndex % colors.length];
-      card.style.setProperty('--glow-color', hexToRgba(pairColorHex, 0.16));
-      card.style.setProperty('--glow-hover', hexToRgba(pairColorHex, 0.26));
+      // Назначаем чистый цвет пары (прозрачность, размытие и ховер контролируются в styles.css)
+      const pairColorHex = photoColors[pairIndex % photoColors.length];
+      card.style.setProperty('--glow-color', pairColorHex);
 
       const img = document.createElement('img');
       img.src = item.src;
@@ -240,6 +239,7 @@
       }, 300);
     }
 
+    // Кинематика бесконечного скролла
     function animate() {
       const measuredHeight = groupOriginal.offsetHeight;
       if (measuredHeight > 0) {
@@ -336,14 +336,14 @@
 
         if (rawImages.length === 0) return;
 
+        // Числовая сортировка картинок
         const images = sortImagesByNumericIndex(rawImages);
-        const colors = (Array.isArray(data.colors) && data.colors.length > 0)
-          ? data.colors
-          : (typeof data.gradient === 'string' ? data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || ['#f5f5f7'] : ['#f5f5f7']);
+        const allColors = extractColors(data);
+        const photoColors = getPhotoPalette(allColors);
 
         images.forEach((item, index) => {
-          groupOriginal.appendChild(createPhotoElement(item, index, colors));
-          groupClone.appendChild(createPhotoElement(item, index, colors));
+          groupOriginal.appendChild(createPhotoElement(item, index, photoColors));
+          groupClone.appendChild(createPhotoElement(item, index, photoColors));
         });
 
         applyMovingGradient(data, Math.ceil(images.length / 2));
