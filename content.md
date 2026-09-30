@@ -10,7 +10,7 @@
 
 ---
 
-[версия без текста - для наблюдения](stream.html)
+[без текста - для наблюдения](stream.html)
 
 [Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)
 
