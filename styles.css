@@ -275,7 +275,7 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   display: block;
 }
 
-/* Стек из 3 кнопок в правом верхнем углу */
+/* Вертикальный стек из 3 кнопок в правом верхнем углу */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
@@ -330,7 +330,6 @@ header {
   text-align: center;
 }
 
-/* Заголовок как inline-block с позиционированием */
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
@@ -343,7 +342,7 @@ h1 {
   text-align: center;
 }
 
-/* Контейнер заголовка */
+/* Точный размер коробки заголовка */
 .title-text-box {
   display: inline-block;
   width: 290px;
@@ -357,12 +356,12 @@ h1 {
   font-weight: 600;
 }
 
-/* Круглая кнопка со звёздочкой: размер равен x-height, строго на базовой линии */
+/* Кнопка с тонким центрированным крестиком */
 .lang-switch-btn {
   position: absolute;
   left: 100%;
   margin-left: 0.65rem;
-  bottom: 0.18em; /* низ круга касается красной базовой линии текста */
+  bottom: 0.18em; /* низ круга строго на базовой линии строки */
   
   width: 18px;
   height: 18px;
@@ -376,23 +375,27 @@ h1 {
   color: var(--text-dim);
   cursor: pointer;
   outline: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  
+  /* Идеальное центрирование содержимого по осям X и Y */
+  display: grid;
+  place-items: center;
   padding: 0;
+  line-height: 0;
+  
   transform: none !important;
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.3s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
-.lang-switch-btn .icon-star {
-  width: 9.5px;
-  height: 9.5px;
+.lang-switch-btn .icon-cross {
+  width: 10px;
+  height: 10px;
   stroke: currentColor;
-  stroke-width: 1.9;
+  stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
   display: block;
+  transform-origin: center center;
   transition: transform 0.35s var(--ease-smooth);
 }
 
@@ -404,12 +407,17 @@ h1 {
   color: var(--accent);
 }
 
-.lang-switch-btn:hover .icon-star {
+/* Вращение: hover делает микроповорот, а английский язык переводит плюс в крестик (45deg) */
+.lang-switch-btn:hover .icon-cross {
+  transform: rotate(15deg);
+}
+
+.lang-switch-btn.is-eng .icon-cross {
   transform: rotate(45deg);
 }
 
-.lang-switch-btn.is-eng .icon-star {
-  transform: rotate(90deg);
+.lang-switch-btn.is-eng:hover .icon-cross {
+  transform: rotate(60deg);
 }
 
 .description {
@@ -589,7 +597,6 @@ h1 {
     display: inline-block;
   }
 
-  /* Пропорциональный размер коробки заголовка */
   .title-text-box {
     width: 208px;
     text-align: left;
@@ -602,9 +609,9 @@ h1 {
     bottom: 0.16em;
   }
 
-  .lang-switch-btn .icon-star {
-    width: 8.5px;
-    height: 8.5px;
+  .lang-switch-btn .icon-cross {
+    width: 9px;
+    height: 9px;
   }
 
   .scroll-top-btn {
@@ -671,7 +678,6 @@ h1 {
     text-align: left;
   }
 
-  /* Пропорциональный размер коробки заголовка на смартфонах */
   .title-text-box {
     width: 168px;
     text-align: left;
@@ -684,9 +690,10 @@ h1 {
     bottom: 0.15em;
   }
 
-  .lang-switch-btn .icon-star {
-    width: 7.5px;
-    height: 7.5px;
+  .lang-switch-btn .icon-cross {
+    width: 8px;
+    height: 8px;
+    stroke-width: 1.3;
   }
 
   .description {
