@@ -309,12 +309,12 @@ header {
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
   color: #121316;
   display: inline-flex;
-  align-items: baseline;
+  align-items: flex-end; /* привязка всех дочерних элементов к нижней линии */
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -325,7 +325,7 @@ h1 {
   font-weight: 600;
 }
 
-/* Круглая кнопка языка RU / EN — уменьшенный размер шрифта */
+/* Круглая кнопка языка RU / EN — нижний край круга лежит строго на базовой линии заголовка */
 .lang-switch-btn {
   display: inline-flex;
   align-items: center;
@@ -350,9 +350,9 @@ h1 {
   cursor: pointer;
   outline: none;
   margin-left: 1.1rem;
-  margin-bottom: 0;
-  vertical-align: baseline;
-  align-self: baseline;
+  margin-bottom: 0.18em; /* компенсация оптического десендера шрифта: низ круга вровень с низом букв */
+  vertical-align: bottom;
+  align-self: flex-end;
   flex-shrink: 0;
   transform: none !important;
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
@@ -542,7 +542,7 @@ h1 {
     margin-bottom: 1.25rem;
     text-align: left;
     justify-content: flex-start;
-    align-items: baseline;
+    align-items: flex-end;
   }
 
   .lang-switch-btn {
@@ -552,6 +552,7 @@ h1 {
     min-height: 21px;
     font-size: 7.5px;
     margin-left: 0.85rem;
+    margin-bottom: 0.15em;
   }
 
   .description {
@@ -612,7 +613,7 @@ h1 {
     margin-bottom: 1rem;
     text-align: left;
     justify-content: flex-start;
-    align-items: baseline;
+    align-items: flex-end;
   }
 
   .lang-switch-btn {
@@ -622,6 +623,7 @@ h1 {
     min-height: 19px;
     font-size: 7px;
     margin-left: 0.75rem;
+    margin-bottom: 0.12em;
   }
 
   .description {
