@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=33">
+  <link rel="stylesheet" href="./styles.css?v=34">
   <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-index">
@@ -56,14 +56,11 @@
   </button>
 
   <header>
-    <div class="header-inner">
-      <h1 id="titleContainer">
-        <span id="titleText">...</span>
-        <!-- Кнопка зафиксирована на месте и не прыгает -->
-        <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">RU</button>
-      </h1>
-      <div id="desc" class="description"></div>
-    </div>
+    <h1 id="titleContainer">
+      <span id="titleText" class="title-text-box">...</span>
+      <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">RU</button>
+    </h1>
+    <div id="desc" class="description"></div>
   </header>
 
   <main class="gallery-grid" id="gallery"></main>
