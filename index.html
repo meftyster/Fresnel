@@ -42,7 +42,7 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Сортировка строго по числу в имени файла
+    // Сортировка по числовому индексу в имени файла (1, 2, ... 10)
     function sortImagesByNumericIndex(images) {
       return [...images].sort((a, b) => {
         const nameA = (a.src || '').split('/').pop();
@@ -55,18 +55,6 @@
       });
     }
 
-    function hexToRgba(hex, alpha) {
-      let c = (hex || '#f5f5f7').replace('#', '').trim();
-      if (c.length === 3) {
-        c = c.split('').map(x => x + x).join('');
-      }
-      const num = parseInt(c, 16);
-      const r = (num >> 16) & 255;
-      const g = (num >> 8) & 255;
-      const b = num & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-
     function extractColors(data) {
       if (Array.isArray(data.colors) && data.colors.length > 0) return data.colors;
       if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
@@ -75,7 +63,7 @@
       return ['#f5f5f7'];
     }
 
-    // Выделяем палитру именно для пар фото
+    // Исключаем: 0 (начало), 1 (акцент текста), последний (подвал)
     function getPhotoPalette(allColors) {
       if (allColors.length > 3) {
         return allColors.slice(2, -1);
@@ -192,7 +180,7 @@
           <div class="footer-copyright">${copyrightHtml}</div>
         `;
 
-        // 4. Сетка фото с изолированной палитрой
+        // 4. Сетка фото
         gallery.innerHTML = '';
         const rawImages = data.images || [];
         const images = sortImagesByNumericIndex(rawImages);
@@ -216,10 +204,9 @@
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
-          // ТЕСТ: 100% НЕПРОЗРАЧНОСТЬ строго из промежуточных цветов фото
+          // JS передает только чистый цвет! Прозрачность и размытие контролирует CSS (:root)
           const pairColorHex = photoColors[pairIndex % photoColors.length];
-          el.style.setProperty('--glow-color', hexToRgba(pairColorHex, 1.0));
-          el.style.setProperty('--glow-hover', hexToRgba(pairColorHex, 1.0));
+          el.style.setProperty('--glow-color', pairColorHex);
 
           el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
 
