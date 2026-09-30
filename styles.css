@@ -4,7 +4,7 @@
   --text-dim: #5c6068;
   --accent: #0f1012;
   
-  /* Эффект матового стекла для светлой темы: прозрачность 42% */
+  /* Эффект матового стекла для светлой темы: полупрозрачный фон */
   --glass-bg: rgba(255, 255, 255, 0.42);
   --glass-border: rgba(0, 0, 0, 0.12);
   --glass-hover: rgba(255, 255, 255, 0.68);
@@ -38,7 +38,6 @@ body.theme-dark {
   --text-dim: #8a8d93;
   --accent: #f3dfc0;
   
-  /* Эффект матового стекла для тёмной темы: полупрозрачный дымчатый фон */
   --glass-bg: rgba(14, 16, 22, 0.35);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-hover: rgba(24, 28, 38, 0.55);
@@ -183,7 +182,7 @@ body.page-stream {
   box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
 }
 
-/* === ПЛАВАЮЩИЕ КНОПКИ В СТИЛЕ МАТОВОГО СТЕКЛА (FROSTED GLASS) === */
+/* === ПЛАВАЮЩИЕ КНОПКИ В СТИЛЕ МАТОВОГО СТЕКЛА === */
 .sound-btn,
 .pattern-btn,
 .stream-nav-btn,
@@ -240,7 +239,7 @@ body.page-stream {
   display: block;
 }
 
-/* Скрытие очков в самом низу страницы */
+/* Скрытие очков внизу страницы */
 .stream-nav-btn:not(.visible) {
   opacity: 0;
   pointer-events: none;
@@ -332,6 +331,13 @@ header {
   text-align: center;
 }
 
+/* Контейнер шапки: опорная геометрия для стабильности кнопки */
+.header-inner {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
@@ -339,10 +345,9 @@ h1 {
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
   color: #121316;
-  display: inline-flex;
-  align-items: flex-end;
-  justify-content: center;
-  flex-wrap: wrap;
+  position: relative;
+  display: block;
+  text-align: center;
 }
 
 .title-accent,
@@ -351,8 +356,11 @@ h1 {
   font-weight: 600;
 }
 
-/* Круглая кнопка языка RU / EN */
+/* Круглая кнопка языка RU / EN — зафиксирована абсолютно, стоит неподвижно */
 .lang-switch-btn {
+  position: absolute;
+  right: 0;
+  bottom: 0.18em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -376,10 +384,6 @@ h1 {
   line-height: 1;
   cursor: pointer;
   outline: none;
-  margin-left: 1.1rem;
-  margin-bottom: 0.18em;
-  vertical-align: bottom;
-  align-self: flex-end;
   flex-shrink: 0;
   transform: none !important;
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
@@ -561,6 +565,10 @@ h1 {
     margin: 0 auto;
   }
 
+  .header-inner {
+    max-width: 100%;
+  }
+
   h1 {
     font-size: 1.85rem;
     line-height: 1.15;
@@ -568,8 +576,6 @@ h1 {
     margin-top: 0;
     margin-bottom: 1.25rem;
     text-align: left;
-    justify-content: flex-start;
-    align-items: flex-end;
   }
 
   .lang-switch-btn {
@@ -578,8 +584,13 @@ h1 {
     min-width: 21px;
     min-height: 21px;
     font-size: 7.5px;
-    margin-left: 0.85rem;
-    margin-bottom: 0.15em;
+    right: 0;
+    bottom: 0.15em;
+  }
+
+  .scroll-top-btn {
+    top: 8.1rem;
+    right: 1.5rem;
   }
 
   .description {
@@ -639,8 +650,6 @@ h1 {
     margin-top: 0;
     margin-bottom: 1rem;
     text-align: left;
-    justify-content: flex-start;
-    align-items: flex-end;
   }
 
   .lang-switch-btn {
@@ -649,8 +658,8 @@ h1 {
     min-width: 19px;
     min-height: 19px;
     font-size: 7px;
-    margin-left: 0.75rem;
-    margin-bottom: 0.12em;
+    right: 0;
+    bottom: 0.12em;
   }
 
   .description {
