@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=26">
   <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-stream">
@@ -273,24 +273,22 @@
       });
     });
 
-    // === ДВИЖОК БЕСШОВНОГО ПОТОКА БЕЗ СКАЧКОВ ===
+    // === ДВИЖОК ПОТОКА ===
     const AUTO_SPEED = 0.38;
-    // Стартуем с -80px, что дает отступ в 2 раза больше от верхнего края на первом старте
-    let currentY = -80; 
+    let currentY = 0;
     let userVelocity = 0;
     let isUserInteracting = false;
     let resumeTimeout = null;
     let groupHeight = 0;
+    let currentActivePattern = 0;
 
     let startY = 0;
     let lastY = 0;
     let lastTime = 0;
     let isDragThresholdPassed = false;
 
-    // Паттерны: обе группы изначально синхронны для гарантированной бесшовности стыка
-    let currentActivePattern = GalleryCore.getRandomPatternIndex();
-
     function applyMovingGradient(data, count) {
+      if (!window.GalleryCore) return;
       const colors = GalleryCore.extractColors(data);
       if (colors.length === 0) return;
       if (colors.length === 1) {
@@ -357,7 +355,6 @@
       }, 300);
     }
 
-    // Бесшовный цикл: строго выверенная математика телепорта без рывков
     function animate() {
       const measuredHeight = groupOriginal.offsetHeight;
       if (measuredHeight > 0) {
@@ -371,21 +368,23 @@
       }
 
       if (groupHeight > 0) {
-        // Листание вниз: как только прошли полную высоту группы, мягко закольцовываем
+        // Закольцовывание вниз
         if (currentY >= groupHeight) {
           currentY -= groupHeight;
-          // Меняем паттерн для следующего круга
-          currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
-          GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
-          GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+          if (window.GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
+            currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
+            GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
+            GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+          }
         } 
-        // Листание вверх: при уходе в минус мягко перекидываем в конец группы
+        // Закольцовывание вверх
         else if (currentY < 0) {
           currentY += groupHeight;
-          // Меняем паттерн при перемотке вверх
-          currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
-          GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
-          GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+          if (window.GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
+            currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
+            GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
+            GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+          }
         }
       }
 
@@ -456,8 +455,6 @@
     });
 
     async function init() {
-      requestAnimationFrame(animate);
-
       try {
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
@@ -475,21 +472,24 @@
 
         const images = GalleryCore.sortImages(rawImages);
         const allColors = GalleryCore.extractColors(data);
-        const photoColors = getPhotoPalette(allColors);
+        const photoColors = GalleryCore.getPhotoPalette(allColors);
 
-        // Очищаем группы перед генерацией
         groupOriginal.innerHTML = '';
         groupClone.innerHTML = '';
 
-        // Обе группы наполняются СТРОГО идентично — никаких асимметричных спейсеров
+        if (GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
+          currentActivePattern = GalleryCore.getRandomPatternIndex();
+        }
+
         images.forEach((item, index) => {
           groupOriginal.appendChild(createPhotoElement(item, index, photoColors));
           groupClone.appendChild(createPhotoElement(item, index, photoColors));
         });
 
-        // Назначаем одинаковый паттерн на обе группы, чтобы шов соединения был 100% монолитным
-        GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
-        GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+        if (GalleryCore && typeof GalleryCore.applyPatternToGroup === 'function') {
+          GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
+          GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+        }
 
         applyMovingGradient(data, Math.ceil(images.length / 2));
         groupHeight = groupOriginal.offsetHeight;
@@ -497,6 +497,9 @@
         window.addEventListener('resize', () => {
           groupHeight = groupOriginal.offsetHeight;
         });
+
+        // Запускаем анимацию только после того, как все фото добавлены в DOM
+        requestAnimationFrame(animate);
 
       } catch (err) {
         console.error('Ошибка инициализации потока:', err);
