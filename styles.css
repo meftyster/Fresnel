@@ -316,7 +316,7 @@ h1 {
   font-weight: 600;
 }
 
-/* === ТЕКСТОВЫЙ ПЕРЕКЛЮЧАТЕЛЬ RU / EN (БЕЗ КОНТУРА) === */
+/* === ТЕКСТОВЫЙ ПЕРЕКЛЮЧАТЕЛЬ RU / EN (ПРОПОРЦИОНАЛЬНО ЧЕРЕЗ EM) === */
 .lang-switch-btn {
   background: none;
   border: none;
@@ -325,8 +325,8 @@ h1 {
   
   vertical-align: baseline;
   
-  /* Размер заглавных букв RU/EN в точности равен высоте строчных букв заголовка */
-  font-size: 0.76em;
+  /* Автоматически масштабируется пропорционально заголовку на всех экранах */
+  font-size: 0.74em;
   font-weight: 400;
   letter-spacing: 0.05em;
   color: var(--text-dim);
