@@ -231,14 +231,12 @@ body.page-stream {
   display: block;
 }
 
-/* Скрытие очков в самом низу страницы */
 .stream-nav-btn:not(.visible) {
   opacity: 0;
   pointer-events: none;
   transform: translateY(-8px);
 }
 
-/* Переключение Солнце / Луна */
 .theme-toggle-btn .icon-sun {
   display: block;
 }
@@ -253,7 +251,7 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   display: block;
 }
 
-/* Вертикальный стек из 3-х кнопок на index.html */
+/* Стек из 3 кнопок */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
@@ -269,7 +267,7 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   right: 1.5rem;
 }
 
-/* Кнопки на stream.html */
+/* Кнопки stream.html */
 .back-btn {
   top: 1.5rem;
   right: 1.5rem;
@@ -311,11 +309,12 @@ header {
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
+  line-height: 1.1;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
   color: #121316;
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -326,7 +325,7 @@ h1 {
   font-weight: 600;
 }
 
-/* Круглая кнопка переключения языка RU / EN (в размер заглавной буквы, без увеличения) */
+/* Круглая кнопка языка RU / EN — уменьшенный размер шрифта */
 .lang-switch-btn {
   display: inline-flex;
   align-items: center;
@@ -344,13 +343,16 @@ h1 {
   border: 1px solid var(--glass-border);
   color: var(--text-dim);
   font-family: inherit;
-  font-size: 10px;
+  font-size: 8.5px;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
   line-height: 1;
   cursor: pointer;
   outline: none;
   margin-left: 1.1rem;
+  margin-bottom: 0;
+  vertical-align: baseline;
+  align-self: baseline;
   flex-shrink: 0;
   transform: none !important;
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
@@ -426,7 +428,6 @@ h1 {
   line-height: 1.8;
 }
 
-/* Ссылки без подчёркиваний */
 .site-footer a {
   color: #111215;
   font-weight: 500;
@@ -445,7 +446,6 @@ h1 {
   letter-spacing: 0.03em;
 }
 
-/* Иконка бинокля/очков внутри текстовой ссылки футера */
 .footer-glasses-icon {
   width: 15px;
   height: 15px;
@@ -542,6 +542,7 @@ h1 {
     margin-bottom: 1.25rem;
     text-align: left;
     justify-content: flex-start;
+    align-items: baseline;
   }
 
   .lang-switch-btn {
@@ -549,7 +550,7 @@ h1 {
     height: 21px;
     min-width: 21px;
     min-height: 21px;
-    font-size: 9px;
+    font-size: 7.5px;
     margin-left: 0.85rem;
   }
 
@@ -611,6 +612,7 @@ h1 {
     margin-bottom: 1rem;
     text-align: left;
     justify-content: flex-start;
+    align-items: baseline;
   }
 
   .lang-switch-btn {
@@ -618,7 +620,7 @@ h1 {
     height: 19px;
     min-width: 19px;
     min-height: 19px;
-    font-size: 8.5px;
+    font-size: 7px;
     margin-left: 0.75rem;
   }
 
