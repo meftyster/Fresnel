@@ -285,13 +285,12 @@ header {
   text-align: center;
 }
 
-/* Единый контейнер — точка отсчета для абсолютной кнопки */
 .title-row {
-  position: relative;
   display: inline-block;
   margin-bottom: 1.5rem;
 }
 
+/* Заголовок — гибкий инлайн-контейнер для текста и кнопки в потоке */
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
@@ -300,7 +299,9 @@ h1 {
   margin: 0;
   padding: 0;
   color: #121316;
-  text-align: center;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
 }
 
 .title-text-box {
@@ -316,20 +317,26 @@ h1 {
   font-weight: 600;
 }
 
-/* === КНОПКА ЯЗЫКА (АБСОЛЮТНЫЙ КОНТРОЛЬ ОТСТУПОВ) === */
+/* === КНОПКА ЯЗЫКА В ПОТОКЕ (ЧЕРЕЗ EM И BASELINE) === */
 .lang-switch-btn {
-  position: absolute;
-  left: calc(100% + 0.65rem);
-  bottom: 0.22em; /* ювелирная привязка низа круга к базовой линии */
+  display: inline-grid;
+  place-items: center;
+  position: relative;
+  vertical-align: baseline;
   
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  min-height: 18px;
+  /* Размер строго пропорционален кеглю заголовка (равен высоте строчной буквы) */
+  width: 0.58em;
+  height: 0.58em;
+  min-width: 14px;
+  min-height: 14px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   box-sizing: border-box;
   padding: 0;
-  margin: 0;
+  margin: 0 0 0 0.55rem;
+  
+  /* Ювелирный сдвиг вверх ровно на середину тела строчных букв */
+  top: -0.1em;
   
   background: var(--glass-bg);
   backdrop-filter: blur(16px) saturate(160%);
@@ -340,25 +347,18 @@ h1 {
   cursor: pointer;
   outline: none;
   
-  display: grid;
-  place-items: center;
-  
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 .lang-switch-btn .icon-cross {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 9.5px;
-  height: 9.5px;
+  width: 55%;
+  height: 55%;
   stroke: currentColor;
   stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
   display: block;
-  transform: translate(-50%, -50%);
   transform-origin: center center;
   transition: transform 0.35s var(--ease-smooth);
 }
@@ -372,15 +372,15 @@ h1 {
 }
 
 .lang-switch-btn:hover .icon-cross {
-  transform: translate(-50%, -50%) rotate(15deg);
+  transform: rotate(15deg);
 }
 
 .lang-switch-btn.is-eng .icon-cross {
-  transform: translate(-50%, -50%) rotate(45deg);
+  transform: rotate(45deg);
 }
 
 .lang-switch-btn.is-eng:hover .icon-cross {
-  transform: translate(-50%, -50%) rotate(60deg);
+  transform: rotate(60deg);
 }
 
 .description {
@@ -550,35 +550,17 @@ h1 {
   }
 
   .title-row {
-    display: block;
-    text-align: left;
     margin-bottom: 1.25rem;
   }
 
   h1 {
     font-size: 1.85rem;
-    text-align: left;
+    justify-content: flex-start;
   }
 
   .title-text-box {
     width: 208px;
     text-align: left;
-  }
-
-  /* Планшет: диаметр 15px под строчную букву */
-  .lang-switch-btn {
-    width: 15px;
-    height: 15px;
-    min-width: 15px;
-    min-height: 15px;
-    left: auto;
-    margin-left: 0.55rem;
-    bottom: 0.22em;
-  }
-
-  .lang-switch-btn .icon-cross {
-    width: 8px;
-    height: 8px;
   }
 
   .scroll-top-btn {
@@ -638,36 +620,17 @@ h1 {
   }
 
   .title-row {
-    display: block;
-    text-align: left;
     margin-bottom: 1rem;
   }
 
   h1 {
     font-size: 1.5rem;
-    text-align: left;
+    justify-content: flex-start;
   }
 
   .title-text-box {
     width: 168px;
     text-align: left;
-  }
-
-  /* Смартфон: диаметр 12.5px под строчную букву */
-  .lang-switch-btn {
-    width: 12.5px;
-    height: 12.5px;
-    min-width: 12.5px;
-    min-height: 12.5px;
-    left: auto;
-    margin-left: 0.45rem;
-    bottom: 0.22em;
-  }
-
-  .lang-switch-btn .icon-cross {
-    width: 7px;
-    height: 7px;
-    stroke-width: 1.3;
   }
 
   .description {
