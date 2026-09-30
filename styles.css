@@ -329,11 +329,11 @@ h1 {
   }
 }
 
-/* Мобильные экраны до 768px: выравнивание влево и отступ от кнопок */
+/* Мобильные экраны до 768px: верх шапки 3.5rem, ограничение справа 4.5rem под кнопки */
 @media (max-width: 768px) {
   header {
     text-align: left;
-    padding: 8.5rem 2rem 2.5rem 2rem;
+    padding: 3.5rem 4.5rem 2.5rem 1.75rem;
     max-width: 430px;
     margin: 0 auto;
   }
@@ -342,7 +342,7 @@ h1 {
     font-size: 1.85rem;
     line-height: 1.25;
     letter-spacing: -0.015em;
-    margin-bottom: 1.35rem;
+    margin-bottom: 1.25rem;
     text-align: left;
   }
 
@@ -380,12 +380,12 @@ h1 {
   }
 }
 
-/* Экраны 480px и ниже: размер шрифта 12px */
+/* Экраны 480px и ниже: верх шапки 3rem, отступ справа 4.75rem, шрифт 12px */
 @media (max-width: 480px) {
   header {
-    padding-top: 8.5rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-top: 3rem;
+    padding-left: 1.25rem;
+    padding-right: 4.75rem;
   }
 
   h1 {
@@ -406,7 +406,7 @@ h1 {
 
   .gallery-grid,
   .stream-group {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 }
