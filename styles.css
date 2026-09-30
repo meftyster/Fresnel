@@ -4,7 +4,6 @@
   --text-dim: #5c6068;
   --accent: #0f1012;
   
-  /* Эффект матового стекла для светлой темы: полупрозрачный фон */
   --glass-bg: rgba(255, 255, 255, 0.42);
   --glass-border: rgba(0, 0, 0, 0.12);
   --glass-hover: rgba(255, 255, 255, 0.68);
@@ -276,7 +275,7 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   display: block;
 }
 
-/* Вертикальный стек из 3 кнопок в правом верхнем углу */
+/* Стек из 3 кнопок в правом верхнем углу */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
@@ -331,7 +330,7 @@ header {
   text-align: center;
 }
 
-/* Заголовок как inline-flex со строгим baseline-выравниванием */
+/* Заголовок как inline-block с позиционированием */
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
@@ -339,12 +338,12 @@ h1 {
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
   color: #121316;
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: center;
+  position: relative;
+  display: inline-block;
+  text-align: center;
 }
 
-/* Точный размер контейнера под заголовок на десктопе */
+/* Контейнер заголовка */
 .title-text-box {
   display: inline-block;
   width: 290px;
@@ -358,16 +357,15 @@ h1 {
   font-weight: 600;
 }
 
-/* Круглая кнопка языка RU / EN — низ круга строго на базовой линии строки */
+/* Круглая кнопка со звёздочкой: размер равен x-height, строго на базовой линии */
 .lang-switch-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  min-height: 24px;
-  aspect-ratio: 1 / 1;
+  position: absolute;
+  left: 100%;
+  margin-left: 0.65rem;
+  bottom: 0.18em; /* низ круга касается красной базовой линии текста */
+  
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   box-sizing: border-box;
   background: var(--glass-bg);
@@ -376,19 +374,26 @@ h1 {
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22);
   color: var(--text-dim);
-  font-family: inherit;
-  font-size: 8.5px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  line-height: 1;
   cursor: pointer;
   outline: none;
-  margin-left: 0.9rem;
-  margin-bottom: 0;
-  vertical-align: baseline;
-  transform: translateY(-2px) !important;
-  flex-shrink: 0;
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transform: none !important;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.3s ease;
+}
+
+.lang-switch-btn .icon-star {
+  width: 9.5px;
+  height: 9.5px;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  display: block;
+  transition: transform 0.35s var(--ease-smooth);
 }
 
 .lang-switch-btn:hover,
@@ -397,7 +402,14 @@ h1 {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
-  transform: translateY(-2px) !important;
+}
+
+.lang-switch-btn:hover .icon-star {
+  transform: rotate(45deg);
+}
+
+.lang-switch-btn.is-eng .icon-star {
+  transform: rotate(90deg);
 }
 
 .description {
@@ -461,7 +473,6 @@ h1 {
   line-height: 1.8;
 }
 
-/* Ссылки без подчёркиваний */
 .site-footer a {
   color: #111215;
   font-weight: 500;
@@ -575,30 +586,25 @@ h1 {
     margin-top: 0;
     margin-bottom: 1.25rem;
     text-align: left;
-    justify-content: flex-start;
-    align-items: baseline;
+    display: inline-block;
   }
 
-  /* Точный размер контейнера под заголовок на планшетах (без лишней пустоты) */
+  /* Пропорциональный размер коробки заголовка */
   .title-text-box {
     width: 208px;
     text-align: left;
   }
 
   .lang-switch-btn {
-    width: 21px;
-    height: 21px;
-    min-width: 21px;
-    min-height: 21px;
-    font-size: 7.5px;
-    margin-left: 0.85rem;
-    transform: translateY(-2px) !important;
+    width: 16px;
+    height: 16px;
+    margin-left: 0.55rem;
+    bottom: 0.16em;
   }
 
-  .lang-switch-btn:hover,
-  .lang-switch-btn:active,
-  .lang-switch-btn:focus {
-    transform: translateY(-2px) !important;
+  .lang-switch-btn .icon-star {
+    width: 8.5px;
+    height: 8.5px;
   }
 
   .scroll-top-btn {
@@ -663,30 +669,24 @@ h1 {
     margin-top: 0;
     margin-bottom: 1rem;
     text-align: left;
-    justify-content: flex-start;
-    align-items: baseline;
   }
 
-  /* Точный размер контейнера под заголовок на смартфонах (без лишней пустоты) */
+  /* Пропорциональный размер коробки заголовка на смартфонах */
   .title-text-box {
     width: 168px;
     text-align: left;
   }
 
   .lang-switch-btn {
-    width: 19px;
-    height: 19px;
-    min-width: 19px;
-    min-height: 19px;
-    font-size: 7px;
-    margin-left: 0.75rem;
-    transform: translateY(-1.5px) !important;
+    width: 14px;
+    height: 14px;
+    margin-left: 0.45rem;
+    bottom: 0.15em;
   }
 
-  .lang-switch-btn:hover,
-  .lang-switch-btn:active,
-  .lang-switch-btn:focus {
-    transform: translateY(-1.5px) !important;
+  .lang-switch-btn .icon-star {
+    width: 7.5px;
+    height: 7.5px;
   }
 
   .description {
