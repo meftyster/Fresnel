@@ -21,6 +21,17 @@
     </svg>
   </button>
 
+  <!-- Кнопка перехода в стрим (бинокль) -->
+  <a href="stream.html" class="stream-nav-btn visible" id="streamNavBtn" aria-label="Режим наблюдения">
+    <svg viewBox="0 0 24 24">
+      <circle cx="7" cy="15" r="4"></circle>
+      <circle cx="17" cy="15" r="4"></circle>
+      <path d="M9 11l1.5-6h3l1.5 6"></path>
+      <line x1="9" y1="15" x2="15" y2="15"></line>
+      <line x1="10" y1="8" x2="14" y2="8"></line>
+    </svg>
+  </a>
+
   <header>
     <h1 id="title">...</h1>
     <div id="desc" class="description"></div>
@@ -43,6 +54,7 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
     const soundBtn = document.getElementById('soundBtn');
+    const streamNavBtn = document.getElementById('streamNavBtn');
 
     // === АУДИОМОДУЛЬ С КРОССФЕЙДОМ (index.html) ===
     const TARGET_VOLUME = 0.65;
@@ -192,36 +204,46 @@
       }
     });
 
-    let soundUiTimeout = null;
-    let isHoveringSound = false;
+    // Управление видимостью верхних кнопок (звук + стрим)
+    let topUiTimeout = null;
+    let isHoveringTopUi = false;
 
-    function triggerSoundUi() {
+    function triggerTopUi() {
       soundBtn.classList.add('visible');
-      clearTimeout(soundUiTimeout);
-      if (!isHoveringSound) {
-        soundUiTimeout = setTimeout(() => {
+      streamNavBtn.classList.add('visible');
+      clearTimeout(topUiTimeout);
+
+      if (!isHoveringTopUi) {
+        topUiTimeout = setTimeout(() => {
           soundBtn.classList.remove('visible');
+          streamNavBtn.classList.remove('visible');
         }, 2500);
       }
     }
 
-    soundUiTimeout = setTimeout(() => {
-      if (!isHoveringSound) soundBtn.classList.remove('visible');
+    topUiTimeout = setTimeout(() => {
+      if (!isHoveringTopUi) {
+        soundBtn.classList.remove('visible');
+        streamNavBtn.classList.remove('visible');
+      }
     }, 2500);
 
-    window.addEventListener('mousemove', triggerSoundUi);
-    window.addEventListener('touchstart', triggerSoundUi, { passive: true });
-    window.addEventListener('scroll', triggerSoundUi, { passive: true });
+    window.addEventListener('mousemove', triggerTopUi);
+    window.addEventListener('touchstart', triggerTopUi, { passive: true });
+    window.addEventListener('scroll', triggerTopUi, { passive: true });
 
-    soundBtn.addEventListener('mouseenter', () => {
-      isHoveringSound = true;
-      clearTimeout(soundUiTimeout);
-      soundBtn.classList.add('visible');
-    });
+    [soundBtn, streamNavBtn].forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        isHoveringTopUi = true;
+        clearTimeout(topUiTimeout);
+        soundBtn.classList.add('visible');
+        streamNavBtn.classList.add('visible');
+      });
 
-    soundBtn.addEventListener('mouseleave', () => {
-      isHoveringSound = false;
-      triggerSoundUi();
+      btn.addEventListener('mouseleave', () => {
+        isHoveringTopUi = false;
+        triggerTopUi();
+      });
     });
 
     const offsets = [
@@ -354,7 +376,6 @@
           ? data.footer 
           : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
 
-        // Внутренние ссылки (stream.html) открываются в той же вкладке, внешние — в новой
         footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
           const isExternal = /^https?:\/\//i.test(url);
           const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
