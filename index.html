@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=28">
+  <link rel="stylesheet" href="./styles.css?v=31">
   <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-index">
@@ -50,7 +50,7 @@
   <header>
     <h1 id="titleContainer">
       <span id="titleText">...</span>
-      <!-- Кнопка языка справа от названия -->
+      <!-- Кнопка языка: строго RU в исходном состоянии, EN при английском -->
       <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">RU</button>
     </h1>
     <div id="desc" class="description"></div>
@@ -113,7 +113,6 @@
       GalleryCore.nextPattern();
     });
 
-    // === УПРАВЛЕНИЕ ВИДИМОСТЬЮ ОЧКОВ ПРИ ДОСТИЖЕНИИ ДНА СТРАНИЦЫ ===
     function checkBottomAndToggleStreamBtn() {
       const scrollPos = window.innerHeight + window.scrollY;
       const threshold = document.documentElement.scrollHeight - 70;
@@ -165,7 +164,7 @@
 
     const glassesIconSvg = `<svg class="footer-glasses-icon" viewBox="0 0 24 24"><circle cx="6" cy="15" r="4"></circle><circle cx="18" cy="15" r="4"></circle><path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"></path><path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2"></path><path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2"></path></svg>`;
 
-    // === ЛОГИКА ТЕКСТОВ И МУЛЬТИЯЗЫЧНОСТИ (RU / EN) ===
+    // === ПАРСИНГ И РЕНДЕР ТЕКСТОВ ===
     let currentLang = localStorage.getItem('fresnel_lang') || 'ru';
     let enTextData = null;
 
@@ -190,7 +189,7 @@
         if (paragraphs.length > 1) {
           const lastIdx = paragraphs.length - 1;
           const lastP = paragraphs[lastIdx].trim();
-          if (lastP.includes('/') || lastP.includes('Антон') || lastP.includes('Rick') || lastP.includes('Anton')) {
+          if (lastP.includes('/') || /Антон|Anton|Rick/i.test(lastP)) {
             paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
           }
           descHtml = paragraphs.join('<br><br>');
@@ -202,6 +201,52 @@
       }
     }
 
+    // Рендер текста подвала с автозаменой года и подстановкой иконки очков
+    function renderFooter(rawFooter) {
+      const currentYear = new Date().getFullYear();
+      let footerStr = rawFooter && rawFooter.trim() 
+        ? rawFooter.trim()
+        : (currentLang === 'en'
+            ? `[version without text - for observation](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} ANTON IVCHENKO / RICK ANTILLES. ALL RIGHTS RESERVED.`
+            : `[версия без текста — для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`);
+
+      // Преобразование markdown-ссылок в HTML
+      footerStr = footerStr.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+        const isExternal = /^https?:\/\//i.test(url);
+        const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+        
+        let formattedText = text;
+        if (url.includes('stream.html') || /наблюден|observ/i.test(text)) {
+          formattedText = text.replace(/\s*[-—–]\s*/, ` ${glassesIconSvg} `);
+        }
+        
+        return `<a href="${url}"${targetAttr}>${formattedText}</a>`;
+      });
+
+      footerStr = footerStr.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
+
+      const footerParts = footerStr.split(/\n\s*\n/);
+      let modeHtml = '';
+      let contactsHtml = '';
+      let copyrightHtml = '';
+
+      if (footerParts.length >= 3) {
+        modeHtml = footerParts[0].trim();
+        contactsHtml = footerParts[1].trim();
+        copyrightHtml = footerParts.slice(2).join('<br>').trim();
+      } else {
+        contactsHtml = footerParts[0] || '';
+        copyrightHtml = footerParts.slice(1).join('<br>').trim();
+      }
+
+      pageFooter.innerHTML = `
+        ${modeHtml ? `<div class="footer-mode-link">${modeHtml}</div>` : ''}
+        <div class="footer-contacts">${contactsHtml}</div>
+        <div class="footer-copyright">${copyrightHtml}</div>
+      `;
+    }
+
+    // Парсер content-eng.md: отделяет заголовок, описание и подвал по черте ---
     async function parseEngMarkdown() {
       if (enTextData) return enTextData;
       try {
@@ -209,23 +254,47 @@
         if (!res.ok) throw new Error('content-eng.md not found');
         const text = await res.text();
 
-        let title = '';
-        let description = '';
+        let cleanText = text;
+        let title = 'The Fresnel Effect';
 
+        // 1. Извлекаем заголовок #
         const matchTitle = text.match(/^#\s+(.+)$/m);
         if (matchTitle) {
           title = matchTitle[1].trim();
-          description = text.replace(/^#\s+(.+)$/m, '').trim();
+          cleanText = text.replace(/^#\s+(.+)$/m, '').trim();
         } else {
           const parts = text.split(/\n\s*\n/);
-          title = parts[0] ? parts[0].trim() : 'Fresnel Effect';
-          description = parts.slice(1).join('\n\n').trim();
+          if (parts[0] && parts[0].length < 60) {
+            title = parts[0].trim();
+            cleanText = parts.slice(1).join('\n\n').trim();
+          }
         }
 
-        enTextData = { title, description };
+        // 2. Отделяем описание от подвала по разделителю ---
+        let description = cleanText;
+        let footer = '';
+
+        if (cleanText.includes('---')) {
+          const hrParts = cleanText.split(/\n\s*---\s*\n/);
+          description = hrParts[0].trim();
+          footer = hrParts.slice(1).join('\n\n').trim();
+        } else if (cleanText.includes('***')) {
+          const hrParts = cleanText.split(/\n\s*\*\*\*\s*\n/);
+          description = hrParts[0].trim();
+          footer = hrParts.slice(1).join('\n\n').trim();
+        } else {
+          // Если разделителя нет, ищем блок ссылки на stream.html
+          const streamIdx = cleanText.search(/\[.*?\]\(stream\.html\)/i);
+          if (streamIdx !== -1) {
+            description = cleanText.slice(0, streamIdx).trim();
+            footer = cleanText.slice(streamIdx).trim();
+          }
+        }
+
+        enTextData = { title, description, footer };
         return enTextData;
       } catch (err) {
-        console.warn('Не удалось загрузить content-eng.md, используется дефолтный текст', err);
+        console.warn('Не удалось загрузить content-eng.md', err);
         return null;
       }
     }
@@ -234,17 +303,19 @@
       currentLang = lang;
       localStorage.setItem('fresnel_lang', lang);
       
-      // Русский активен -> RU. Английский активен -> EN
+      // Кнопка показывает текущий выбранный язык
       langSwitchBtn.textContent = lang.toUpperCase();
 
       if (lang === 'en') {
         const enData = await parseEngMarkdown();
         if (enData) {
           renderHeaderAndDesc(enData.title, enData.description);
+          renderFooter(enData.footer);
         }
       } else {
         if (currentRawData) {
           renderHeaderAndDesc(currentRawData.title, currentRawData.description);
+          renderFooter(currentRawData.footer);
         }
       }
     }
@@ -259,46 +330,8 @@
         const data = await res.json();
         currentRawData = data;
 
+        // По умолчанию рендерим язык
         await setLanguage(currentLang);
-
-        const currentYear = new Date().getFullYear();
-        let footerRaw = data.footer && data.footer.trim() 
-          ? data.footer 
-          : `[версия без текста — для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
-
-        footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
-          const isExternal = /^https?:\/\//i.test(url);
-          const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
-          
-          let formattedText = text;
-          if (url.includes('stream.html') || text.toLowerCase().includes('наблюдения') || text.toLowerCase().includes('observation')) {
-            formattedText = text.replace(/\s*[-—–]\s*/, ` ${glassesIconSvg} `);
-          }
-          
-          return `<a href="${url}"${targetAttr}>${formattedText}</a>`;
-        });
-
-        footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
-
-        const footerParts = footerRaw.split(/\n\s*\n/);
-        let modeHtml = '';
-        let contactsHtml = '';
-        let copyrightHtml = '';
-
-        if (footerParts.length >= 3) {
-          modeHtml = footerParts[0].trim();
-          contactsHtml = footerParts[1].trim();
-          copyrightHtml = footerParts.slice(2).join('<br>').trim();
-        } else {
-          contactsHtml = footerParts[0] || '';
-          copyrightHtml = footerParts.slice(1).join('<br>').trim();
-        }
-
-        pageFooter.innerHTML = `
-          ${modeHtml ? `<div class="footer-mode-link">${modeHtml}</div>` : ''}
-          <div class="footer-contacts">${contactsHtml}</div>
-          <div class="footer-copyright">${copyrightHtml}</div>
-        `;
 
         gallery.innerHTML = '';
         const rawImages = data.images || [];
