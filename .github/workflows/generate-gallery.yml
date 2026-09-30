@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'content.md'
+      - 'gradient.txt'
       - 'images/**'
       - '.github/workflows/generate-gallery.yml'
   workflow_dispatch:
@@ -33,7 +34,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Generate data.json from content.md & images
+      - name: Generate data.json from content.md, images & gradient.txt
         run: |
           python3 - << 'EOF'
           import os
@@ -49,13 +50,11 @@ jobs:
               with open("content.md", "r", encoding="utf-8") as f:
                   raw = f.read().strip()
 
-              # Разделяем текст и подвал по "---"
               parts = re.split(r'\n\s*---\s*\n', raw, maxsplit=1)
               main_text = parts[0].strip()
               if len(parts) > 1:
                   footer = parts[1].strip()
 
-              # Извлекаем заголовок первого уровня (# Заголовок)
               lines = main_text.splitlines()
               desc_lines = []
               for line in lines:
@@ -76,17 +75,17 @@ jobs:
                   if ext in valid_exts:
                       images.append({"src": f"images/{file}"})
 
-          # 3. Сохраняем исходные цвета/градиент из старого data.json, если они были
+          # 3. Читаем палитру из gradient.txt
           colors = []
-          gradient = ""
-          if os.path.exists("data.json"):
+          if os.path.exists("gradient.txt"):
               try:
-                  with open("data.json", "r", encoding="utf-8") as f:
-                      old_data = json.load(f)
-                      colors = old_data.get("colors", [])
-                      gradient = old_data.get("gradient", "")
-              except Exception:
-                  pass
+                  with open("gradient.txt", "r", encoding="utf-8") as f:
+                      content = f.read()
+                      found_colors = re.findall(r'#[a-fA-F0-9]{3,8}', content)
+                      if found_colors:
+                          colors = found_colors
+              except Exception as e:
+                  print(f"Ошибка чтения gradient.txt: {e}")
 
           output_data = {
               "title": title,
@@ -96,13 +95,11 @@ jobs:
           }
           if colors:
               output_data["colors"] = colors
-          if gradient:
-              output_data["gradient"] = gradient
 
           with open("data.json", "w", encoding="utf-8") as f:
               json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-          print("data.json successfully generated!")
+          print("data.json successfully generated using gradient.txt!")
           EOF
 
       - name: Commit and push data.json
