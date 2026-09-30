@@ -359,16 +359,17 @@ h1 {
   line-height: 1.8;
 }
 
+/* Ссылки без подчёркиваний */
 .site-footer a {
   color: #111215;
   font-weight: 500;
-  text-decoration: none;
+  text-decoration: none !important;
   transition: color 0.25s ease;
 }
 
 .site-footer a:hover {
-  color: #000000;
-  text-decoration: underline;
+  color: #000000 !important;
+  text-decoration: none !important;
 }
 
 .footer-mode-link {
