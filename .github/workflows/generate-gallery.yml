@@ -10,6 +10,11 @@ on:
       - 'scripts/**'
   workflow_dispatch:
 
+# Отменяем старые параллельные запуски, чтобы они не мешали друг другу пушить
+concurrency:
+  group: generate-gallery-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -39,23 +44,29 @@ jobs:
             python scripts/build.py
           fi
 
-      - name: Commit and push changes
+      - name: Commit and push data.json
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 1. Забираем любые коммиты, пришедшие в main, пока работал скрипт
-          git pull --rebase origin main
-
-          # 2. Индексируем только data.json
-          git add data.json
-
-          # 3. Пушим только если файл действительно изменился
-          if ! git diff-index --quiet HEAD --; then
-            git commit -m "Auto-generate data.json [skip ci]"
-            # Повторный pull-rebase непосредственно перед push на случай миллисекундных гонок
-            git pull --rebase origin main
-            git push origin main
-          else
-            echo "No changes in data.json to commit"
+          # Проверяем, изменился ли data.json
+          git status
+          if git diff --quiet data.json; then
+            echo "Файл data.json не изменился"
+            exit 0
           fi
+
+          # Прячем готовый data.json в stash
+          git add data.json
+          git stash push -m "generated-data" data.json
+
+          # Забираем самое актуальное состояние ветки
+          git fetch origin main
+          git reset --hard origin/main
+
+          # Достаем наш data.json поверх актуального состояния
+          git stash pop
+
+          git add data.json
+          git commit -m "Auto-generate data.json [skip ci]"
+          git push origin main
