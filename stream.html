@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Эффект Френеля — наблюдение</title>
+  <title>Эффект Френеля — Поток</title>
   <style>
     * {
       box-sizing: border-box;
@@ -28,6 +28,10 @@
       justify-content: center;
     }
 
+    /* 
+      Движущийся трек с градиентом, который скользит вместе с кадрами.
+      Базовая длительность анимации — 60s (в 2 раза быстрее первоначальных 120s)
+    */
     .stream-track {
       position: absolute;
       top: 0;
@@ -36,10 +40,10 @@
       flex-direction: column;
       align-items: center;
       will-change: transform;
-      animation: infiniteScroll 40s linear infinite;
+      animation: infiniteScroll 60s linear infinite;
     }
 
-    /* При наведении/тапе лента замирает для просмотра */
+    /* Пауза при наведении мыши / зажатии */
     .stream-viewport:hover .stream-track {
       animation-play-state: paused;
     }
@@ -50,9 +54,10 @@
       flex-direction: column;
       align-items: center;
       gap: 5rem;
-      padding-bottom: 5rem;
+      padding-top: 7rem;      /* Комфортный воздух перед первым кадром */
+      padding-bottom: 7rem;
       width: 100%;
-      max-width: 440px; /* Ширина колонки с фото по центру */
+      max-width: 440px;      /* Ширина центральной ленты */
       padding-left: 1rem;
       padding-right: 1rem;
     }
@@ -79,7 +84,7 @@
       transform: scale(1.02);
     }
 
-    /* Бесшовный цикл: трек смещается ровно на -50% (высоту первой группы) */
+    /* Бесшовный цикл: трек смещается ровно на половину высоты */
     @keyframes infiniteScroll {
       0% {
         transform: translateY(0);
@@ -120,7 +125,7 @@
     <div class="stream-track" id="track">
       <!-- Группа 1: Оригинал -->
       <div class="stream-group" id="groupOriginal"></div>
-      <!-- Группа 2: Дубликат для бесшовного лупа -->
+      <!-- Группа 2: Дубликат для бесконечного лупа -->
       <div class="stream-group" id="groupClone" aria-hidden="true"></div>
     </div>
   </div>
@@ -144,7 +149,7 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Привязываем градиент прямо к движущемуся треку
+    // Градиент на всю длину ленты (два идентичных цикла подряд)
     function applyMovingGradient(data, count) {
       let colors = [];
       if (Array.isArray(data.colors) && data.colors.length > 0) {
@@ -159,14 +164,12 @@
         return;
       }
 
-      // Формируем набор точек для одного полного круга
       const stopsNeeded = Math.max(count + 2, colors.length);
       const singleCycleColors = [];
       for (let i = 0; i < stopsNeeded; i++) {
         singleCycleColors.push(colors[i % colors.length]);
       }
 
-      // Дублируем градиент ровно дважды: 0%..50% (для оригинала) и 50%..100% (для клона)
       const allStops = [];
       
       // Первый цикл (0% - 50%)
@@ -175,7 +178,7 @@
         allStops.push(`${col} ${pct.toFixed(2)}%`);
       });
 
-      // Второй цикл (50% - 100%) — идеальный стык
+      // Второй цикл (50% - 100%)
       singleCycleColors.forEach((col, idx) => {
         const pct = 50 + (idx / (stopsNeeded - 1)) * 50;
         allStops.push(`${col} ${pct.toFixed(2)}%`);
@@ -218,8 +221,8 @@
           groupClone.appendChild(createPhotoElement(item, index));
         });
 
-        // Скорость: 1.6 сек на кадр (было 3.5 сек)
-        const totalDuration = Math.max(25, images.length * 1.6);
+        // Скорость ровно в 2 раза быстрее изначальной (60s базовое время, ~2.2s на кадр)
+        const totalDuration = Math.max(60, images.length * 2.2);
         track.style.animationDuration = `${totalDuration}s`;
 
         // Навешиваем градиент на ленту
