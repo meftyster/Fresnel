@@ -1,18 +1,5 @@
 :root {
   --bg-color: #ffffff;
-  --text-main: #e6e6e6;
-  --text-dim: #8a8d93;
-  --accent: #f3dfc0;
-  --glass-bg: rgba(20, 22, 28, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-hover: rgba(243, 223, 192, 0.12);
-  --glass-hover-border: rgba(243, 223, 192, 0.35);
-  --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* === СВЕТЛАЯ ТЕМА (ЧИСТО БЕЛАЯ СТЕНА) === */
-body.theme-light {
-  --bg-color: #ffffff;
   --text-main: #18191c;
   --text-dim: #5c6068;
   --accent: #0f1012;
@@ -20,52 +7,68 @@ body.theme-light {
   --glass-border: rgba(0, 0, 0, 0.12);
   --glass-hover: rgba(0, 0, 0, 0.06);
   --glass-hover-border: rgba(0, 0, 0, 0.3);
-  background-color: #ffffff !important;
+  --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* === ВТОРИЧНЫЙ ТЁМНЫЙ РЕЖИМ (ГРАДИЕНТ И СВЕЧЕНИЕ) === */
+body.theme-dark {
+  --bg-color: #0b0c10;
+  --text-main: #e6e6e6;
+  --text-dim: #8a8d93;
+  --accent: #f3dfc0;
+  --glass-bg: rgba(20, 22, 28, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(243, 223, 192, 0.12);
+  --glass-hover-border: rgba(243, 223, 192, 0.35);
+  background-color: #0b0c10 !important;
   color: var(--text-main);
 }
 
-body.theme-light h1 {
-  color: #121316;
+body.theme-dark h1 {
+  color: #ffffff;
 }
 
-body.theme-light .title-accent,
-body.theme-light .highlight {
-  color: #000000;
-  font-weight: 600;
+body.theme-dark .title-accent,
+body.theme-dark .highlight {
+  color: var(--accent);
+  font-weight: 400;
 }
 
-body.theme-light .author-line {
-  color: #2b2e35;
-  opacity: 0.9;
-}
-
-/* Выразительная, плотная и чистая нейтральная тень для белого фона */
-body.theme-light .photo-item img,
-body.theme-light .photo-card img {
-  box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.22), 0 4px 12px -2px rgba(0, 0, 0, 0.12) !important;
-}
-
-body.theme-light .photo-item img:hover,
-body.theme-light .photo-card img:hover {
-  box-shadow: 0 24px 48px -6px rgba(0, 0, 0, 0.3), 0 8px 18px -2px rgba(0, 0, 0, 0.16) !important;
-}
-
-body.theme-light .site-footer {
-  color: #636770;
-}
-
-body.theme-light .site-footer a {
-  color: #111215;
-  font-weight: 500;
-}
-
-body.theme-light .site-footer a:hover {
-  color: #000000;
-  text-decoration: underline;
-}
-
-body.theme-light .site-footer .footer-copyright {
+body.theme-dark .author-line {
+  color: var(--text-main);
   opacity: 0.75;
+}
+
+body.theme-dark .photo-item img,
+body.theme-dark .photo-card img {
+  box-shadow: 0 12px 36px -8px var(--glow-color, rgba(0, 0, 0, 0.6)) !important;
+}
+
+body.theme-dark .photo-item img:hover,
+body.theme-dark .photo-card img:hover {
+  box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8)) !important;
+}
+
+body.theme-dark .site-footer {
+  color: var(--text-dim);
+}
+
+body.theme-dark .site-footer a {
+  color: var(--text-main);
+  font-weight: 400;
+}
+
+body.theme-dark .site-footer a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+body.theme-dark .site-footer .footer-copyright {
+  opacity: 0.6;
+}
+
+body.theme-dark .modal {
+  background: rgba(10, 11, 14, 0.88);
 }
 
 * {
@@ -90,6 +93,7 @@ body.modal-open {
 /* Специфика страницы непрерывного потока */
 body.page-stream {
   background-color: #0b0c10;
+  color: #e6e6e6;
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -215,29 +219,38 @@ body.page-stream {
   fill: none;
 }
 
-/* Кнопка смены темы (Солнце): верхний правый угол на index.html */
+/* Кнопка темы на index.html */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
 }
 
-/* Кнопка перехода в стрим (Очки): под солнцем на index.html */
+/* Кнопка перехода в стрим на index.html */
 .stream-nav-btn {
   top: 4.8rem;
   right: 1.5rem;
 }
 
-/* Кнопка «Назад» на stream.html: верхний правый угол */
+/* Кнопка «Назад» на stream.html */
 .back-btn {
   top: 1.5rem;
   right: 1.5rem;
   left: auto;
 }
 
-/* Кнопка звука на stream.html: под кнопкой «Назад» */
+/* Кнопка звука на stream.html */
 .page-stream .sound-btn {
   top: 4.8rem;
   right: 1.5rem;
+  background: rgba(20, 22, 28, 0.45);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #e6e6e6;
+}
+
+.page-stream .back-btn {
+  background: rgba(20, 22, 28, 0.45);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #e6e6e6;
 }
 
 .sound-btn {
@@ -250,7 +263,7 @@ body.page-stream {
 .sound-btn.playing .icon-sound { display: block; }
 .sound-btn.playing .icon-mute { display: none; }
 
-/* Галерея (index.html) */
+/* Галерея (index.html): по умолчанию светлая */
 header {
   max-width: 900px;
   margin: 0 auto;
@@ -263,13 +276,13 @@ h1 {
   font-weight: 300;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
-  color: #fff;
+  color: #121316;
 }
 
 .title-accent,
 .highlight {
-  color: var(--accent);
-  font-weight: 400;
+  color: #000000;
+  font-weight: 600;
 }
 
 .description {
@@ -285,8 +298,8 @@ h1 {
   font-size: 0.9rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--text-main);
-  opacity: 0.75;
+  color: #2b2e35;
+  opacity: 0.9;
 }
 
 .gallery-grid {
@@ -306,39 +319,41 @@ h1 {
   transform: translateX(var(--x-offset, 0%));
 }
 
-/* Тёмная тема / градиент: цветная подсветка из --glow-color */
+/* Базовые выставочные тени светлого режима */
 .photo-item img {
   width: 100%;
   height: auto;
   display: block;
   border-radius: 4px;
-  box-shadow: 0 12px 36px -8px var(--glow-color, rgba(0, 0, 0, 0.6));
+  box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.22), 0 4px 12px -2px rgba(0, 0, 0, 0.12);
   cursor: pointer;
   transition: transform 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
 }
 
 .photo-item img:hover {
   transform: scale(1.02);
-  box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
+  box-shadow: 0 24px 48px -6px rgba(0, 0, 0, 0.3), 0 8px 18px -2px rgba(0, 0, 0, 0.16);
 }
 
 /* Футер */
 .site-footer {
   text-align: center;
   padding: 4rem 1.5rem 6rem 1.5rem;
-  color: var(--text-dim);
+  color: #636770;
   font-size: 0.95rem;
   line-height: 1.8;
 }
 
 .site-footer a {
-  color: var(--text-main);
+  color: #111215;
+  font-weight: 500;
   text-decoration: none;
   transition: color 0.25s ease;
 }
 
 .site-footer a:hover {
-  color: var(--accent);
+  color: #000000;
+  text-decoration: underline;
 }
 
 .footer-mode-link {
@@ -353,7 +368,7 @@ h1 {
 
 .footer-copyright {
   font-size: 0.85rem;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 /* Модальное окно */
@@ -361,7 +376,7 @@ h1 {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(10, 11, 14, 0.88);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
@@ -370,10 +385,6 @@ h1 {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.35s var(--ease-smooth);
-}
-
-body.theme-light .modal {
-  background: rgba(255, 255, 255, 0.94);
 }
 
 .modal.active {
