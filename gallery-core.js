@@ -155,13 +155,36 @@ window.GalleryCore = {
   currentPatternIndex: 0,
   activeXOffsets: null,
 
+  getRandomPatternIndex(excludeIndex = -1) {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * this.xPatterns.length);
+    } while (newIndex === excludeIndex && this.xPatterns.length > 1);
+    return newIndex;
+  },
+
   initRandomPattern() {
-    this.currentPatternIndex = Math.floor(Math.random() * this.xPatterns.length);
+    this.currentPatternIndex = this.getRandomPatternIndex();
     this.activeXOffsets = this.xPatterns[this.currentPatternIndex];
     return this.currentPatternIndex;
   },
 
-  // Смена паттерна: горизонталь для первого фото — 0, вертикаль — участвует в общем ритме
+  // Применяет конкретный паттерн к контейнеру с карточками
+  applyPatternToGroup(container, patternIndex) {
+    const pattern = this.xPatterns[patternIndex % this.xPatterns.length];
+    const cards = container.querySelectorAll('.photo-item, .photo-card');
+
+    cards.forEach((el, index) => {
+      const rawVal = pattern[index % pattern.length];
+      const xVal = index === 0 ? 0 : rawVal;
+      const yVal = parseFloat((-rawVal * 0.45).toFixed(2));
+
+      el.style.setProperty('--x-offset', `${xVal}%`);
+      el.style.setProperty('--y-nudge', `${yVal}%`);
+    });
+  },
+
+  // Смена паттерна вручную (по кнопке)
   nextPattern() {
     this.currentPatternIndex = (this.currentPatternIndex + 1) % this.xPatterns.length;
     this.activeXOffsets = this.xPatterns[this.currentPatternIndex];
@@ -169,9 +192,7 @@ window.GalleryCore = {
     const cards = document.querySelectorAll('.photo-item, .photo-card');
     cards.forEach((el, index) => {
       const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
-      // Горизонталь: строго 0% для первой фото, для остальных — по паттерну
       const xVal = index === 0 ? 0 : rawVal;
-      // Вертикаль: в полсилы от исходного значения (коэффициент 0.45) ДЛЯ ВСЕХ, включая первое фото
       const yVal = parseFloat((-rawVal * 0.45).toFixed(2));
 
       el.style.setProperty('--x-offset', `${xVal}%`);
@@ -226,9 +247,7 @@ window.GalleryCore = {
     }
 
     const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
-    // Горизонталь: строго 0% для первой фото
     const xOffsetPercent = index === 0 ? 0 : rawVal;
-    // Вертикаль: микро-сдвиг работает и для первой фото
     const yNudgePercent = parseFloat((-rawVal * 0.45).toFixed(2));
     const glowColor = photoColors[pairIndex % photoColors.length];
 
