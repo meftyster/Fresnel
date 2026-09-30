@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=22">
-  <script src="./gallery-core.js?v=4"></script>
+  <link rel="stylesheet" href="styles.css?v=25">
+  <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-stream">
 
-  <!-- Кнопка «назад» (справа вверху, видна на старте) -->
+  <!-- Кнопка «назад» -->
   <a href="./" class="back-btn visible" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -17,7 +17,7 @@
     </svg>
   </a>
 
-  <!-- Кнопка звука (справа под кнопкой «назад», видна на старте) -->
+  <!-- Кнопка звука -->
   <button class="sound-btn visible playing" id="soundBtn" aria-label="Выключить звук">
     <svg class="icon-mute" viewBox="0 0 24 24">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -30,7 +30,7 @@
     </svg>
   </button>
 
-  <!-- Трек виртуального бесконечного потока -->
+  <!-- Трек бесконечного потока -->
   <div class="stream-viewport" id="viewport">
     <div class="stream-track" id="track">
       <div class="stream-group" id="groupOriginal"></div>
@@ -273,25 +273,22 @@
       });
     });
 
+    // === ДВИЖОК БЕСШОВНОГО ПОТОКА БЕЗ СКАЧКОВ ===
     const AUTO_SPEED = 0.38;
-    let currentY = 0;
+    // Стартуем с -80px, что дает отступ в 2 раза больше от верхнего края на первом старте
+    let currentY = -80; 
     let userVelocity = 0;
     let isUserInteracting = false;
     let resumeTimeout = null;
     let groupHeight = 0;
 
-    // Паттерны для двух групп
-    let patternGroupA = 0;
-    let patternGroupB = 0;
-
-    // Флаги: обновление происходит только один раз в середине чужого блока (за экраном)
-    let updatedOriginalForThisCycle = false;
-    let updatedCloneForThisCycle = false;
-
     let startY = 0;
     let lastY = 0;
     let lastTime = 0;
     let isDragThresholdPassed = false;
+
+    // Паттерны: обе группы изначально синхронны для гарантированной бесшовности стыка
+    let currentActivePattern = GalleryCore.getRandomPatternIndex();
 
     function applyMovingGradient(data, count) {
       const colors = GalleryCore.extractColors(data);
@@ -360,7 +357,7 @@
       }, 300);
     }
 
-    // БЕСШОВНАЯ СМЕНА: паттерн меняется только у группы, находящейся далеко за экраном
+    // Бесшовный цикл: строго выверенная математика телепорта без рывков
     function animate() {
       const measuredHeight = groupOriginal.offsetHeight;
       if (measuredHeight > 0) {
@@ -374,31 +371,21 @@
       }
 
       if (groupHeight > 0) {
-        // Переход границы цикла: только перемещение координат трека без смены стилей
+        // Листание вниз: как только прошли полную высоту группы, мягко закольцовываем
         if (currentY >= groupHeight) {
-          currentY %= groupHeight;
-          updatedOriginalForThisCycle = false;
-        } else if (currentY < 0) {
-          currentY = (currentY % groupHeight) + groupHeight;
-          updatedCloneForThisCycle = false;
-        }
-
-        // 1. Когда экран смотрит на середину Clone (y от 60% до 90% groupHeight)
-        // GroupOriginal гарантированно находится высоко за пределами экрана — обновляем её тихо
-        if (!updatedOriginalForThisCycle && currentY > groupHeight * 0.6 && currentY < groupHeight * 0.9) {
-          patternGroupA = GalleryCore.getRandomPatternIndex(patternGroupB);
-          GalleryCore.applyPatternToGroup(groupOriginal, patternGroupA);
-          updatedOriginalForThisCycle = true;
-          updatedCloneForThisCycle = false;
-        }
-
-        // 2. Когда экран смотрит на середину Original (y от 15% до 45% groupHeight)
-        // GroupClone гарантированно находится далеко внизу за пределами экрана — обновляем её тихо
-        if (!updatedCloneForThisCycle && currentY > groupHeight * 0.15 && currentY < groupHeight * 0.45) {
-          patternGroupB = GalleryCore.getRandomPatternIndex(patternGroupA);
-          GalleryCore.applyPatternToGroup(groupClone, patternGroupB);
-          updatedCloneForThisCycle = true;
-          updatedOriginalForThisCycle = false;
+          currentY -= groupHeight;
+          // Меняем паттерн для следующего круга
+          currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
+          GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
+          GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+        } 
+        // Листание вверх: при уходе в минус мягко перекидываем в конец группы
+        else if (currentY < 0) {
+          currentY += groupHeight;
+          // Меняем паттерн при перемотке вверх
+          currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
+          GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
+          GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
         }
       }
 
@@ -490,23 +477,19 @@
         const allColors = GalleryCore.extractColors(data);
         const photoColors = getPhotoPalette(allColors);
 
-        // Пустой спейсер перед первой группой
-        const spacerOriginal = document.createElement('div');
-        spacerOriginal.className = 'stream-spacer';
-        groupOriginal.appendChild(spacerOriginal);
+        // Очищаем группы перед генерацией
+        groupOriginal.innerHTML = '';
+        groupClone.innerHTML = '';
 
-        // Инициализируем стартовые паттерны
-        patternGroupA = GalleryCore.getRandomPatternIndex();
-        patternGroupB = GalleryCore.getRandomPatternIndex(patternGroupA);
-
+        // Обе группы наполняются СТРОГО идентично — никаких асимметричных спейсеров
         images.forEach((item, index) => {
           groupOriginal.appendChild(createPhotoElement(item, index, photoColors));
           groupClone.appendChild(createPhotoElement(item, index, photoColors));
         });
 
-        // Назначаем паттерны при старте
-        GalleryCore.applyPatternToGroup(groupOriginal, patternGroupA);
-        GalleryCore.applyPatternToGroup(groupClone, patternGroupB);
+        // Назначаем одинаковый паттерн на обе группы, чтобы шов соединения был 100% монолитным
+        GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
+        GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
 
         applyMovingGradient(data, Math.ceil(images.length / 2));
         groupHeight = groupOriginal.offsetHeight;
