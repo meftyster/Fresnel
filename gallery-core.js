@@ -2,7 +2,7 @@
  * gallery-core.js — Единый источник конфигурации и логики раскладки фото
  */
 window.GalleryCore = {
-  // Вертикальные смещения пар в rem
+  // Базовые вертикальные смещения пар в rem
   offsets: [
     7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
     4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
@@ -155,29 +155,32 @@ window.GalleryCore = {
   currentPatternIndex: 0,
   activeXOffsets: null,
 
-  // Инициализация случайного паттерна при старте
   initRandomPattern() {
     this.currentPatternIndex = Math.floor(Math.random() * this.xPatterns.length);
     this.activeXOffsets = this.xPatterns[this.currentPatternIndex];
     return this.currentPatternIndex;
   },
 
-  // Смена паттерна на следующий с обновлением всех элементов на странице
+  // Смена паттерна: горизонталь для первого фото — 0, вертикаль — участвует в общем ритме
   nextPattern() {
     this.currentPatternIndex = (this.currentPatternIndex + 1) % this.xPatterns.length;
     this.activeXOffsets = this.xPatterns[this.currentPatternIndex];
 
     const cards = document.querySelectorAll('.photo-item, .photo-card');
     cards.forEach((el, index) => {
-      // Первое фото всегда держит 0% (строгий створ)
-      const xVal = index === 0 ? 0 : this.activeXOffsets[index % this.activeXOffsets.length];
+      const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
+      // Горизонталь: строго 0% для первой фото, для остальных — по паттерну
+      const xVal = index === 0 ? 0 : rawVal;
+      // Вертикаль: в полсилы от исходного значения (коэффициент 0.45) ДЛЯ ВСЕХ, включая первое фото
+      const yVal = parseFloat((-rawVal * 0.45).toFixed(2));
+
       el.style.setProperty('--x-offset', `${xVal}%`);
+      el.style.setProperty('--y-nudge', `${yVal}%`);
     });
 
     return this.currentPatternIndex;
   },
 
-  // Сортировка изображений по числовому индексу в имени файла
   sortImages(images) {
     return [...images].sort((a, b) => {
       const nameA = (a.src || '').split('/').pop();
@@ -190,7 +193,6 @@ window.GalleryCore = {
     });
   },
 
-  // Извлечение цветов из data.json
   extractColors(data) {
     if (Array.isArray(data.colors) && data.colors.length > 0) return data.colors;
     if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
@@ -199,7 +201,6 @@ window.GalleryCore = {
     return ['#f5f5f7'];
   },
 
-  // Палитра для теней и свечений карточек
   getPhotoPalette(allColors) {
     if (allColors.length > 3) {
       return allColors.slice(2, -1);
@@ -207,7 +208,6 @@ window.GalleryCore = {
     return allColors.filter((_, idx) => idx !== 1);
   },
 
-  // Расчёт параметров раскладки для карточки
   getCardLayout(index, photoColors) {
     if (!this.activeXOffsets) {
       this.initRandomPattern();
@@ -225,25 +225,28 @@ window.GalleryCore = {
       offsetRem = shiftValue > 0 ? shiftValue : 0;
     }
 
-    // Для первого фото гарантируем 0% смещения
-    const xOffsetPercent = index === 0 ? 0 : this.activeXOffsets[index % this.activeXOffsets.length];
+    const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
+    // Горизонталь: строго 0% для первой фото
+    const xOffsetPercent = index === 0 ? 0 : rawVal;
+    // Вертикаль: микро-сдвиг работает и для первой фото
+    const yNudgePercent = parseFloat((-rawVal * 0.45).toFixed(2));
     const glowColor = photoColors[pairIndex % photoColors.length];
 
     return {
       offsetRem,
       xOffsetPercent,
+      yNudgePercent,
       glowColor
     };
   },
 
-  // Применение вычисленных стилей к элементу карточки
   applyCardLayout(element, index, photoColors) {
     const layout = this.getCardLayout(index, photoColors);
     element.style.setProperty('--offset', `${layout.offsetRem}rem`);
     element.style.setProperty('--x-offset', `${layout.xOffsetPercent}%`);
+    element.style.setProperty('--y-nudge', `${layout.yNudgePercent}%`);
     element.style.setProperty('--glow-color', layout.glowColor);
   }
 };
 
-// Запуск случайного выбора паттерна при старте скрипта
 window.GalleryCore.initRandomPattern();
