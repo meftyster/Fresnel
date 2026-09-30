@@ -5,7 +5,7 @@
 }
 
 /* ==========================================================================
-   ГЛОБАЛЬНЫЙ ПУЛЬТ УПРАВЛЕНИЯ СВЕТОМ
+   ГЛОБАЛЬНЫЙ ПУЛЬТ УПРАВЛЕНИЯ СВЕТОМ (КРУТИТЬ В DEVTOOLS ЗДЕСЬ)
    ========================================================================== */
 :root {
   --glow-x: 0px;
@@ -14,10 +14,12 @@
   --glow-spread: 10px;
   --glow-alpha: 0.4;
 
-  --glow-hover-x: 30px;
-  --glow-hover-y: 30px;
-  --glow-hover-blur: 60px;
-  --glow-hover-alpha: 0.8;
+  /* Настройки при наведении (hover) */
+  --glow-hover-x: 24px;
+  --glow-hover-y: 44px;
+  --glow-hover-blur: 56px;
+  --glow-hover-spread: -12px; /* Отрицательный spread убирает свет в верхнем углу */
+  --glow-hover-alpha: 0.85;
 }
 
 html {
@@ -148,8 +150,8 @@ header h1 b {
 .photo-item img:hover,
 .photo-card img:hover {
   transform: translateY(-4px) scale(1.01);
-  /* Направленный свет при наведении со сдвигом по X и Y */
-  box-shadow: var(--glow-hover-x) var(--glow-hover-y) var(--glow-hover-blur) var(--glow-spread) 
+  /* Направленный свет со сжатием контура (отрицательный spread) */
+  box-shadow: var(--glow-hover-x) var(--glow-hover-y) var(--glow-hover-blur) var(--glow-hover-spread) 
               rgb(from var(--glow-color, #f5f5f7) r g b / var(--glow-hover-alpha));
 }
 
