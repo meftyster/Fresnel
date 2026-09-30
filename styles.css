@@ -312,7 +312,7 @@ h1 {
   transform: scale(1);
 }
 
-/* Диапазон от 1280px до 769px: больше воздуха и защита от срезов */
+/* Диапазон от 1280px до 769px: свободные поля под горизонтальный сдвиг */
 @media (max-width: 1280px) and (min-width: 769px) {
   .gallery-grid,
   .stream-group {
@@ -329,8 +329,37 @@ h1 {
   }
 }
 
-/* Мобильные экраны: компактный размер с запасом под горизонтальный сдвиг */
+/* Мобильные экраны: текст и заголовок строго по левому краю */
 @media (max-width: 768px) {
+  header {
+    text-align: left;
+    padding: 6.5rem 2rem 2.5rem 2rem;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 1.85rem;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin-bottom: 1.35rem;
+    text-align: left;
+  }
+
+  .description {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    text-align: left;
+    max-width: 100%;
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .author-line {
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+  }
+
   .photo-item,
   .photo-card {
     width: calc(100% - 2rem);
@@ -341,17 +370,12 @@ h1 {
   .gallery-grid,
   .stream-group {
     gap: 3.5rem 0;
-    padding-top: 2rem;
+    padding-top: 1.5rem;
     padding-left: 2rem;
     padding-right: 2rem;
   }
 
-  header {
-    padding-left: 1.75rem;
-    padding-right: 1.75rem;
-  }
-
-  h1 {
-    font-size: 1.75rem;
+  .site-footer {
+    padding: 3.5rem 2rem 5rem 2rem;
   }
 }
