@@ -29,7 +29,7 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
-    // Вертикальные смещения десктопных пар (не трогают мобильные)
+    // Вертикальные смещения десктопных пар
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
@@ -38,7 +38,7 @@
     // Динамичный, синкопированный ритм для мобильных (40 кадров в %):
     // Резкие контрастные прыжки, кластеры с одной стороны, паузы по центру
     const mobileOffsets = [
-      // 1-10: резкий старт, выравнивание по центру, уход вправо и двойной левый акцент
+      // 1-10: резкий старт, центр, уход вправо и сдвоенный левый шаг
       -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
 
       // 11-20: сдвоенный правый шаг, бросок в левый край, центр и контрастный выпад
@@ -119,15 +119,26 @@
           pageDesc.innerHTML = descHtml;
         }
 
-        // 3. Подвал
+        // 3. Подвал с раздельной разметкой и независимыми отступами
         const currentYear = new Date().getFullYear();
-        let footerText = data.footer && data.footer.trim() 
+        let footerRaw = data.footer && data.footer.trim() 
           ? data.footer 
           : `[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
 
-        footerText = footerText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-        footerText = footerText.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
-        pageFooter.innerHTML = footerText.replace(/\n/g, '<br>');
+        // Парсинг markdown-ссылок и замена года
+        footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
+
+        // Разделение контактов и копирайта
+        const footerParts = footerRaw.split(/\n\s*\n/);
+        const contactsHtml = footerParts[0] ? footerParts[0].trim() : '';
+        const copyrightHtml = footerParts.slice(1).join('<br>').trim();
+
+        pageFooter.innerHTML = `
+          <a href="stream.html" class="footer-mode-link">версия без текста для наблюдения</a>
+          <div class="footer-contacts">${contactsHtml}</div>
+          <div class="footer-copyright">${copyrightHtml}</div>
+        `;
 
         // 4. Построение сетки изображений
         gallery.innerHTML = '';
@@ -136,7 +147,7 @@
           const el = document.createElement('div');
           el.className = 'photo-item';
 
-          // Десктопный вертикальный сдвиг
+          // Десктопный сдвиг
           const pairIndex = Math.floor(index / 2);
           const shiftValue = offsets[pairIndex % offsets.length];
 
@@ -148,7 +159,7 @@
           }
           el.style.setProperty('--offset', `${itemOffset}rem`);
 
-          // Мобильный горизонтальный ритм
+          // Мобильный ритм
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
@@ -162,7 +173,7 @@
           gallery.appendChild(el);
         });
 
-        // 5. Градиент фона
+        // 5. Градиент
         const pairCount = Math.ceil(images.length / 2);
         applyDynamicGradient(data, pairCount);
 
