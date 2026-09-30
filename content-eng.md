@@ -10,7 +10,7 @@ If Kaliningrad is a **school**, one of its primary lessons lies in the lived exp
 
 ---
 
-[version without text - for observation](stream.html)
+[v. without text - for observation](stream.html)
 
 [Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)
 
