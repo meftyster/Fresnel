@@ -3,10 +3,12 @@
   --text-main: #18191c;
   --text-dim: #5c6068;
   --accent: #0f1012;
-  --glass-bg: rgba(255, 255, 255, 0.8);
+  
+  /* Эффект матового стекла для светлой темы: прозрачность 42% */
+  --glass-bg: rgba(255, 255, 255, 0.42);
   --glass-border: rgba(0, 0, 0, 0.12);
-  --glass-hover: rgba(0, 0, 0, 0.06);
-  --glass-hover-border: rgba(0, 0, 0, 0.3);
+  --glass-hover: rgba(255, 255, 255, 0.68);
+  --glass-hover-border: rgba(0, 0, 0, 0.22);
   --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -35,9 +37,11 @@ body.theme-dark {
   --text-main: #e6e6e6;
   --text-dim: #8a8d93;
   --accent: #f3dfc0;
-  --glass-bg: rgba(20, 22, 28, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-hover: rgba(243, 223, 192, 0.12);
+  
+  /* Эффект матового стекла для тёмной темы: полупрозрачный дымчатый фон */
+  --glass-bg: rgba(14, 16, 22, 0.35);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-hover: rgba(24, 28, 38, 0.55);
   --glass-hover-border: rgba(243, 223, 192, 0.35);
   background-color: #0b0c10 !important;
   color: var(--text-main);
@@ -179,7 +183,7 @@ body.page-stream {
   box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
 }
 
-/* === ПЛАВАЮЩИЕ КНОПКИ В СТИЛЕ GLASSMORPHISM === */
+/* === ПЛАВАЮЩИЕ КНОПКИ В СТИЛЕ МАТОВОГО СТЕКЛА (FROSTED GLASS) === */
 .sound-btn,
 .pattern-btn,
 .stream-nav-btn,
@@ -192,9 +196,10 @@ body.page-stream {
   height: 42px;
   border-radius: 50%;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 4px 16px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -204,7 +209,7 @@ body.page-stream {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
-  transition: opacity 0.35s var(--ease-smooth), transform 0.35s var(--ease-smooth), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  transition: opacity 0.35s var(--ease-smooth), transform 0.35s var(--ease-smooth), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .sound-btn:hover,
@@ -216,6 +221,7 @@ body.page-stream {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .sound-btn svg,
@@ -234,6 +240,28 @@ body.page-stream {
   display: block;
 }
 
+/* Скрытие очков в самом низу страницы */
+.stream-nav-btn:not(.visible) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+/* Кнопка «Наверх» на 3-й позиции */
+.scroll-top-btn {
+  top: 8.1rem;
+  right: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.scroll-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
 /* Переключение Солнце / Луна */
 .theme-toggle-btn .icon-sun {
   display: block;
@@ -249,7 +277,7 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   display: block;
 }
 
-/* Вертикальный стек из кнопок в правом верхнем углу */
+/* Вертикальный стек из 3 кнопок в правом верхнем углу */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
@@ -260,31 +288,9 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   right: 1.5rem;
 }
 
-/* 3-я позиция: кнопка стрима с очками */
 .stream-nav-btn {
   top: 8.1rem;
   right: 1.5rem;
-}
-
-.stream-nav-btn:not(.visible) {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-8px);
-}
-
-/* 3-я позиция: кнопка «Наверх» встаёт ровно на место очков */
-.scroll-top-btn {
-  top: 8.1rem;
-  right: 1.5rem;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-}
-
-.scroll-top-btn.visible {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
 }
 
 /* Кнопки stream.html */
@@ -297,14 +303,14 @@ body.theme-dark .theme-toggle-btn .icon-moon {
 .page-stream .sound-btn {
   top: 4.8rem;
   right: 1.5rem;
-  background: rgba(20, 22, 28, 0.45);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(14, 16, 22, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
   color: #e6e6e6;
 }
 
 .page-stream .back-btn {
-  background: rgba(20, 22, 28, 0.45);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(14, 16, 22, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
   color: #e6e6e6;
 }
 
@@ -358,9 +364,10 @@ h1 {
   border-radius: 50%;
   box-sizing: border-box;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22);
   color: var(--text-dim);
   font-family: inherit;
   font-size: 8.5px;
