@@ -331,7 +331,7 @@ header {
   text-align: center;
 }
 
-/* Заголовок как inline-flex контейнер */
+/* Заголовок как inline-flex со строгим baseline-выравниванием */
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
@@ -340,15 +340,15 @@ h1 {
   margin-bottom: 1.5rem;
   color: #121316;
   display: inline-flex;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: center;
 }
 
-/* Фиксированный контейнер под длину заголовка */
+/* Точный размер контейнера под заголовок на десктопе */
 .title-text-box {
   display: inline-block;
-  width: 320px;            /* ширина под The Fresnel Effect на десктопе */
-  text-align: right;       /* текст аккуратно примыкает к кнопке */
+  width: 290px;
+  text-align: right;
   white-space: nowrap;
 }
 
@@ -358,7 +358,7 @@ h1 {
   font-weight: 600;
 }
 
-/* Круглая кнопка языка RU / EN — всегда на фиксированном расстоянии от title-text-box */
+/* Круглая кнопка языка RU / EN — низ круга строго на базовой линии строки */
 .lang-switch-btn {
   display: inline-flex;
   align-items: center;
@@ -384,11 +384,10 @@ h1 {
   cursor: pointer;
   outline: none;
   margin-left: 0.9rem;
-  margin-bottom: 0.18em;
-  vertical-align: bottom;
-  align-self: flex-end;
+  margin-bottom: 0;
+  vertical-align: baseline;
+  transform: translateY(-2px) !important; /* поднимаем нижний край круга ровно на уровень базовой линии букв */
   flex-shrink: 0;
-  transform: none !important;
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
@@ -398,7 +397,7 @@ h1 {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
-  transform: none !important;
+  transform: translateY(-2px) !important;
 }
 
 .description {
@@ -462,6 +461,7 @@ h1 {
   line-height: 1.8;
 }
 
+/* Ссылки без подчёркиваний */
 .site-footer a {
   color: #111215;
   font-weight: 500;
@@ -576,11 +576,12 @@ h1 {
     margin-bottom: 1.25rem;
     text-align: left;
     justify-content: flex-start;
-    align-items: flex-end;
+    align-items: baseline;
   }
 
+  /* Точный размер контейнера под заголовок на планшетах */
   .title-text-box {
-    width: 275px;           /* фиксированная ширина на мобильных */
+    width: 245px;
     text-align: left;
   }
 
@@ -591,7 +592,13 @@ h1 {
     min-height: 21px;
     font-size: 7.5px;
     margin-left: 0.85rem;
-    margin-bottom: 0.15em;
+    transform: translateY(-2px) !important;
+  }
+
+  .lang-switch-btn:hover,
+  .lang-switch-btn:active,
+  .lang-switch-btn:focus {
+    transform: translateY(-2px) !important;
   }
 
   .scroll-top-btn {
@@ -657,11 +664,12 @@ h1 {
     margin-bottom: 1rem;
     text-align: left;
     justify-content: flex-start;
-    align-items: flex-end;
+    align-items: baseline;
   }
 
+  /* Точный размер контейнера под заголовок на смартфонах */
   .title-text-box {
-    width: 225px;           /* фиксированная ширина на смартфонах */
+    width: 200px;
     text-align: left;
   }
 
@@ -672,7 +680,13 @@ h1 {
     min-height: 19px;
     font-size: 7px;
     margin-left: 0.75rem;
-    margin-bottom: 0.12em;
+    transform: translateY(-1.5px) !important;
+  }
+
+  .lang-switch-btn:hover,
+  .lang-switch-btn:active,
+  .lang-switch-btn:focus {
+    transform: translateY(-1.5px) !important;
   }
 
   .description {
