@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=19">
-  <script src="./gallery-core.js?v=2"></script>
+  <link rel="stylesheet" href="./styles.css?v=27">
+  <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-index">
 
@@ -27,7 +27,7 @@
     </svg>
   </button>
 
-  <!-- Кнопка смены ритма/волны (Waves из Lucide) -->
+  <!-- Кнопка смены ритма/волны -->
   <button class="pattern-btn visible" id="patternBtn" aria-label="Сменить ритм раскладки">
     <svg viewBox="0 0 24 24">
       <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
@@ -36,7 +36,7 @@
     </svg>
   </button>
 
-  <!-- Кнопка перехода в стрим (Очки из Lucide) -->
+  <!-- Кнопка перехода в стрим -->
   <a href="stream.html" class="stream-nav-btn visible" id="streamNavBtn" aria-label="Режим наблюдения">
     <svg viewBox="0 0 24 24">
       <circle cx="6" cy="15" r="4"></circle>
@@ -49,7 +49,11 @@
 
   <header>
     <h1 id="title">...</h1>
-    <div id="desc" class="description"></div>
+    <div class="desc-wrapper">
+      <!-- Переключатель языка на левом поле первого абзаца -->
+      <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">EN</button>
+      <div id="desc" class="description"></div>
+    </div>
   </header>
 
   <main class="gallery-grid" id="gallery"></main>
@@ -71,8 +75,9 @@
     const streamNavBtn = document.getElementById('streamNavBtn');
     const patternBtn = document.getElementById('patternBtn');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const langSwitchBtn = document.getElementById('langSwitchBtn');
 
-    // === ПЕРЕКЛЮЧЕНИЕ ТЕМЫ (БЕЛЫЙ ПО УМОЛЧАНИЮ) ===
+    // === ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ===
     let currentRawData = null;
     let savedTheme = localStorage.getItem('fresnel_theme');
     let isDarkMode = savedTheme === 'dark';
@@ -104,76 +109,22 @@
       applyTheme();
     });
 
-    // Переключение ритма сетки
     patternBtn.addEventListener('click', () => {
       GalleryCore.nextPattern();
     });
 
-    // Управление видимостью кнопок и скрытием очков в конце страницы
-    let topUiTimeout = null;
-    let isHoveringTopUi = false;
-    const allTopBtns = [themeToggleBtn, patternBtn, streamNavBtn];
-
-    function isAtBottom() {
+    // === УПРАВЛЕНИЕ ВИДИМОСТЬЮ ОЧКОВ ПРИ ДОСТИЖЕНИИ ДНА СТРАНИЦЫ ===
+    function checkBottomAndToggleStreamBtn() {
       const scrollPos = window.innerHeight + window.scrollY;
       const threshold = document.documentElement.scrollHeight - 70;
-      return scrollPos >= threshold;
-    }
-
-    function checkBottomAndToggleStreamBtn() {
-      if (isAtBottom()) {
+      if (scrollPos >= threshold) {
         streamNavBtn.classList.remove('visible');
-      }
-    }
-
-    function triggerTopUi() {
-      themeToggleBtn.classList.add('visible');
-      patternBtn.classList.add('visible');
-
-      if (!isAtBottom()) {
-        streamNavBtn.classList.add('visible');
       } else {
-        streamNavBtn.classList.remove('visible');
-      }
-
-      clearTimeout(topUiTimeout);
-
-      if (!isHoveringTopUi) {
-        topUiTimeout = setTimeout(() => {
-          allTopBtns.forEach(btn => btn.classList.remove('visible'));
-        }, 2500);
+        streamNavBtn.classList.add('visible');
       }
     }
 
-    topUiTimeout = setTimeout(() => {
-      if (!isHoveringTopUi) {
-        allTopBtns.forEach(btn => btn.classList.remove('visible'));
-      }
-    }, 2500);
-
-    window.addEventListener('mousemove', triggerTopUi);
-    window.addEventListener('touchstart', triggerTopUi, { passive: true });
-    window.addEventListener('scroll', () => {
-      triggerTopUi();
-      checkBottomAndToggleStreamBtn();
-    }, { passive: true });
-
-    allTopBtns.forEach(btn => {
-      btn.addEventListener('mouseenter', () => {
-        isHoveringTopUi = true;
-        clearTimeout(topUiTimeout);
-        allTopBtns.forEach(b => {
-          if (b !== streamNavBtn || !isAtBottom()) {
-            b.classList.add('visible');
-          }
-        });
-      });
-
-      btn.addEventListener('mouseleave', () => {
-        isHoveringTopUi = false;
-        triggerTopUi();
-      });
-    });
+    window.addEventListener('scroll', checkBottomAndToggleStreamBtn, { passive: true });
 
     function buildDynamicGradient(data, pairCount) {
       const colors = GalleryCore.extractColors(data);
@@ -214,42 +165,101 @@
 
     const glassesIconSvg = `<svg class="footer-glasses-icon" viewBox="0 0 24 24"><circle cx="6" cy="15" r="4"></circle><circle cx="18" cy="15" r="4"></circle><path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"></path><path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2"></path><path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2"></path></svg>`;
 
+    // === ЛОГИКА ТЕКСТОВ И МУЛЬТИЯЗЫЧНОСТИ (RU / EN) ===
+    let currentLang = localStorage.getItem('fresnel_lang') || 'ru';
+    let enTextData = null;
+
+    function renderHeaderAndDesc(rawTitle, rawDesc) {
+      if (rawTitle) {
+        const cleanTitle = rawTitle.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
+        document.title = cleanTitle;
+
+        pageTitle.innerHTML = rawTitle
+          .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="title-accent">$1</span>')
+          .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="title-accent">$1</span>')
+          .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
+      }
+
+      if (rawDesc) {
+        let descHtml = rawDesc
+          .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
+          .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="highlight">$1</span>')
+          .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+
+        const paragraphs = descHtml.split(/\n\s*\n/);
+        if (paragraphs.length > 1) {
+          const lastIdx = paragraphs.length - 1;
+          const lastP = paragraphs[lastIdx].trim();
+          if (lastP.includes('/') || lastP.includes('Антон') || lastP.includes('Rick') || lastP.includes('Anton')) {
+            paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
+          }
+          descHtml = paragraphs.join('<br><br>');
+        } else {
+          descHtml = descHtml.replace(/\n/g, '<br>');
+        }
+
+        pageDesc.innerHTML = descHtml;
+      }
+    }
+
+    async function parseEngMarkdown() {
+      if (enTextData) return enTextData;
+      try {
+        const res = await fetch('content-eng.md?v=' + Date.now());
+        if (!res.ok) throw new Error('content-eng.md not found');
+        const text = await res.text();
+
+        let title = '';
+        let description = '';
+
+        // Поиск # Заголовок
+        const matchTitle = text.match(/^#\s+(.+)$/m);
+        if (matchTitle) {
+          title = matchTitle[1].trim();
+          description = text.replace(/^#\s+(.+)$/m, '').trim();
+        } else {
+          const parts = text.split(/\n\s*\n/);
+          title = parts[0] ? parts[0].trim() : 'Fresnel Effect';
+          description = parts.slice(1).join('\n\n').trim();
+        }
+
+        enTextData = { title, description };
+        return enTextData;
+      } catch (err) {
+        console.warn('Не удалось загрузить content-eng.md, используется дефолтный текст', err);
+        return null;
+      }
+    }
+
+    async function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('fresnel_lang', lang);
+      langSwitchBtn.textContent = lang === 'ru' ? 'EN' : 'RU';
+
+      if (lang === 'en') {
+        const enData = await parseEngMarkdown();
+        if (enData) {
+          renderHeaderAndDesc(enData.title, enData.description);
+        }
+      } else {
+        if (currentRawData) {
+          renderHeaderAndDesc(currentRawData.title, currentRawData.description);
+        }
+      }
+    }
+
+    langSwitchBtn.addEventListener('click', () => {
+      setLanguage(currentLang === 'ru' ? 'en' : 'ru');
+    });
+
     async function init() {
       try {
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
         currentRawData = data;
 
-        if (data.title) {
-          const cleanTitle = data.title.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
-          document.title = cleanTitle;
-
-          pageTitle.innerHTML = data.title
-            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="title-accent">$1</span>')
-            .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="title-accent">$1</span>')
-            .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
-        }
-
-        if (data.description) {
-          let descHtml = data.description
-            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
-            .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="highlight">$1</span>')
-            .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
-
-          const paragraphs = descHtml.split(/\n\s*\n/);
-          if (paragraphs.length > 1) {
-            const lastIdx = paragraphs.length - 1;
-            const lastP = paragraphs[lastIdx].trim();
-            if (lastP.includes('/') || lastP.includes('Антон') || lastP.includes('Rick')) {
-              paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
-            }
-            descHtml = paragraphs.join('<br><br>');
-          } else {
-            descHtml = descHtml.replace(/\n/g, '<br>');
-          }
-
-          pageDesc.innerHTML = descHtml;
-        }
+        // Рендерим нужный язык со старта
+        await setLanguage(currentLang);
 
         const currentYear = new Date().getFullYear();
         let footerRaw = data.footer && data.footer.trim() 
@@ -261,7 +271,7 @@
           const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
           
           let formattedText = text;
-          if (url.includes('stream.html') || text.toLowerCase().includes('наблюдения')) {
+          if (url.includes('stream.html') || text.toLowerCase().includes('наблюдения') || text.toLowerCase().includes('observation')) {
             formattedText = text.replace(/\s*[-—–]\s*/, ` ${glassesIconSvg} `);
           }
           
