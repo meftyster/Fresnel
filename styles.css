@@ -152,20 +152,28 @@ body.page-stream {
   fill: none;
 }
 
-.sound-btn {
-  top: 1.5rem;
-  right: 1.5rem;
-}
-
-/* На index.html кнопка стрима занимает позицию верхнего правого угла */
+/* Кнопка перехода в стрим на главной (index.html) */
 .stream-nav-btn {
   top: 1.5rem;
   right: 1.5rem;
 }
 
+/* Кнопка «Назад» на странице стрима: верхний правый угол */
 .back-btn {
   top: 1.5rem;
-  left: 1.5rem;
+  right: 1.5rem;
+  left: auto;
+}
+
+/* Кнопка звука на странице стрима: строго под кнопкой «Назад» */
+.page-stream .sound-btn {
+  top: 4.8rem;
+  right: 1.5rem;
+}
+
+.sound-btn {
+  top: 1.5rem;
+  right: 1.5rem;
 }
 
 .sound-btn .icon-sound { display: none; }
