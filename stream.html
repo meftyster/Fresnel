@@ -65,7 +65,7 @@
     </svg>
   </button>
 
-  <!-- Трек виртуального потока -->
+  <!-- Трек виртуального бесконечного потока -->
   <div class="stream-viewport" id="viewport">
     <div class="stream-track" id="track">
       <div class="stream-group" id="groupOriginal"></div>
@@ -392,7 +392,11 @@
       const pairIndex = Math.floor(index / 2);
       const shiftValue = offsets[pairIndex % offsets.length];
       let itemOffset = 0;
-      if (index % 2 === 0) {
+
+      // Первое фото (index === 0) строго 0rem, второе фото первой пары (index === 1) сохраняет 7rem
+      if (index === 0) {
+        itemOffset = 0;
+      } else if (index % 2 === 0) {
         itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
       } else {
         itemOffset = shiftValue > 0 ? shiftValue : 0;
