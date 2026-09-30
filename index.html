@@ -46,8 +46,8 @@
 
     // === АУДИОМОДУЛЬ С КРОССФЕЙДОМ (index.html) ===
     const TARGET_VOLUME = 0.65;
-    const FADE_TIME = 1.8;
-    const CROSSFADE_TIME = 3.0;
+    const FADE_TIME = 1.8;      // Фейд только для ручного включения/выключения
+    const CROSSFADE_TIME = 2.5; // Время перехлёста конца и начала без падения громкости
 
     let audioCtx = null;
     let masterGain = null;
@@ -88,6 +88,7 @@
       return audioCtx;
     }
 
+    // Равномощный перехлест: сумма громкостей постоянна, провал исключен
     function scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain) {
       if (!isPlaying) return;
 
@@ -107,12 +108,19 @@
         if (!isPlaying) return;
 
         toPlayer.currentTime = 0;
-        toGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        toGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
         toPlayer.play().then(() => {
           const now = audioCtx.currentTime;
-          toGain.gain.exponentialRampToValueAtTime(1.0, now + CROSSFADE_TIME);
-          fromGain.gain.setValueAtTime(Math.max(0.001, fromGain.gain.value), now);
-          fromGain.gain.exponentialRampToValueAtTime(0.001, now + CROSSFADE_TIME);
+
+          toGain.gain.cancelScheduledValues(now);
+          fromGain.gain.cancelScheduledValues(now);
+
+          toGain.gain.setValueAtTime(0, now);
+          toGain.gain.linearRampToValueAtTime(1.0, now + CROSSFADE_TIME);
+
+          fromGain.gain.setValueAtTime(1.0, now);
+          fromGain.gain.linearRampToValueAtTime(0, now + CROSSFADE_TIME);
 
           activePlayer = activePlayer === 'A' ? 'B' : 'A';
 
@@ -130,6 +138,7 @@
       }, timeUntilFade);
     }
 
+    // Старт: плавное открытие общего мастера с 0 до TARGET_VOLUME
     function playAudio() {
       const ctx = getAudioContext();
       isPlaying = true;
@@ -137,14 +146,14 @@
       soundBtn.setAttribute('aria-label', 'Выключить звук');
 
       gainA.gain.setValueAtTime(1.0, ctx.currentTime);
-      gainB.gain.setValueAtTime(0.001, ctx.currentTime);
+      gainB.gain.setValueAtTime(0, ctx.currentTime);
       activePlayer = 'A';
 
       playerA.play().then(() => {
         const now = ctx.currentTime;
         masterGain.gain.cancelScheduledValues(now);
-        masterGain.gain.setValueAtTime(Math.max(0.0001, masterGain.gain.value), now);
-        masterGain.gain.exponentialRampToValueAtTime(TARGET_VOLUME, now + FADE_TIME);
+        masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+        masterGain.gain.linearRampToValueAtTime(TARGET_VOLUME, now + FADE_TIME);
 
         scheduleCrossfade(playerA, playerB, gainA, gainB);
       }).catch(err => {
@@ -154,6 +163,7 @@
       });
     }
 
+    // Пауза: плавное закрытие общего мастера в ноль
     function pauseAudio() {
       if (!audioCtx) return;
       isPlaying = false;
@@ -163,13 +173,15 @@
 
       const now = audioCtx.currentTime;
       masterGain.gain.cancelScheduledValues(now);
-      masterGain.gain.setValueAtTime(Math.max(0.0001, masterGain.gain.value), now);
-      masterGain.gain.exponentialRampToValueAtTime(0.0001, now + FADE_TIME);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+      masterGain.gain.linearRampToValueAtTime(0, now + FADE_TIME);
 
       setTimeout(() => {
         if (!isPlaying) {
           playerA.pause();
           playerB.pause();
+          playerA.currentTime = 0;
+          playerB.currentTime = 0;
         }
       }, FADE_TIME * 1000);
     }
