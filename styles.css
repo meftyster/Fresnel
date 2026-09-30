@@ -386,7 +386,7 @@ h1 {
   margin-left: 0.9rem;
   margin-bottom: 0;
   vertical-align: baseline;
-  transform: translateY(-2px) !important; /* поднимаем нижний край круга ровно на уровень базовой линии букв */
+  transform: translateY(-2px) !important;
   flex-shrink: 0;
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
@@ -579,9 +579,9 @@ h1 {
     align-items: baseline;
   }
 
-  /* Точный размер контейнера под заголовок на планшетах */
+  /* Точный размер контейнера под заголовок на планшетах (без лишней пустоты) */
   .title-text-box {
-    width: 245px;
+    width: 208px;
     text-align: left;
   }
 
@@ -667,9 +667,9 @@ h1 {
     align-items: baseline;
   }
 
-  /* Точный размер контейнера под заголовок на смартфонах */
+  /* Точный размер контейнера под заголовок на смартфонах (без лишней пустоты) */
   .title-text-box {
-    width: 200px;
+    width: 168px;
     text-align: left;
   }
 
