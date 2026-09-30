@@ -179,12 +179,13 @@ body.page-stream {
   box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
 }
 
-/* === ВЕРХНИЕ ПЛАВАЮЩИЕ КНОПКИ (ВСЕГДА ВИДИМЫ) === */
+/* === ПЛАВАЮЩИЕ КНОПКИ В СТИЛЕ GLASSMORPHISM === */
 .sound-btn,
 .pattern-btn,
 .stream-nav-btn,
 .back-btn,
-.theme-toggle-btn {
+.theme-toggle-btn,
+.scroll-top-btn {
   position: fixed;
   z-index: 100;
   width: 42px;
@@ -210,7 +211,8 @@ body.page-stream {
 .pattern-btn:hover,
 .stream-nav-btn:hover,
 .back-btn:hover,
-.theme-toggle-btn:hover {
+.theme-toggle-btn:hover,
+.scroll-top-btn:hover {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
@@ -220,7 +222,8 @@ body.page-stream {
 .pattern-btn svg,
 .stream-nav-btn svg,
 .back-btn svg,
-.theme-toggle-btn svg {
+.theme-toggle-btn svg,
+.scroll-top-btn svg {
   width: 18px;
   height: 18px;
   stroke: currentColor;
@@ -231,12 +234,29 @@ body.page-stream {
   display: block;
 }
 
+/* Скрытие очков в самом низу страницы */
 .stream-nav-btn:not(.visible) {
   opacity: 0;
   pointer-events: none;
   transform: translateY(-8px);
 }
 
+/* Кнопка «Наверх» в правом нижнем углу */
+.scroll-top-btn {
+  bottom: 2.2rem;
+  right: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.scroll-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Переключение Солнце / Луна */
 .theme-toggle-btn .icon-sun {
   display: block;
 }
@@ -251,7 +271,7 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   display: block;
 }
 
-/* Стек из 3 кнопок */
+/* Вертикальный стек из 3 кнопок в правом верхнем углу */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
@@ -314,7 +334,7 @@ h1 {
   margin-bottom: 1.5rem;
   color: #121316;
   display: inline-flex;
-  align-items: flex-end; /* привязка всех дочерних элементов к нижней линии */
+  align-items: flex-end;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -350,7 +370,7 @@ h1 {
   cursor: pointer;
   outline: none;
   margin-left: 1.1rem;
-  margin-bottom: 0.18em; /* компенсация оптического десендера шрифта: низ круга вровень с низом букв */
+  margin-bottom: 0.18em;
   vertical-align: bottom;
   align-self: flex-end;
   flex-shrink: 0;
@@ -428,6 +448,7 @@ h1 {
   line-height: 1.8;
 }
 
+/* Ссылки без подчёркиваний */
 .site-footer a {
   color: #111215;
   font-weight: 500;
@@ -553,6 +574,12 @@ h1 {
     font-size: 7.5px;
     margin-left: 0.85rem;
     margin-bottom: 0.15em;
+  }
+
+  /* Кнопка наверх на мобильных экранах */
+  .scroll-top-btn {
+    bottom: 1.5rem;
+    right: 1.5rem;
   }
 
   .description {
