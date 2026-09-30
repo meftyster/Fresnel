@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=21">
+  <link rel="stylesheet" href="styles.css?v=22">
   <script src="./gallery-core.js?v=4"></script>
 </head>
 <body class="page-stream">
@@ -284,12 +284,15 @@
     let patternGroupA = 0;
     let patternGroupB = 0;
 
+    // Флаги: обновление происходит только один раз в середине чужого блока (за экраном)
+    let updatedOriginalForThisCycle = false;
+    let updatedCloneForThisCycle = false;
+
     let startY = 0;
     let lastY = 0;
     let lastTime = 0;
     let isDragThresholdPassed = false;
 
-    // Бесшовный луп: последний цвет строго равен первому
     function applyMovingGradient(data, count) {
       const colors = GalleryCore.extractColors(data);
       if (colors.length === 0) return;
@@ -357,7 +360,7 @@
       }, 300);
     }
 
-    // Рандомизация паттерна на каждом цикле скролла (в обе стороны)
+    // БЕСШОВНАЯ СМЕНА: паттерн меняется только у группы, находящейся далеко за экраном
     function animate() {
       const measuredHeight = groupOriginal.offsetHeight;
       if (measuredHeight > 0) {
@@ -371,19 +374,31 @@
       }
 
       if (groupHeight > 0) {
-        // Листание вниз: пересекли конец первого цикла
+        // Переход границы цикла: только перемещение координат трека без смены стилей
         if (currentY >= groupHeight) {
           currentY %= groupHeight;
-          // Обновляем паттерн на группе Original, пока она скрыта выше экрана
+          updatedOriginalForThisCycle = false;
+        } else if (currentY < 0) {
+          currentY = (currentY % groupHeight) + groupHeight;
+          updatedCloneForThisCycle = false;
+        }
+
+        // 1. Когда экран смотрит на середину Clone (y от 60% до 90% groupHeight)
+        // GroupOriginal гарантированно находится высоко за пределами экрана — обновляем её тихо
+        if (!updatedOriginalForThisCycle && currentY > groupHeight * 0.6 && currentY < groupHeight * 0.9) {
           patternGroupA = GalleryCore.getRandomPatternIndex(patternGroupB);
           GalleryCore.applyPatternToGroup(groupOriginal, patternGroupA);
-        } 
-        // Листание вверх / обратно: пересекли начало цикла в обратную сторону
-        else if (currentY < 0) {
-          currentY = (currentY % groupHeight) + groupHeight;
-          // Обновляем паттерн на группе Clone, пока она скрыта внизу экрана
+          updatedOriginalForThisCycle = true;
+          updatedCloneForThisCycle = false;
+        }
+
+        // 2. Когда экран смотрит на середину Original (y от 15% до 45% groupHeight)
+        // GroupClone гарантированно находится далеко внизу за пределами экрана — обновляем её тихо
+        if (!updatedCloneForThisCycle && currentY > groupHeight * 0.15 && currentY < groupHeight * 0.45) {
           patternGroupB = GalleryCore.getRandomPatternIndex(patternGroupA);
           GalleryCore.applyPatternToGroup(groupClone, patternGroupB);
+          updatedCloneForThisCycle = true;
+          updatedOriginalForThisCycle = false;
         }
       }
 
@@ -473,14 +488,14 @@
 
         const images = GalleryCore.sortImages(rawImages);
         const allColors = GalleryCore.extractColors(data);
-        const photoColors = GalleryCore.getPhotoPalette(allColors);
+        const photoColors = getPhotoPalette(allColors);
 
-        // Вставляем спейсер строго перед первой группой
+        // Пустой спейсер перед первой группой
         const spacerOriginal = document.createElement('div');
         spacerOriginal.className = 'stream-spacer';
         groupOriginal.appendChild(spacerOriginal);
 
-        // Инициализируем стартовые паттерны для обеих групп
+        // Инициализируем стартовые паттерны
         patternGroupA = GalleryCore.getRandomPatternIndex();
         patternGroupB = GalleryCore.getRandomPatternIndex(patternGroupA);
 
@@ -489,7 +504,7 @@
           groupClone.appendChild(createPhotoElement(item, index, photoColors));
         });
 
-        // Назначаем разные паттерны сразу со старта
+        // Назначаем паттерны при старте
         GalleryCore.applyPatternToGroup(groupOriginal, patternGroupA);
         GalleryCore.applyPatternToGroup(groupClone, patternGroupB);
 
