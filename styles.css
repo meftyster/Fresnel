@@ -15,13 +15,16 @@ body {
   background-color: #0b0d10;
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  padding: 5rem 2rem 12rem;
   overflow-x: hidden;
 }
 
 /* ==========================================================================
-   ДЕСКТОПНЫЙ БЛОК ШАПКИ (index.html)
+   ГЛАВНАЯ СТРАНИЦА: ШАПКА И СЕТКА (index.html)
    ========================================================================== */
+body.page-index {
+  padding: 5rem 2rem 12rem;
+}
+
 header {
   max-width: 660px;
   margin: 0 auto 10.5rem;
@@ -73,27 +76,54 @@ header h1 b {
 }
 
 /* ==========================================================================
-   ЕДИНЫЙ СТИЛЬ ФОТОКАРТОЧЕК (И для index.html, и для stream.html)
+   ОБЩАЯ ДВУХКОЛОНОЧНАЯ СЕТКА (1080px) ДЛЯ INDEX И STREAM
+   ========================================================================== */
+.gallery-grid,
+.stream-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 4.5rem;
+  row-gap: 8rem;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.stream-group {
+  padding: 8rem 2rem;
+}
+
+/* ==========================================================================
+   ОБЩИЕ КАРТОЧКИ ФОТО И ЗАДНИЙ СВЕТ
    ========================================================================== */
 .photo-item,
 .photo-card {
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   margin-top: var(--offset, 0rem);
+  box-sizing: border-box;
 }
 
 .photo-item img,
 .photo-card img {
   width: 100%;
+  height: auto;
   aspect-ratio: 9 / 16;
   object-fit: cover;
   display: block;
   border-radius: 4px;
-  /* Мягкий свет за фото (0.1 прозрачность, 30px blur, без рамок) */
+  /* Мягкий задний свет */
   box-shadow: 0 14px 30px rgba(245, 245, 247, 0.1);
   cursor: zoom-in;
   pointer-events: auto;
   transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s ease;
+}
+
+.photo-card img {
+  cursor: pointer;
 }
 
 .photo-item img:hover,
@@ -102,18 +132,67 @@ header h1 b {
   box-shadow: 0 18px 40px rgba(245, 245, 247, 0.15);
 }
 
-/* Сетка главной страницы (index.html) */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 4.5rem;
-  row-gap: 8rem;
-  max-width: 1080px;
-  margin: 0 auto;
+/* ==========================================================================
+   КНОПКА «НАЗАД» (stream.html)
+   ========================================================================== */
+.back-btn {
+  position: fixed;
+  top: 1.8rem;
+  left: 1.8rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(11, 13, 16, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 245, 247, 0.08);
+  color: rgba(245, 245, 247, 0.6);
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.92);
+  transition: opacity 0.5s cubic-bezier(0.2, 0, 0, 1),
+              transform 0.5s cubic-bezier(0.2, 0, 0, 1),
+              visibility 0.5s ease,
+              color 0.25s ease,
+              background 0.25s ease,
+              border-color 0.25s ease;
+}
+
+.back-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.back-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transition: transform 0.25s ease;
+}
+
+.back-btn:hover {
+  color: #f3dfc0;
+  background: rgba(20, 24, 30, 0.75);
+  border-color: rgba(243, 223, 192, 0.3);
+}
+
+.back-btn:hover svg {
+  transform: translateX(-2px);
 }
 
 /* ==========================================================================
-   ПОДВАЛ И ССЫЛКИ
+   ПОДВАЛ (index.html)
    ========================================================================== */
 .site-footer {
   max-width: 1080px;
@@ -167,7 +246,7 @@ header h1 b {
 }
 
 /* ==========================================================================
-   МОДАЛЬНОЕ ОКНО ФОКУСА (Практически полное затемнение)
+   МОДАЛЬНОЕ ОКНО ФОКУСА
    ========================================================================== */
 .modal {
   position: fixed;
@@ -211,7 +290,7 @@ header h1 b {
    МОБИЛЬНАЯ ВЕРСИЯ (Экран <= 768px)
    ========================================================================== */
 @media (max-width: 768px) {
-  body {
+  body.page-index {
     padding: 3.5rem 1rem 8rem;
   }
 
@@ -235,12 +314,18 @@ header h1 b {
     margin-top: 2.5rem;
   }
 
-  .gallery-grid {
+  .gallery-grid,
+  .stream-group {
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 5rem;
+    column-gap: 0;
     width: 100%;
+  }
+
+  .stream-group {
+    padding: 6rem 1rem;
   }
 
   .photo-item,
@@ -254,6 +339,18 @@ header h1 b {
   .photo-item img,
   .photo-card img {
     box-shadow: 0 12px 28px rgba(245, 245, 247, 0.09);
+  }
+
+  .back-btn {
+    top: 1.2rem;
+    left: 1.2rem;
+    width: 38px;
+    height: 38px;
+  }
+
+  .back-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   .site-footer {
