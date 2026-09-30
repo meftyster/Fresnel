@@ -4,29 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <!-- Единый источник стилей для фото, света и модального окна -->
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Только специфичные параметры бесконечного виртуального потока */
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      padding: 0;
       margin: 0;
+      padding: 0;
       touch-action: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      background-color: #0b0d10;
     }
 
-    /* Окно просмотра на весь экран */
+    /* Окно просмотра: строго центрирует поток по экрану */
     .stream-viewport {
       position: relative;
-      width: 100%;
+      width: 100vw;
       height: 100vh;
       overflow: hidden;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
       cursor: grab;
     }
 
@@ -34,29 +34,64 @@
       cursor: grabbing;
     }
 
-    /* Трек виртуального скролла */
+    /* 
+      Движущийся трек: растянут на всю ширину для градиента,
+      но элементы внутри центрируются
+    */
     .stream-track {
       position: absolute;
       top: 0;
-      width: 100vw;
+      left: 0;
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       will-change: transform;
     }
 
-    /* Десктопная группа: двухколоночная сетка 1080px */
+    /* 
+      ДЕСКТОП: Сетка строго как на index.html
+      Ширина ровно 1080px (или 90vw), центрирование auto
+    */
     .stream-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 4.5rem;
-      row-gap: 8rem;
-      width: 100%;
-      max-width: 1080px;
-      padding: 8rem 2rem;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      column-gap: 4.5rem !important;
+      row-gap: 8rem !important;
+      width: 100% !important;
+      max-width: 1080px !important;
+      padding: 8rem 2rem !important;
+      box-sizing: border-box !important;
     }
 
-    /* Кнопка «назад» с автоскрытием */
+    .photo-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      margin-top: var(--offset, 0rem) !important;
+      box-sizing: border-box !important;
+    }
+
+    .photo-card img {
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 9 / 16 !important;
+      object-fit: cover !important;
+      display: block !important;
+      border-radius: 4px !important;
+      box-shadow: 0 14px 30px rgba(245, 245, 247, 0.1) !important;
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s ease !important;
+    }
+
+    .photo-card img:hover {
+      transform: translateY(-4px) scale(1.01) !important;
+      box-shadow: 0 18px 40px rgba(245, 245, 247, 0.15) !important;
+    }
+
+    /* Кнопка «назад» */
     .back-btn {
       position: fixed;
       top: 1.8rem;
@@ -113,7 +148,7 @@
       transform: translateX(-2px);
     }
 
-    /* Мобильная версия группы потока */
+    /* МОБИЛЬНАЯ ВЕРСИЯ */
     @media (max-width: 768px) {
       .back-btn {
         top: 1.2rem;
@@ -128,20 +163,30 @@
       }
 
       .stream-group {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        row-gap: 5rem;
-        column-gap: 0;
-        max-width: 100%;
-        padding: 6rem 1rem;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        row-gap: 5rem !important;
+        column-gap: 0 !important;
+        max-width: 100% !important;
+        padding: 6rem 1rem !important;
+      }
+
+      .photo-card {
+        margin-top: 0 !important;
+        width: 91% !important;
+        max-width: 430px !important;
+        transform: translateX(var(--x-offset, 0%)) !important;
+      }
+
+      .photo-card img {
+        box-shadow: 0 12px 28px rgba(245, 245, 247, 0.09) !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Кнопка возврата (скрыта при старте) -->
   <a href="index.html" class="back-btn" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -151,14 +196,11 @@
 
   <div class="stream-viewport" id="viewport">
     <div class="stream-track" id="track">
-      <!-- Группа 1: Оригинал -->
       <div class="stream-group" id="groupOriginal"></div>
-      <!-- Группа 2: Дубликат для бесконечного лупа -->
       <div class="stream-group" id="groupClone" aria-hidden="true"></div>
     </div>
   </div>
 
-  <!-- Модальное окно фокуса -->
   <div class="modal" id="modal" aria-hidden="true">
     <img id="modalImg" src="" alt="Фокус на изображении">
   </div>
@@ -172,7 +214,6 @@
     const modalImg = document.getElementById('modalImg');
     const backBtn = document.getElementById('backBtn');
 
-    // Логика автоскрытия кнопки «назад»
     let uiTimeout = null;
     let isCursorOverBackBtn = false;
 
