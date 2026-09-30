@@ -1,118 +1,224 @@
-function sortImagesByNumericIndex(images) {
-  return [...images].sort((a, b) => {
-    const nameA = (a.src || '').split('/').pop();
-    const nameB = (b.src || '').split('/').pop();
-    const matchA = nameA.match(/\d+/);
-    const matchB = nameB.match(/\d+/);
-    const numA = matchA ? parseInt(matchA[0], 10) : 0;
-    const numB = matchB ? parseInt(matchB[0], 10) : 0;
-    return numA - numB;
-  });
-}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Галерея</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-index">
 
-async function init() {
-  try {
-    const res = await fetch('data.json?v=' + Date.now());
-    const data = await res.json();
+  <header>
+    <h1 id="title">...</h1>
+    <div id="desc" class="description"></div>
+  </header>
 
-    // 1. Заголовок
-    if (data.title) {
-      const cleanTitle = data.title.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
-      document.title = cleanTitle;
+  <main class="gallery-grid" id="gallery"></main>
 
-      pageTitle.innerHTML = data.title
-        .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="title-accent">$1</span>')
-        .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="title-accent">$1</span>')
-        .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
+  <footer id="footer" class="site-footer"></footer>
+
+  <!-- Модальное окно фокуса (стили в styles.css) -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <img id="modalImg" src="" alt="Фокус на изображении">
+  </div>
+
+  <script>
+    const gallery = document.getElementById('gallery');
+    const pageTitle = document.getElementById('title');
+    const pageDesc = document.getElementById('desc');
+    const pageFooter = document.getElementById('footer');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modalImg');
+
+    const offsets = [
+      7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
+      4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
+    ];
+
+    const mobileOffsets = [
+      -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
+       3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
+       1.2, -1.0,  3.6, -3.5, -1.8,  2.2,  3.2, -2.5,  0.0,  3.4,
+      -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
+    ];
+
+    // Сортировка строго по числу в имени файла (1, 2, ... 10)
+    function sortImagesByNumericIndex(images) {
+      return [...images].sort((a, b) => {
+        const nameA = (a.src || '').split('/').pop();
+        const nameB = (b.src || '').split('/').pop();
+        const matchA = nameA.match(/\d+/);
+        const matchB = nameB.match(/\d+/);
+        const numA = matchA ? parseInt(matchA[0], 10) : 0;
+        const numB = matchB ? parseInt(matchB[0], 10) : 0;
+        return numA - numB;
+      });
     }
 
-    // 2. Описание и подпись автора
-    if (data.description) {
-      let descHtml = data.description
-        .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
-        .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="highlight">$1</span>')
-        .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
-
-      const paragraphs = descHtml.split(/\n\s*\n/);
-      if (paragraphs.length > 1) {
-        const lastIdx = paragraphs.length - 1;
-        const lastP = paragraphs[lastIdx].trim();
-        if (lastP.includes('/') || lastP.includes('Антон') || lastP.includes('Rick')) {
-          paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
-        }
-        descHtml = paragraphs.join('<br><br>');
-      } else {
-        descHtml = descHtml.replace(/\n/g, '<br>');
+    function applyDynamicGradient(data, pairCount) {
+      let colors = [];
+      if (Array.isArray(data.colors) && data.colors.length > 0) {
+        colors = data.colors;
+      } else if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
+        colors = data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || [];
       }
 
-      pageDesc.innerHTML = descHtml;
-    }
-
-    // 3. Подвал
-    const currentYear = new Date().getFullYear();
-    let footerRaw = data.footer && data.footer.trim() 
-      ? data.footer 
-      : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
-
-    footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
-
-    const footerParts = footerRaw.split(/\n\s*\n/);
-    let modeHtml = '';
-    let contactsHtml = '';
-    let copyrightHtml = '';
-
-    if (footerParts.length >= 3) {
-      modeHtml = footerParts[0].trim();
-      contactsHtml = footerParts[1].trim();
-      copyrightHtml = footerParts.slice(2).join('<br>').trim();
-    } else {
-      contactsHtml = footerParts[0] || '';
-      copyrightHtml = footerParts.slice(1).join('<br>').trim();
-    }
-
-    pageFooter.innerHTML = `
-      ${modeHtml ? `<div class="footer-mode-link">${modeHtml}</div>` : ''}
-      <div class="footer-contacts">${contactsHtml}</div>
-      <div class="footer-copyright">${copyrightHtml}</div>
-    `;
-
-    // 4. Сетка изображений С СОРТИРОВКОЙ ПО ЧИСЛУ В ИМЕНИ
-    gallery.innerHTML = '';
-    const rawImages = data.images || [];
-    const images = sortImagesByNumericIndex(rawImages);
-
-    images.forEach((item, index) => {
-      const el = document.createElement('div');
-      el.className = 'photo-item';
-
-      const pairIndex = Math.floor(index / 2);
-      const shiftValue = offsets[pairIndex % offsets.length];
-      let itemOffset = 0;
-      if (index % 2 === 0) {
-        itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
-      } else {
-        itemOffset = shiftValue > 0 ? shiftValue : 0;
+      if (colors.length === 0) return;
+      if (colors.length === 1) {
+        document.body.style.backgroundColor = colors[0];
+        return;
       }
-      el.style.setProperty('--offset', `${itemOffset}rem`);
 
-      const mobileXShift = mobileOffsets[index % mobileOffsets.length];
-      el.style.setProperty('--x-offset', `${mobileXShift}%`);
+      const totalStopsNeeded = Math.max(pairCount + 3, colors.length);
+      const stopColors = [];
+      for (let i = 0; i < totalStopsNeeded; i++) {
+        stopColors.push(colors[i % colors.length]);
+      }
 
-      el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
-
-      el.querySelector('img').addEventListener('click', () => {
-        openModal(item.src);
+      const stopsWithPercents = stopColors.map((color, index) => {
+        const percent = Math.round((index / (totalStopsNeeded - 1)) * 100);
+        return `${color} ${percent}%`;
       });
 
-      gallery.appendChild(el);
+      const gradientStyle = `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
+      document.body.style.backgroundImage = gradientStyle;
+      document.documentElement.style.backgroundImage = gradientStyle;
+    }
+
+    function openModal(src) {
+      modalImg.src = src;
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+          modalImg.src = '';
+        }
+      }, 350);
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('data.json?v=' + Date.now());
+        const data = await res.json();
+
+        // 1. Заголовок
+        if (data.title) {
+          const cleanTitle = data.title.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
+          document.title = cleanTitle;
+
+          pageTitle.innerHTML = data.title
+            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="title-accent">$1</span>')
+            .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="title-accent">$1</span>')
+            .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
+        }
+
+        // 2. Описание и авторская подпись
+        if (data.description) {
+          let descHtml = data.description
+            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
+            .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="highlight">$1</span>')
+            .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+
+          const paragraphs = descHtml.split(/\n\s*\n/);
+          if (paragraphs.length > 1) {
+            const lastIdx = paragraphs.length - 1;
+            const lastP = paragraphs[lastIdx].trim();
+            if (lastP.includes('/') || lastP.includes('Антон') || lastP.includes('Rick')) {
+              paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
+            }
+            descHtml = paragraphs.join('<br><br>');
+          } else {
+            descHtml = descHtml.replace(/\n/g, '<br>');
+          }
+
+          pageDesc.innerHTML = descHtml;
+        }
+
+        // 3. Подвал
+        const currentYear = new Date().getFullYear();
+        let footerRaw = data.footer && data.footer.trim() 
+          ? data.footer 
+          : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
+
+        footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
+
+        const footerParts = footerRaw.split(/\n\s*\n/);
+        let modeHtml = '';
+        let contactsHtml = '';
+        let copyrightHtml = '';
+
+        if (footerParts.length >= 3) {
+          modeHtml = footerParts[0].trim();
+          contactsHtml = footerParts[1].trim();
+          copyrightHtml = footerParts.slice(2).join('<br>').trim();
+        } else {
+          contactsHtml = footerParts[0] || '';
+          copyrightHtml = footerParts.slice(1).join('<br>').trim();
+        }
+
+        pageFooter.innerHTML = `
+          ${modeHtml ? `<div class="footer-mode-link">${modeHtml}</div>` : ''}
+          <div class="footer-contacts">${contactsHtml}</div>
+          <div class="footer-copyright">${copyrightHtml}</div>
+        `;
+
+        // 4. Сетка фото с сортировкой по числовому номеру
+        gallery.innerHTML = '';
+        const rawImages = data.images || [];
+        const images = sortImagesByNumericIndex(rawImages);
+
+        images.forEach((item, index) => {
+          const el = document.createElement('div');
+          el.className = 'photo-item';
+
+          const pairIndex = Math.floor(index / 2);
+          const shiftValue = offsets[pairIndex % offsets.length];
+          let itemOffset = 0;
+          if (index % 2 === 0) {
+            itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
+          } else {
+            itemOffset = shiftValue > 0 ? shiftValue : 0;
+          }
+          el.style.setProperty('--offset', `${itemOffset}rem`);
+
+          const mobileXShift = mobileOffsets[index % mobileOffsets.length];
+          el.style.setProperty('--x-offset', `${mobileXShift}%`);
+
+          el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
+
+          el.querySelector('img').addEventListener('click', () => {
+            openModal(item.src);
+          });
+
+          gallery.appendChild(el);
+        });
+
+        // 5. Расчёт градиента
+        const pairCount = Math.ceil(images.length / 2);
+        applyDynamicGradient(data, pairCount);
+
+      } catch (e) {
+        console.error("Ошибка загрузки данных:", e);
+      }
+    }
+
+    modal.addEventListener('click', closeModal);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
     });
 
-    // 5. Градиент
-    const pairCount = Math.ceil(images.length / 2);
-    applyDynamicGradient(data, pairCount);
-
-  } catch (e) {
-    console.error("Ошибка загрузки данных:", e);
-  }
-}
+    init();
+  </script>
+</body>
+</html>
