@@ -329,19 +329,21 @@ h1 {
   }
 }
 
-/* Мобильные экраны до 768px: верх шапки 3.5rem, ограничение справа 4.5rem под кнопки */
+/* Мобильные экраны до 768px */
 @media (max-width: 768px) {
   header {
     text-align: left;
-    padding: 3.5rem 4.5rem 2.5rem 1.75rem;
-    max-width: 430px;
+    /* Верхний отступ 1.5rem совпадает с top: 1.5rem у кнопки звука */
+    padding: 1.5rem 4.5rem 2.5rem 2rem;
+    max-width: 480px;
     margin: 0 auto;
   }
 
   h1 {
     font-size: 1.85rem;
-    line-height: 1.25;
+    line-height: 1.15;
     letter-spacing: -0.015em;
+    margin-top: 0;
     margin-bottom: 1.25rem;
     text-align: left;
   }
@@ -360,19 +362,27 @@ h1 {
     margin-top: 0.5rem;
   }
 
-  .photo-item,
-  .photo-card {
-    width: calc(100% - 2rem);
-    max-width: 390px;
-    margin-top: 0 !important;
-  }
-
   .gallery-grid,
   .stream-group {
     gap: 3.5rem 0;
     padding-top: 1.5rem;
     padding-left: 2rem;
     padding-right: 2rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .photo-item,
+  .photo-card {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0 !important;
+  }
+
+  /* Первая фотография стоит строго в общем левом створе без смещения */
+  .photo-item:first-child,
+  .photo-card:first-child {
+    transform: none !important;
   }
 
   .site-footer {
@@ -380,16 +390,20 @@ h1 {
   }
 }
 
-/* Экраны 480px и ниже: верх шапки 3rem, отступ справа 4.75rem, шрифт 12px */
+/* Экраны 480px и ниже */
 @media (max-width: 480px) {
   header {
-    padding-top: 3rem;
-    padding-left: 1.25rem;
+    padding-top: 1.5rem;
+    padding-left: 1.5rem;
     padding-right: 4.75rem;
+    max-width: 100%;
+    margin: 0;
   }
 
   h1 {
     font-size: 1.5rem;
+    line-height: 1.15;
+    margin-top: 0;
     margin-bottom: 1rem;
     text-align: left;
   }
@@ -406,7 +420,21 @@ h1 {
 
   .gallery-grid,
   .stream-group {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .photo-item,
+  .photo-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Левый край первой фотографии строго совпадает с левым краем текста */
+  .photo-item:first-child,
+  .photo-card:first-child {
+    transform: none !important;
   }
 }
