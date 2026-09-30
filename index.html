@@ -4,26 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body class="page-index">
 
-  <!-- Кнопка звука -->
-  <button class="sound-btn visible" id="soundBtn" aria-label="Включить звук">
-    <svg class="icon-mute" viewBox="0 0 24 24">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-      <line x1="23" y1="9" x2="17" y2="15"></line>
-      <line x1="17" y1="9" x2="23" y2="15"></line>
-    </svg>
-    <svg class="icon-sound" viewBox="0 0 24 24">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-    </svg>
-  </button>
-
   <!-- Кнопка перехода в стрим (glasses из Lucide) -->
   <a href="stream.html" class="stream-nav-btn visible" id="streamNavBtn" aria-label="Режим наблюдения">
-    <svg viewBox="0 0 24 24">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;display:block;">
       <circle cx="6" cy="15" r="4"></circle>
       <circle cx="18" cy="15" r="4"></circle>
       <path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"></path>
@@ -53,168 +40,18 @@
     const pageFooter = document.getElementById('footer');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
-    const soundBtn = document.getElementById('soundBtn');
     const streamNavBtn = document.getElementById('streamNavBtn');
 
-    // === АУДИОМОДУЛЬ С КРОССФЕЙДОМ ===
-    const TARGET_VOLUME = 0.65;
-    const FADE_TIME = 1.8;
-    const CROSSFADE_TIME = 2.5;
-
-    let audioCtx = null;
-    let masterGain = null;
-    let playerA = null;
-    let playerB = null;
-    let gainA = null;
-    let gainB = null;
-    let isPlaying = false;
-    let crossfadeTimer = null;
-    let activePlayer = 'A';
-    let currentAudioSrc = 'batlicsea.mp3';
-
-    function getAudioContext() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-        masterGain = audioCtx.createGain();
-        masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        masterGain.connect(audioCtx.destination);
-
-        playerA = new Audio(currentAudioSrc);
-        playerB = new Audio(currentAudioSrc);
-        playerA.preload = 'auto';
-        playerB.preload = 'auto';
-
-        const sourceA = audioCtx.createMediaElementSource(playerA);
-        const sourceB = audioCtx.createMediaElementSource(playerB);
-
-        gainA = audioCtx.createGain();
-        gainB = audioCtx.createGain();
-
-        sourceA.connect(gainA).connect(masterGain);
-        sourceB.connect(gainB).connect(masterGain);
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
-    function scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain) {
-      if (!isPlaying) return;
-
-      const duration = fromPlayer.duration;
-      if (!duration || isNaN(duration)) {
-        fromPlayer.addEventListener('loadedmetadata', () => {
-          scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain);
-        }, { once: true });
-        return;
-      }
-
-      const timeLeft = duration - fromPlayer.currentTime;
-      const timeUntilFade = Math.max(0, (timeLeft - CROSSFADE_TIME) * 1000);
-
-      clearTimeout(crossfadeTimer);
-      crossfadeTimer = setTimeout(() => {
-        if (!isPlaying) return;
-
-        toPlayer.currentTime = 0;
-        toGain.gain.setValueAtTime(0, audioCtx.currentTime);
-
-        toPlayer.play().then(() => {
-          const now = audioCtx.currentTime;
-
-          toGain.gain.cancelScheduledValues(now);
-          fromGain.gain.cancelScheduledValues(now);
-
-          toGain.gain.setValueAtTime(0, now);
-          toGain.gain.linearRampToValueAtTime(1.0, now + CROSSFADE_TIME);
-
-          fromGain.gain.setValueAtTime(1.0, now);
-          fromGain.gain.linearRampToValueAtTime(0, now + CROSSFADE_TIME);
-
-          activePlayer = activePlayer === 'A' ? 'B' : 'A';
-
-          setTimeout(() => {
-            fromPlayer.pause();
-            fromPlayer.currentTime = 0;
-            if (activePlayer === 'B') {
-              scheduleCrossfade(playerB, playerA, gainB, gainA);
-            } else {
-              scheduleCrossfade(playerA, playerB, gainA, gainB);
-            }
-          }, CROSSFADE_TIME * 1000);
-        }).catch(err => console.warn(err));
-
-      }, timeUntilFade);
-    }
-
-    function playAudio() {
-      const ctx = getAudioContext();
-      isPlaying = true;
-      soundBtn.classList.add('playing');
-      soundBtn.setAttribute('aria-label', 'Выключить звук');
-
-      gainA.gain.setValueAtTime(1.0, ctx.currentTime);
-      gainB.gain.setValueAtTime(0, ctx.currentTime);
-      activePlayer = 'A';
-
-      playerA.play().then(() => {
-        const now = ctx.currentTime;
-        masterGain.gain.cancelScheduledValues(now);
-        masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-        masterGain.gain.linearRampToValueAtTime(TARGET_VOLUME, now + FADE_TIME);
-
-        scheduleCrossfade(playerA, playerB, gainA, gainB);
-      }).catch(err => {
-        isPlaying = false;
-        soundBtn.classList.remove('playing');
-        console.warn("Воспроизведение заблокировано:", err);
-      });
-    }
-
-    function pauseAudio() {
-      if (!audioCtx) return;
-      isPlaying = false;
-      clearTimeout(crossfadeTimer);
-      soundBtn.classList.remove('playing');
-      soundBtn.setAttribute('aria-label', 'Включить звук');
-
-      const now = audioCtx.currentTime;
-      masterGain.gain.cancelScheduledValues(now);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-      masterGain.gain.linearRampToValueAtTime(0, now + FADE_TIME);
-
-      setTimeout(() => {
-        if (!isPlaying) {
-          playerA.pause();
-          playerB.pause();
-          playerA.currentTime = 0;
-          playerB.currentTime = 0;
-        }
-      }, FADE_TIME * 1000);
-    }
-
-    soundBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!isPlaying) {
-        playAudio();
-      } else {
-        pauseAudio();
-      }
-    });
-
+    // Управление видимостью кнопки стрима
     let topUiTimeout = null;
     let isHoveringTopUi = false;
 
     function triggerTopUi() {
-      soundBtn.classList.add('visible');
       streamNavBtn.classList.add('visible');
       clearTimeout(topUiTimeout);
 
       if (!isHoveringTopUi) {
         topUiTimeout = setTimeout(() => {
-          soundBtn.classList.remove('visible');
           streamNavBtn.classList.remove('visible');
         }, 2500);
       }
@@ -222,7 +59,6 @@
 
     topUiTimeout = setTimeout(() => {
       if (!isHoveringTopUi) {
-        soundBtn.classList.remove('visible');
         streamNavBtn.classList.remove('visible');
       }
     }, 2500);
@@ -231,18 +67,15 @@
     window.addEventListener('touchstart', triggerTopUi, { passive: true });
     window.addEventListener('scroll', triggerTopUi, { passive: true });
 
-    [soundBtn, streamNavBtn].forEach(btn => {
-      btn.addEventListener('mouseenter', () => {
-        isHoveringTopUi = true;
-        clearTimeout(topUiTimeout);
-        soundBtn.classList.add('visible');
-        streamNavBtn.classList.add('visible');
-      });
+    streamNavBtn.addEventListener('mouseenter', () => {
+      isHoveringTopUi = true;
+      clearTimeout(topUiTimeout);
+      streamNavBtn.classList.add('visible');
+    });
 
-      btn.addEventListener('mouseleave', () => {
-        isHoveringTopUi = false;
-        triggerTopUi();
-      });
+    streamNavBtn.addEventListener('mouseleave', () => {
+      isHoveringTopUi = false;
+      triggerTopUi();
     });
 
     const offsets = [
@@ -330,14 +163,6 @@
       try {
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
-
-        if (data.audio) {
-          currentAudioSrc = data.audio;
-          if (playerA && playerB) {
-            playerA.src = data.audio;
-            playerB.src = data.audio;
-          }
-        }
 
         if (data.title) {
           const cleanTitle = data.title.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
