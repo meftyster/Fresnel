@@ -213,27 +213,42 @@ window.GalleryCore = {
   },
 
   extractColors(data) {
-    if (Array.isArray(data.colors) && data.colors.length > 0) return data.colors;
-    if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
-      return data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || ['#f5f5f7'];
+    let rawSource = '';
+    
+    if (Array.isArray(data.colors) && data.colors.length > 0) {
+      rawSource = data.colors.join(' ');
+    } else if (typeof data.gradient === 'string') {
+      rawSource = data.gradient;
+    } else if (typeof data === 'string') {
+      rawSource = data;
     }
-    return ['#f5f5f7'];
+
+    if (!rawSource) return ['#f5f5f7'];
+
+    // 1. Ищем HEX цвета
+    const hexColors = rawSource.match(/#[a-fA-F0-9]{3,8}/g) || [];
+    
+    // 2. Ищем RGB/RGBA цвета и конвертируем их в HEX для стабильности
+    const rgbMatches = rawSource.match(/rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+)?\s*\)/g) || [];
+    const rgbAsHex = rgbMatches.map(rgbStr => {
+      const nums = rgbStr.match(/\d+/g);
+      if (!nums || nums.length < 3) return null;
+      return '#' + nums.slice(0, 3).map(n => {
+        const hex = parseInt(n, 10).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      }).join('');
+    }).filter(Boolean);
+
+    const combined = [...hexColors, ...rgbAsHex];
+    return combined.length > 0 ? combined : ['#f5f5f7'];
   },
 
   getPhotoPalette(allColors) {
     if (!Array.isArray(allColors) || allColors.length < 4) {
       return ['#f5f5f7'];
     }
-    // Абсолютно жесткая привязка по индексам твоего списка:
-    // Исключаем индексы 0, 1 (старт, текст) и индекс 19 (футер).
-    // Захватываем ровно с 2 по 18 включительно для 17 пар.
-    return [
-      allColors[2],  allColors[3],  allColors[4],  allColors[5],
-      allColors[6],  allColors[7],  allColors[8],  allColors[9],
-      allColors[10], allColors[11], allColors[12], allColors[13],
-      allColors[14], allColors[15], allColors[16], allColors[17],
-      allColors[18]  // Последняя 17-я пара строго #422922
-    ];
+    // Строгий срез индексов с 2 по 19 (по 18-й включительно), исключая шапку и футер
+    return allColors.slice(2, 19);
   },
 
   getCardLayout(index, photoColors) {
