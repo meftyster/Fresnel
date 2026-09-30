@@ -138,7 +138,7 @@ body.page-stream {
   padding: 5rem 1.5rem;
 }
 
-/* Пустой блок-спейсер для отступа перед первой группой в потоке */
+/* Пустой блок-спейсер перед первой группой в потоке */
 .stream-spacer {
   width: 100%;
   height: 10rem;
@@ -152,7 +152,7 @@ body.page-stream {
   max-width: 500px;
   margin-top: var(--offset, 0rem);
   transform: translateX(var(--x-offset, 0%));
-  transition: transform 0.4s var(--ease-smooth);
+  transition: transform 0.6s var(--ease-smooth);
 }
 
 .photo-card img {
@@ -172,6 +172,7 @@ body.page-stream {
 
 /* Верхние плавающие кнопки */
 .sound-btn,
+.pattern-btn,
 .stream-nav-btn,
 .back-btn,
 .theme-toggle-btn {
@@ -197,6 +198,7 @@ body.page-stream {
 }
 
 .sound-btn.visible,
+.pattern-btn.visible,
 .stream-nav-btn.visible,
 .back-btn.visible,
 .theme-toggle-btn.visible {
@@ -206,6 +208,7 @@ body.page-stream {
 }
 
 .sound-btn:hover,
+.pattern-btn:hover,
 .stream-nav-btn:hover,
 .back-btn:hover,
 .theme-toggle-btn:hover {
@@ -215,6 +218,7 @@ body.page-stream {
 }
 
 .sound-btn svg,
+.pattern-btn svg,
 .stream-nav-btn svg,
 .back-btn svg,
 .theme-toggle-btn svg {
@@ -243,26 +247,29 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   display: block;
 }
 
-/* Кнопка темы на index.html */
+/* Вертикальный стек из 3-х кнопок на index.html */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
 }
 
-/* Кнопка перехода в стрим на index.html */
-.stream-nav-btn {
+.pattern-btn {
   top: 4.8rem;
   right: 1.5rem;
 }
 
-/* Кнопка «Назад» на stream.html */
+.stream-nav-btn {
+  top: 8.1rem;
+  right: 1.5rem;
+}
+
+/* Кнопки на stream.html */
 .back-btn {
   top: 1.5rem;
   right: 1.5rem;
   left: auto;
 }
 
-/* Кнопка звука на stream.html */
 .page-stream .sound-btn {
   top: 4.8rem;
   right: 1.5rem;
@@ -341,6 +348,7 @@ h1 {
   max-width: 520px;
   margin-top: var(--offset, 0rem);
   transform: translateX(var(--x-offset, 0%));
+  transition: transform 0.6s var(--ease-smooth);
 }
 
 /* Чёрные тени 40% для светлого режима */
@@ -467,11 +475,11 @@ h1 {
   }
 }
 
-/* Мобильные экраны до 768px: верх 1.5rem вровень с кнопкой, створ по левому краю */
+/* Мобильные экраны до 768px: верх 1.5rem вровень с верхней кнопкой, отступ справа 5rem под 3 кнопки */
 @media (max-width: 768px) {
   header {
     text-align: left;
-    padding: 1.5rem 4.5rem 2.5rem 2rem;
+    padding: 1.5rem 5rem 2.5rem 2rem;
     max-width: 480px;
     margin: 0 auto;
   }
@@ -532,7 +540,7 @@ h1 {
   header {
     padding-top: 1.5rem;
     padding-left: 1.5rem;
-    padding-right: 4.75rem;
+    padding-right: 5rem;
     max-width: 100%;
     margin: 0;
   }
