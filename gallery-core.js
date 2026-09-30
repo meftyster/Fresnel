@@ -152,14 +152,29 @@ window.GalleryCore = {
     ]
   ],
 
-  // Активный набор смещений, выбираемый случайно при загрузке
+  currentPatternIndex: 0,
   activeXOffsets: null,
 
-  // Случайный выбор одного из 20 паттернов
+  // Инициализация случайного паттерна при старте
   initRandomPattern() {
-    const randomIndex = Math.floor(Math.random() * this.xPatterns.length);
-    this.activeXOffsets = this.xPatterns[randomIndex];
-    return randomIndex;
+    this.currentPatternIndex = Math.floor(Math.random() * this.xPatterns.length);
+    this.activeXOffsets = this.xPatterns[this.currentPatternIndex];
+    return this.currentPatternIndex;
+  },
+
+  // Смена паттерна на следующий с обновлением всех элементов на странице
+  nextPattern() {
+    this.currentPatternIndex = (this.currentPatternIndex + 1) % this.xPatterns.length;
+    this.activeXOffsets = this.xPatterns[this.currentPatternIndex];
+
+    const cards = document.querySelectorAll('.photo-item, .photo-card');
+    cards.forEach((el, index) => {
+      // Первое фото всегда держит 0% (строгий створ)
+      const xVal = index === 0 ? 0 : this.activeXOffsets[index % this.activeXOffsets.length];
+      el.style.setProperty('--x-offset', `${xVal}%`);
+    });
+
+    return this.currentPatternIndex;
   },
 
   // Сортировка изображений по числовому индексу в имени файла
@@ -210,7 +225,7 @@ window.GalleryCore = {
       offsetRem = shiftValue > 0 ? shiftValue : 0;
     }
 
-    // Для первого фото гарантируем 0% смещения в створ с текстом
+    // Для первого фото гарантируем 0% смещения
     const xOffsetPercent = index === 0 ? 0 : this.activeXOffsets[index % this.activeXOffsets.length];
     const glowColor = photoColors[pairIndex % photoColors.length];
 
@@ -230,5 +245,5 @@ window.GalleryCore = {
   }
 };
 
-// Инициализация случайного паттерна сразу при загрузке скрипта
+// Запуск случайного выбора паттерна при старте скрипта
 window.GalleryCore.initRandomPattern();
