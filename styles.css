@@ -11,7 +11,7 @@
   --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* === СКРЫТИЕ ПОЛОСЫ ПРОКРУТКИ БЕЗ СКАЧКОВ UI === */
+/* === СКРЫТИЕ ПОЛОСЫ ПРОКРУТКИ БЕЗ СКАТКОВ UI === */
 html {
   overflow-y: scroll;
   scrollbar-width: none;
@@ -30,7 +30,7 @@ body {
   -ms-overflow-style: none;
 }
 
-/* === ВТОРИЧНЫЙ ТЁМНЫЙ РЕЖИМ (ГРАДИЕНТ И СВЕЧЕНИЕ) === */
+/* === ТЁМНЫЙ РЕЖИМ === */
 body.theme-dark {
   --bg-color: #0b0c10;
   --text-main: #e6e6e6;
@@ -110,7 +110,7 @@ body.modal-open {
   overflow: hidden !important;
 }
 
-/* === СПЕЦИФИКА СТРАНИЦЫ НЕПРЕРЫВНОГО ПОТОКА === */
+/* === ПОТОКОВАЯ СТРАНИЦА === */
 body.page-stream {
   background-color: #0b0c10;
   color: #e6e6e6;
@@ -181,7 +181,7 @@ body.page-stream {
   box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
 }
 
-/* === ПЛАВАЮЩИЕ КНОПКИ В СТИЛЕ МАТОВОГО СТЕКЛА === */
+/* === ПЛАВАЮЩИЕ КНОПКИ === */
 .sound-btn,
 .pattern-btn,
 .stream-nav-btn,
@@ -277,7 +277,7 @@ body.theme-dark .theme-toggle-btn .icon-moon { display: block; }
 .sound-btn.playing .icon-sound { display: block; }
 .sound-btn.playing .icon-mute { display: none; }
 
-/* === ГАЛЕРЕЯ (INDEX.HTML): ШАПКА И ТЕКСТ === */
+/* === ШАПКА И ЗАГОЛОВОК === */
 header {
   max-width: 900px;
   margin: 0 auto;
@@ -317,24 +317,25 @@ h1 {
   font-weight: 600;
 }
 
-/* === КНОПКА СТРОГО МЕЖДУ КРАСНЫМИ ЛИНИЯМИ СТРОЧНЫХ БУКВ === */
+/* === КНОПКА ЯЗЫКА: СТРОГО В ТЕЛЕ СТРОЧНЫХ БУКВ И С ИДЕАЛЬНЫМ ЦЕНТРОМ КРЕСТИКА === */
 .lang-switch-btn {
-  display: inline-grid;
-  place-items: center;
+  display: inline-block;
+  position: relative;
   vertical-align: baseline;
   
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
+  /* Точный размер в высоту строчной буквы (x-height) на десктопе */
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   box-sizing: border-box;
   padding: 0;
   margin: 0 0 0 0.65rem;
   
-  /* Ювелирная посадка ровно между верхней и нижней красной линией букв */
-  transform: translateY(-0.16em);
+  /* Ювелирный сдвиг вверх ровно на середину высоты строчной буквы */
+  top: -0.22em;
   
   background: var(--glass-bg);
   backdrop-filter: blur(16px) saturate(160%);
@@ -345,18 +346,23 @@ h1 {
   cursor: pointer;
   outline: none;
   
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
+/* Крестик привязан к абсолютному математическому центру круга */
 .lang-switch-btn .icon-cross {
-  width: 11px;
-  height: 11px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9.5px;
+  height: 9.5px;
   stroke: currentColor;
   stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
   display: block;
+  transform: translate(-50%, -50%);
   transform-origin: center center;
   transition: transform 0.35s var(--ease-smooth);
 }
@@ -367,19 +373,18 @@ h1 {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
-  transform: translateY(-0.16em);
 }
 
 .lang-switch-btn:hover .icon-cross {
-  transform: rotate(15deg);
+  transform: translate(-50%, -50%) rotate(15deg);
 }
 
 .lang-switch-btn.is-eng .icon-cross {
-  transform: rotate(45deg);
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .lang-switch-btn.is-eng:hover .icon-cross {
-  transform: rotate(60deg);
+  transform: translate(-50%, -50%) rotate(60deg);
 }
 
 .description {
@@ -564,24 +569,19 @@ h1 {
     text-align: left;
   }
 
+  /* Планшет: диаметр строго под строчную букву (15px) */
   .lang-switch-btn {
-    width: 18px;
-    height: 18px;
-    min-width: 18px;
-    min-height: 18px;
+    width: 15px;
+    height: 15px;
+    min-width: 15px;
+    min-height: 15px;
     margin-left: 0.55rem;
-    transform: translateY(-0.16em);
-  }
-
-  .lang-switch-btn:hover,
-  .lang-switch-btn:active,
-  .lang-switch-btn:focus {
-    transform: translateY(-0.16em);
+    top: -0.22em;
   }
 
   .lang-switch-btn .icon-cross {
-    width: 9.5px;
-    height: 9.5px;
+    width: 8px;
+    height: 8px;
   }
 
   .scroll-top-btn {
@@ -655,24 +655,19 @@ h1 {
     text-align: left;
   }
 
+  /* Смартфоны: диаметр строго под строчную букву (12.5px) */
   .lang-switch-btn {
-    width: 15px;
-    height: 15px;
-    min-width: 15px;
-    min-height: 15px;
+    width: 12.5px;
+    height: 12.5px;
+    min-width: 12.5px;
+    min-height: 12.5px;
     margin-left: 0.45rem;
-    transform: translateY(-0.16em);
-  }
-
-  .lang-switch-btn:hover,
-  .lang-switch-btn:active,
-  .lang-switch-btn:focus {
-    transform: translateY(-0.16em);
+    top: -0.22em;
   }
 
   .lang-switch-btn .icon-cross {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     stroke-width: 1.3;
   }
 
