@@ -18,7 +18,7 @@
   --glow-hover-x: 24px;
   --glow-hover-y: 44px;
   --glow-hover-blur: 56px;
-  --glow-hover-spread: -12px; /* Отрицательный spread убирает свет в верхнем углу */
+  --glow-hover-spread: -12px;
   --glow-hover-alpha: 0.85;
 }
 
@@ -152,12 +152,12 @@ header h1 b {
 }
 
 /* ==========================================================================
-   КНОПКИ ИНТЕРФЕЙСА: НАЗАД И ЗВУК
+   КНОПКИ ИНТЕРФЕЙСА: НАЗАД, ЗВУК И ПЕРЕХОД В СТРИМ
    ========================================================================== */
 .back-btn,
-.sound-btn {
+.sound-btn,
+.stream-nav-btn {
   position: fixed;
-  top: 1.8rem;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -185,23 +185,31 @@ header h1 b {
 }
 
 .back-btn {
+  top: 1.8rem;
   left: 1.8rem;
 }
 
 .sound-btn {
+  top: 1.8rem;
   right: 1.8rem;
 }
 
-/* Класс активности: когда кнопка видима */
+.stream-nav-btn {
+  top: 5.2rem;
+  right: 1.8rem;
+}
+
 .back-btn.visible,
-.sound-btn.visible {
+.sound-btn.visible,
+.stream-nav-btn.visible {
   opacity: 1;
   visibility: visible;
   transform: scale(1);
 }
 
 .back-btn svg,
-.sound-btn svg {
+.sound-btn svg,
+.stream-nav-btn svg {
   width: 18px;
   height: 18px;
   stroke: currentColor;
@@ -212,8 +220,16 @@ header h1 b {
   transition: transform 0.25s ease, stroke 0.25s ease;
 }
 
+.sound-btn svg,
+.sound-btn svg *,
+.stream-nav-btn svg,
+.stream-nav-btn svg * {
+  pointer-events: none;
+}
+
 .back-btn:hover,
-.sound-btn:hover {
+.sound-btn:hover,
+.stream-nav-btn:hover {
   color: #f3dfc0;
   background: rgba(20, 24, 30, 0.75);
   border-color: rgba(243, 223, 192, 0.3);
@@ -221,6 +237,10 @@ header h1 b {
 
 .back-btn:hover svg {
   transform: translateX(-2px);
+}
+
+.stream-nav-btn:hover svg {
+  transform: scale(1.08);
 }
 
 .sound-btn.playing {
@@ -396,22 +416,30 @@ header h1 b {
   }
 
   .back-btn,
-  .sound-btn {
-    top: 1.2rem;
+  .sound-btn,
+  .stream-nav-btn {
     width: 38px;
     height: 38px;
   }
 
   .back-btn {
+    top: 1.2rem;
     left: 1.2rem;
   }
 
   .sound-btn {
+    top: 1.2rem;
+    right: 1.2rem;
+  }
+
+  .stream-nav-btn {
+    top: 4.2rem;
     right: 1.2rem;
   }
 
   .back-btn svg,
-  .sound-btn svg {
+  .sound-btn svg,
+  .stream-nav-btn svg {
     width: 16px;
     height: 16px;
   }
