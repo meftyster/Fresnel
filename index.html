@@ -21,7 +21,7 @@
     </svg>
   </button>
 
-  <!-- Кнопка перехода в стрим (glasses из Lucide Icons) -->
+  <!-- Кнопка перехода в стрим (glasses из Lucide) -->
   <a href="stream.html" class="stream-nav-btn visible" id="streamNavBtn" aria-label="Режим наблюдения">
     <svg viewBox="0 0 24 24">
       <circle cx="6" cy="15" r="4"></circle>
@@ -56,7 +56,7 @@
     const soundBtn = document.getElementById('soundBtn');
     const streamNavBtn = document.getElementById('streamNavBtn');
 
-    // === АУДИОМОДУЛЬ С КРОССФЕЙДОМ (index.html) ===
+    // === АУДИОМОДУЛЬ С КРОССФЕЙДОМ ===
     const TARGET_VOLUME = 0.65;
     const FADE_TIME = 1.8;
     const CROSSFADE_TIME = 2.5;
@@ -204,7 +204,6 @@
       }
     });
 
-    // Управление видимостью верхних кнопок (звук + стрим)
     let topUiTimeout = null;
     let isHoveringTopUi = false;
 
@@ -313,13 +312,13 @@
       modalImg.src = src;
       modal.classList.add('active');
       modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
     }
 
     function closeModal() {
       modal.classList.remove('active');
       modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
       setTimeout(() => {
         if (!modal.classList.contains('active')) {
           modalImg.src = '';
@@ -418,7 +417,6 @@
           const shiftValue = offsets[pairIndex % offsets.length];
           let itemOffset = 0;
 
-          // Первое фото гарантированно 0rem, второе фото первой пары опускается на 7rem
           if (index === 0) {
             itemOffset = 0;
           } else if (index % 2 === 0) {
