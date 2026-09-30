@@ -1,14 +1,14 @@
 name: Generate Gallery Data
 
 on:
-  workflow_dispatch:
   push:
-    paths:
-      - 'images/**'
-      - 'content.md'
-      - 'gradient.txt'
     branches:
       - main
+    paths:
+      - 'content.md'
+      - 'images/**'
+      - 'scripts/**'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,97 +16,41 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate data.json
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run generation script
         run: |
-          node -e '
-          const fs = require("fs");
-          const path = require("path");
-
-          let title = "Архив";
-          let description = "";
-          let footer = "";
-
-          if (fs.existsSync("./content.md")) {
-            const raw = fs.readFileSync("./content.md", "utf-8").trim();
-            // Разделяем шапку и подвал по "---"
-            const parts = raw.split(/\n\s*---\s*\n/);
-            const headerPart = parts[0] || "";
-            if (parts.length > 1) {
-              footer = parts.slice(1).join("\n").trim();
-            }
-
-            const lines = headerPart.split("\n");
-            const idx = lines.findIndex(l => l.startsWith("# "));
-            if (idx !== -1) {
-              title = lines[idx].replace(/^#\s+/, "").trim();
-              description = lines.slice(idx + 1).join("\n").trim();
-            } else {
-              description = headerPart.trim();
-            }
-          }
-
-          const dir = "./images";
-          let items = [];
-          if (fs.existsSync(dir)) {
-            const validExts = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
-            const files = fs.readdirSync(dir).filter(f =>
-              validExts.includes(path.extname(f).toLowerCase())
-            );
-
-            items = files.map(file => {
-              const ext = path.extname(file);
-              const baseName = path.basename(file, ext);
-              const match = baseName.match(/^(.*?)(?:-(\d+))?$/);
-              const rawTitle = match && match[1] ? match[1] : baseName;
-              const order = match && match[2] ? parseInt(match[2], 10) : 9999;
-
-              const cleanTitle = rawTitle
-                .replace(/[-_]+/g, " ")
-                .trim()
-                .replace(/^\w/, c => c.toUpperCase());
-
-              return {
-                src: "images/" + file,
-                title: cleanTitle,
-                order: order
-              };
-            });
-
-            items.sort((a, b) => a.order - b.order);
-          }
-
-          let colors = [];
-          if (fs.existsSync("./gradient.txt")) {
-            colors = fs.readFileSync("./gradient.txt", "utf-8")
-              .split("\n")
-              .map(l => l.trim())
-              .filter(l => l && !l.startsWith("//") && !l.startsWith("# "));
-          }
-
-          const result = {
-            title,
-            description,
-            footer,
-            colors: colors,
-            images: items
-          };
-
-          fs.writeFileSync("data.json", JSON.stringify(result, null, 2));
-          console.log(`data.json готов: ${items.length} фото, ${colors.length} цветов.`);
-          '
+          if [ -f scripts/generate.py ]; then
+            python scripts/generate.py
+          elif [ -f generate.py ]; then
+            python generate.py
+          elif [ -f scripts/build.py ]; then
+            python scripts/build.py
+          fi
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
           git add data.json
-          git diff --staged --quiet || (git commit -m "Auto-generate data.json [skip ci]" && git push)
+          
+          # Коммитим только если data.json действительно изменился
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "Auto-generate data.json [skip ci]"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "No changes in data.json to commit"
+          fi
