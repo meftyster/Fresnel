@@ -6,19 +6,16 @@
   <title>Эффект Френеля — Поток</title>
   <link rel="stylesheet" href="styles.css">
   <style>
+    /* Только параметры виртуального полотна */
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      margin: 0;
-      padding: 0;
       touch-action: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      background-color: #0b0d10;
     }
 
-    /* Окно просмотра: строго центрирует поток по экрану */
     .stream-viewport {
       position: relative;
       width: 100vw;
@@ -34,10 +31,6 @@
       cursor: grabbing;
     }
 
-    /* 
-      Движущийся трек: растянут на всю ширину для градиента,
-      но элементы внутри центрируются
-    */
     .stream-track {
       position: absolute;
       top: 0;
@@ -48,145 +41,11 @@
       align-items: center;
       will-change: transform;
     }
-
-    /* 
-      ДЕСКТОП: Сетка строго как на index.html
-      Ширина ровно 1080px (или 90vw), центрирование auto
-    */
-    .stream-group {
-      display: grid !important;
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      column-gap: 4.5rem !important;
-      row-gap: 8rem !important;
-      width: 100% !important;
-      max-width: 1080px !important;
-      padding: 8rem 2rem !important;
-      box-sizing: border-box !important;
-    }
-
-    .photo-card {
-      width: 100% !important;
-      max-width: 100% !important;
-      display: flex !important;
-      flex-direction: column !important;
-      margin-top: var(--offset, 0rem) !important;
-      box-sizing: border-box !important;
-    }
-
-    .photo-card img {
-      width: 100% !important;
-      height: auto !important;
-      aspect-ratio: 9 / 16 !important;
-      object-fit: cover !important;
-      display: block !important;
-      border-radius: 4px !important;
-      box-shadow: 0 14px 30px rgba(245, 245, 247, 0.1) !important;
-      cursor: pointer !important;
-      pointer-events: auto !important;
-      transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s ease !important;
-    }
-
-    .photo-card img:hover {
-      transform: translateY(-4px) scale(1.01) !important;
-      box-shadow: 0 18px 40px rgba(245, 245, 247, 0.15) !important;
-    }
-
-    /* Кнопка «назад» */
-    .back-btn {
-      position: fixed;
-      top: 1.8rem;
-      left: 1.8rem;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: rgba(11, 13, 16, 0.45);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(245, 245, 247, 0.08);
-      color: rgba(245, 245, 247, 0.6);
-      text-decoration: none;
-      cursor: pointer;
-      opacity: 0;
-      visibility: hidden;
-      transform: scale(0.92);
-      transition: opacity 0.5s cubic-bezier(0.2, 0, 0, 1),
-                  transform 0.5s cubic-bezier(0.2, 0, 0, 1),
-                  visibility 0.5s ease,
-                  color 0.25s ease,
-                  background 0.25s ease,
-                  border-color 0.25s ease;
-    }
-
-    .back-btn.visible {
-      opacity: 1;
-      visibility: visible;
-      transform: scale(1);
-    }
-
-    .back-btn svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-      transition: transform 0.25s ease;
-    }
-
-    .back-btn:hover {
-      color: #f3dfc0;
-      background: rgba(20, 24, 30, 0.75);
-      border-color: rgba(243, 223, 192, 0.3);
-    }
-
-    .back-btn:hover svg {
-      transform: translateX(-2px);
-    }
-
-    /* МОБИЛЬНАЯ ВЕРСИЯ */
-    @media (max-width: 768px) {
-      .back-btn {
-        top: 1.2rem;
-        left: 1.2rem;
-        width: 38px;
-        height: 38px;
-      }
-
-      .back-btn svg {
-        width: 16px;
-        height: 16px;
-      }
-
-      .stream-group {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        row-gap: 5rem !important;
-        column-gap: 0 !important;
-        max-width: 100% !important;
-        padding: 6rem 1rem !important;
-      }
-
-      .photo-card {
-        margin-top: 0 !important;
-        width: 91% !important;
-        max-width: 430px !important;
-        transform: translateX(var(--x-offset, 0%)) !important;
-      }
-
-      .photo-card img {
-        box-shadow: 0 12px 28px rgba(245, 245, 247, 0.09) !important;
-      }
-    }
   </style>
 </head>
 <body>
 
+  <!-- Кнопка «назад» (оформлена в styles.css) -->
   <a href="index.html" class="back-btn" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -194,6 +53,7 @@
     </svg>
   </a>
 
+  <!-- Трек потока -->
   <div class="stream-viewport" id="viewport">
     <div class="stream-track" id="track">
       <div class="stream-group" id="groupOriginal"></div>
@@ -201,6 +61,7 @@
     </div>
   </div>
 
+  <!-- Модальное окно фокуса -->
   <div class="modal" id="modal" aria-hidden="true">
     <img id="modalImg" src="" alt="Фокус на изображении">
   </div>
@@ -214,6 +75,7 @@
     const modalImg = document.getElementById('modalImg');
     const backBtn = document.getElementById('backBtn');
 
+    // Логика автоскрытия кнопки «назад»
     let uiTimeout = null;
     let isCursorOverBackBtn = false;
 
@@ -243,6 +105,7 @@
       showUI();
     });
 
+    // Оффсеты сетки
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
@@ -266,6 +129,19 @@
     let lastY = 0;
     let lastTime = 0;
     let isDragThresholdPassed = false;
+
+    // Сортировка по числовому индексу в имени файла (1, 2, ... 10)
+    function sortImagesByNumericIndex(images) {
+      return [...images].sort((a, b) => {
+        const nameA = (a.src || '').split('/').pop();
+        const nameB = (b.src || '').split('/').pop();
+        const matchA = nameA.match(/\d+/);
+        const matchB = nameB.match(/\d+/);
+        const numA = matchA ? parseInt(matchA[0], 10) : 0;
+        const numB = matchB ? parseInt(matchB[0], 10) : 0;
+        return numA - numB;
+      });
+    }
 
     function applyMovingGradient(data, count) {
       let colors = [];
@@ -439,9 +315,11 @@
       try {
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
-        const images = data.images || [];
+        const rawImages = data.images || [];
 
-        if (images.length === 0) return;
+        if (rawImages.length === 0) return;
+
+        const images = sortImagesByNumericIndex(rawImages);
 
         images.forEach((item, index) => {
           groupOriginal.appendChild(createPhotoElement(item, index));
