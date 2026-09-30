@@ -334,20 +334,20 @@ h1 {
   transform: translateX(var(--x-offset, 0%));
 }
 
-/* Базовые выставочные тени светлого режима */
+/* Чёрные тени 40% для светлого режима */
 .photo-item img {
   width: 100%;
   height: auto;
   display: block;
   border-radius: 4px;
-  box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.22), 0 4px 12px -2px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.4), 0 6px 14px -2px rgba(0, 0, 0, 0.22);
   cursor: pointer;
   transition: transform 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
 }
 
 .photo-item img:hover {
   transform: scale(1.02);
-  box-shadow: 0 24px 48px -6px rgba(0, 0, 0, 0.3), 0 8px 18px -2px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 24px 50px -6px rgba(0, 0, 0, 0.48), 0 8px 18px -2px rgba(0, 0, 0, 0.26);
 }
 
 /* Футер */
@@ -487,6 +487,7 @@ h1 {
     margin-top: 0 !important;
   }
 
+  /* Первая фотография стоит строго в левом створе без смещения */
   .photo-item:first-child,
   .photo-card:first-child {
     transform: none !important;
