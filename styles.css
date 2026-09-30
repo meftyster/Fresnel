@@ -13,13 +13,13 @@
 /* === СКРЫТИЕ ПОЛОСЫ ПРОКРУТКИ БЕЗ СКАЧКОВ UI === */
 html {
   overflow-y: scroll;
-  scrollbar-width: none;           /* Firefox */
-  -ms-overflow-style: none;        /* IE и старый Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
-  display: none;                  /* Chrome, Safari, Chromium */
+  display: none;
   width: 0;
   height: 0;
 }
@@ -104,7 +104,6 @@ html, body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Блокировка прокрутки при открытии модалки */
 body.modal-open {
   overflow: hidden !important;
 }
@@ -157,15 +156,6 @@ body.page-stream {
   padding: 5rem 1.5rem;
 }
 
-/* Пустой блок-спейсер перед первой группой в потоке */
-.stream-spacer {
-  width: 100%;
-  height: 10rem;
-  flex-shrink: 0;
-  pointer-events: none;
-}
-
-/* Элементы потока: горизонтальный сдвиг + вертикальный микро-дрейф */
 .photo-card {
   width: calc(50% - 2rem);
   max-width: 500px;
@@ -189,7 +179,7 @@ body.page-stream {
   box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
 }
 
-/* Верхние плавающие кнопки */
+/* Верхние плавающие кнопки (теперь видимы ВСЕГДА) */
 .sound-btn,
 .pattern-btn,
 .stream-nav-btn,
@@ -210,20 +200,10 @@ body.page-stream {
   cursor: pointer;
   color: var(--text-main);
   text-decoration: none;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-8px);
-  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
-}
-
-.sound-btn.visible,
-.pattern-btn.visible,
-.stream-nav-btn.visible,
-.back-btn.visible,
-.theme-toggle-btn.visible {
-  opacity: 1;
+  opacity: 1;                 /* Постоянно видимы */
   pointer-events: auto;
   transform: translateY(0);
+  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 .sound-btn:hover,
@@ -251,7 +231,14 @@ body.page-stream {
   display: block;
 }
 
-/* Переключение Солнце / Луна на кнопке темы */
+/* Скрытие очков внизу страницы */
+.stream-nav-btn:not(.visible) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+/* Переключение Солнце / Луна */
 .theme-toggle-btn .icon-sun {
   display: block;
 }
@@ -335,6 +322,45 @@ h1 {
   font-weight: 600;
 }
 
+/* Обертка описания с переключателем языка на левом поле */
+.desc-wrapper {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Кнопка переключения языка слева от первого абзаца */
+.lang-switch-btn {
+  position: absolute;
+  right: calc(100% + 2rem);
+  top: -2px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s var(--ease-smooth);
+}
+
+.lang-switch-btn:hover {
+  background: var(--glass-hover);
+  border-color: var(--glass-hover-border);
+  color: var(--accent);
+  transform: scale(1.05);
+}
+
 .description {
   font-size: 1.05rem;
   line-height: 1.8;
@@ -362,7 +388,6 @@ h1 {
   padding: 2rem 1.5rem 6rem 1.5rem;
 }
 
-/* Элементы галереи: горизонтальный сдвиг + вертикальный микро-дрейф */
 .photo-item {
   width: calc(50% - 2.25rem);
   max-width: 520px;
@@ -396,7 +421,6 @@ h1 {
   line-height: 1.8;
 }
 
-/* Ссылки без подчёркиваний */
 .site-footer a {
   color: #111215;
   font-weight: 500;
@@ -415,7 +439,6 @@ h1 {
   letter-spacing: 0.03em;
 }
 
-/* Иконка бинокля/очков внутри текстовой ссылки футера */
 .footer-glasses-icon {
   width: 15px;
   height: 15px;
@@ -478,7 +501,7 @@ h1 {
   transform: scale(1);
 }
 
-/* Диапазон от 1280px до 769px: свободные поля под сдвиг */
+/* Диапазон от 1280px до 769px */
 @media (max-width: 1280px) and (min-width: 769px) {
   .gallery-grid,
   .stream-group {
@@ -513,6 +536,15 @@ h1 {
     text-align: left;
   }
 
+  /* На мобильных кнопка RU/EN встает перед текстом */
+  .lang-switch-btn {
+    position: static;
+    margin-bottom: 1rem;
+    width: 32px;
+    height: 32px;
+    font-size: 10px;
+  }
+
   .description {
     font-size: 0.95rem;
     line-height: 1.7;
@@ -544,7 +576,6 @@ h1 {
     margin-top: 0 !important;
   }
 
-  /* Первое фото: X фиксируется на 0, а вертикальный микро-дрейф Y разрешён */
   .photo-item:first-child,
   .photo-card:first-child {
     transform: translate(0, var(--y-nudge, 0%)) !important;
@@ -601,7 +632,6 @@ h1 {
     margin-top: 0 !important;
   }
 
-  /* Первое фото: X фиксируется на 0, а вертикальный микро-дрейф Y разрешён */
   .photo-item:first-child,
   .photo-card:first-child {
     transform: translate(0, var(--y-nudge, 0%)) !important;
