@@ -224,8 +224,7 @@ window.GalleryCore = {
 
   getPhotoPalette(allColors) {
     if (allColors.length > 3) {
-      // Захватываем ровно 17 цветов с индекса 2 по 18 включительно для 17 пар
-      return allColors.slice(2, 19);
+      return allColors.slice(2, 20);
     }
     return allColors.filter((_, idx) => idx !== 1);
   },
