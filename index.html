@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=27">
+  <link rel="stylesheet" href="./styles.css?v=28">
   <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-index">
@@ -48,12 +48,12 @@
   </a>
 
   <header>
-    <h1 id="title">...</h1>
-    <div class="desc-wrapper">
-      <!-- Переключатель языка на левом поле первого абзаца -->
-      <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">EN</button>
-      <div id="desc" class="description"></div>
-    </div>
+    <h1 id="titleContainer">
+      <span id="titleText">...</span>
+      <!-- Кнопка языка справа от названия -->
+      <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">RU</button>
+    </h1>
+    <div id="desc" class="description"></div>
   </header>
 
   <main class="gallery-grid" id="gallery"></main>
@@ -67,7 +67,7 @@
 
   <script>
     const gallery = document.getElementById('gallery');
-    const pageTitle = document.getElementById('title');
+    const pageTitleText = document.getElementById('titleText');
     const pageDesc = document.getElementById('desc');
     const pageFooter = document.getElementById('footer');
     const modal = document.getElementById('modal');
@@ -174,7 +174,7 @@
         const cleanTitle = rawTitle.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
         document.title = cleanTitle;
 
-        pageTitle.innerHTML = rawTitle
+        pageTitleText.innerHTML = rawTitle
           .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="title-accent">$1</span>')
           .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="title-accent">$1</span>')
           .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
@@ -212,7 +212,6 @@
         let title = '';
         let description = '';
 
-        // Поиск # Заголовок
         const matchTitle = text.match(/^#\s+(.+)$/m);
         if (matchTitle) {
           title = matchTitle[1].trim();
@@ -234,7 +233,9 @@
     async function setLanguage(lang) {
       currentLang = lang;
       localStorage.setItem('fresnel_lang', lang);
-      langSwitchBtn.textContent = lang === 'ru' ? 'EN' : 'RU';
+      
+      // Русский активен -> RU. Английский активен -> EN
+      langSwitchBtn.textContent = lang.toUpperCase();
 
       if (lang === 'en') {
         const enData = await parseEngMarkdown();
@@ -258,7 +259,6 @@
         const data = await res.json();
         currentRawData = data;
 
-        // Рендерим нужный язык со старта
         await setLanguage(currentLang);
 
         const currentYear = new Date().getFullYear();
