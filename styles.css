@@ -390,7 +390,7 @@ h1 {
   }
 }
 
-/* Экраны 480px и ниже: верх 1.5rem, текст 12px, строгий створ первой фото */
+/* Экраны 480px и ниже: размер фото 70%, текст 12px, строгий створ первой фото */
 @media (max-width: 480px) {
   header {
     padding-top: 1.5rem;
@@ -420,6 +420,9 @@ h1 {
 
   .gallery-grid,
   .stream-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     max-width: 100%;
@@ -428,8 +431,9 @@ h1 {
 
   .photo-item,
   .photo-card {
-    width: 100%;
-    max-width: 100%;
+    width: 70%;
+    max-width: 70%;
+    margin-top: 0 !important;
   }
 
   .photo-item:first-child,
