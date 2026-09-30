@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body class="page-stream">
 
-  <!-- Кнопка «назад» (справа вверху) -->
-  <a href="./" class="back-btn" id="backBtn" aria-label="Назад к галерее">
+  <!-- Кнопка «назад» (справа вверху, видна на старте) -->
+  <a href="./" class="back-btn visible" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
       <polyline points="12 19 5 12 12 5"></polyline>
     </svg>
   </a>
 
-  <!-- Кнопка звука (справа под кнопкой «назад») -->
+  <!-- Кнопка звука (справа под кнопкой «назад», видна на старте) -->
   <button class="sound-btn visible playing" id="soundBtn" aria-label="Выключить звук">
     <svg class="icon-mute" viewBox="0 0 24 24">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -247,8 +247,10 @@
       }
     }
 
+    // Стартовое автоскрытие обеих кнопок через 2.5 секунды
     uiTimeout = setTimeout(() => {
       if (!isCursorOverUI) {
+        backBtn.classList.remove('visible');
         soundBtn.classList.remove('visible');
       }
     }, 2500);
