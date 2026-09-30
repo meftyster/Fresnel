@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=18">
-  <script src="./gallery-core.js?v=1"></script>
+  <link rel="stylesheet" href="styles.css?v=21">
+  <script src="./gallery-core.js?v=4"></script>
 </head>
 <body class="page-stream">
 
@@ -280,6 +280,10 @@
     let resumeTimeout = null;
     let groupHeight = 0;
 
+    // Паттерны для двух групп
+    let patternGroupA = 0;
+    let patternGroupB = 0;
+
     let startY = 0;
     let lastY = 0;
     let lastTime = 0;
@@ -319,7 +323,6 @@
       const card = document.createElement('div');
       card.className = 'photo-card';
 
-      // Единый метод назначения стилей раскладки
       GalleryCore.applyCardLayout(card, index, photoColors);
 
       const img = document.createElement('img');
@@ -354,6 +357,7 @@
       }, 300);
     }
 
+    // Рандомизация паттерна на каждом цикле скролла (в обе стороны)
     function animate() {
       const measuredHeight = groupOriginal.offsetHeight;
       if (measuredHeight > 0) {
@@ -367,10 +371,19 @@
       }
 
       if (groupHeight > 0) {
+        // Листание вниз: пересекли конец первого цикла
         if (currentY >= groupHeight) {
           currentY %= groupHeight;
-        } else if (currentY < 0) {
+          // Обновляем паттерн на группе Original, пока она скрыта выше экрана
+          patternGroupA = GalleryCore.getRandomPatternIndex(patternGroupB);
+          GalleryCore.applyPatternToGroup(groupOriginal, patternGroupA);
+        } 
+        // Листание вверх / обратно: пересекли начало цикла в обратную сторону
+        else if (currentY < 0) {
           currentY = (currentY % groupHeight) + groupHeight;
+          // Обновляем паттерн на группе Clone, пока она скрыта внизу экрана
+          patternGroupB = GalleryCore.getRandomPatternIndex(patternGroupA);
+          GalleryCore.applyPatternToGroup(groupClone, patternGroupB);
         }
       }
 
@@ -467,10 +480,18 @@
         spacerOriginal.className = 'stream-spacer';
         groupOriginal.appendChild(spacerOriginal);
 
+        // Инициализируем стартовые паттерны для обеих групп
+        patternGroupA = GalleryCore.getRandomPatternIndex();
+        patternGroupB = GalleryCore.getRandomPatternIndex(patternGroupA);
+
         images.forEach((item, index) => {
           groupOriginal.appendChild(createPhotoElement(item, index, photoColors));
           groupClone.appendChild(createPhotoElement(item, index, photoColors));
         });
+
+        // Назначаем разные паттерны сразу со старта
+        GalleryCore.applyPatternToGroup(groupOriginal, patternGroupA);
+        GalleryCore.applyPatternToGroup(groupClone, patternGroupB);
 
         applyMovingGradient(data, Math.ceil(images.length / 2));
         groupHeight = groupOriginal.offsetHeight;
