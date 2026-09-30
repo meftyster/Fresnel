@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=13">
+  <link rel="stylesheet" href="./styles.css?v=14">
 </head>
 <body class="page-index">
 
@@ -93,12 +93,32 @@
       applyTheme();
     });
 
+    // Управление видимостью кнопок и скрытием очков в конце страницы
     let topUiTimeout = null;
     let isHoveringTopUi = false;
 
+    function isAtBottom() {
+      const scrollPos = window.innerHeight + window.scrollY;
+      const threshold = document.documentElement.scrollHeight - 70;
+      return scrollPos >= threshold;
+    }
+
+    function checkBottomAndToggleStreamBtn() {
+      if (isAtBottom()) {
+        streamNavBtn.classList.remove('visible');
+      }
+    }
+
     function triggerTopUi() {
       themeToggleBtn.classList.add('visible');
-      streamNavBtn.classList.add('visible');
+
+      // Показываем очки только если скролл не в самом низу страницы
+      if (!isAtBottom()) {
+        streamNavBtn.classList.add('visible');
+      } else {
+        streamNavBtn.classList.remove('visible');
+      }
+
       clearTimeout(topUiTimeout);
 
       if (!isHoveringTopUi) {
@@ -118,14 +138,19 @@
 
     window.addEventListener('mousemove', triggerTopUi);
     window.addEventListener('touchstart', triggerTopUi, { passive: true });
-    window.addEventListener('scroll', triggerTopUi, { passive: true });
+    window.addEventListener('scroll', () => {
+      triggerTopUi();
+      checkBottomAndToggleStreamBtn();
+    }, { passive: true });
 
     [themeToggleBtn, streamNavBtn].forEach(btn => {
       btn.addEventListener('mouseenter', () => {
         isHoveringTopUi = true;
         clearTimeout(topUiTimeout);
         themeToggleBtn.classList.add('visible');
-        streamNavBtn.classList.add('visible');
+        if (!isAtBottom() || btn === streamNavBtn) {
+          streamNavBtn.classList.add('visible');
+        }
       });
 
       btn.addEventListener('mouseleave', () => {
