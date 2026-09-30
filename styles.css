@@ -127,8 +127,11 @@ header h1 b {
 
 /* Ссылка на режим наблюдения */
 .footer-mode-link {
+  margin-bottom: 3.2rem; /* Просторный отступ до соцсетей */
+}
+
+.footer-mode-link a {
   display: inline-block;
-  margin-bottom: 3.2rem; /* Воздушный отступ до соцсетей */
   font-size: 0.95rem;
   letter-spacing: 0.08em;
   text-transform: lowercase;
@@ -137,14 +140,14 @@ header h1 b {
   transition: color 0.25s ease, opacity 0.25s ease;
 }
 
-.footer-mode-link:hover {
+.footer-mode-link a:hover {
   color: #f3dfc0;
   opacity: 1;
 }
 
 /* Соцсети */
 .footer-contacts {
-  margin-bottom: 1.2rem; /* Аккуратный компактный отступ до копирайта */
+  margin-bottom: 1.2rem; /* Компактный отступ до копирайта */
 }
 
 .footer-contacts a {
