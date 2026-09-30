@@ -60,16 +60,6 @@ body.theme-dark .author-line {
   opacity: 0.75;
 }
 
-body.theme-dark .photo-item img,
-body.theme-dark .photo-card img {
-  box-shadow: 0 12px 36px -8px var(--glow-color, rgba(0, 0, 0, 0.6)) !important;
-}
-
-body.theme-dark .photo-item img:hover,
-body.theme-dark .photo-card img:hover {
-  box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8)) !important;
-}
-
 body.theme-dark .site-footer {
   color: var(--text-dim);
 }
@@ -158,7 +148,9 @@ body.page-stream {
   padding: 5rem 1.5rem;
 }
 
-.photo-card {
+/* === КАРТОЧКИ И ДИНАМИЧЕСКИЕ ТЕНИ ПОД КАРТИНКАМИ === */
+.photo-card,
+.photo-item {
   width: calc(50% - 2rem);
   max-width: 500px;
   margin-top: var(--offset, 0rem);
@@ -166,19 +158,22 @@ body.page-stream {
   transition: transform 0.6s var(--ease-smooth);
 }
 
-.photo-card img {
+.photo-card img,
+.photo-item img {
   width: 100%;
   height: auto;
   display: block;
   border-radius: 4px;
-  box-shadow: 0 12px 36px -8px var(--glow-color, rgba(0, 0, 0, 0.6));
+  /* Единый источник цвета тени — управляемый через JS конфиг (--glow-color) */
+  box-shadow: 0 16px 36px -6px var(--glow-color, rgba(0, 0, 0, 0.4)), 0 6px 14px -2px rgba(0, 0, 0, 0.22);
   cursor: pointer;
   transition: transform 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
 }
 
-.photo-card img:hover {
+.photo-card img:hover,
+.photo-item img:hover {
   transform: scale(1.02);
-  box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
+  box-shadow: 0 24px 50px -6px var(--glow-color, rgba(0, 0, 0, 0.48)), 0 8px 18px -2px rgba(0, 0, 0, 0.26);
 }
 
 /* === ПЛАВАЮЩИЕ КНОПКИ === */
@@ -321,41 +316,27 @@ h1 {
   font-weight: 600;
 }
 
-/* === ТЕКСТОВЫЙ ПЕРЕКЛЮЧАТЕЛЬ RU / EN (ПРОПОРЦИОНАЛЬНО ЧЕРЕЗ EM) === */
+/* === ТЕКСТОВЫЙ ПЕРЕКЛЮЧАТЕЛЬ RU / EN === */
 .lang-switch-btn {
   background: none;
   border: none;
   padding: 0;
   margin: 0 0 0 0.5rem;
-  
   vertical-align: baseline;
   flex-shrink: 0;
-  
   font-size: 0.74em;
   font-weight: 400;
   letter-spacing: 0.05em;
   color: var(--text-dim);
   cursor: pointer;
   outline: none;
-  
   transition: color 0.25s ease;
 }
 
-.lang-switch-btn .lang-ru {
-  display: inline;
-}
-
-.lang-switch-btn .lang-en {
-  display: none;
-}
-
-.lang-switch-btn.is-eng .lang-ru {
-  display: none;
-}
-
-.lang-switch-btn.is-eng .lang-en {
-  display: inline;
-}
+.lang-switch-btn .lang-ru { display: inline; }
+.lang-switch-btn .lang-en { display: none; }
+.lang-switch-btn.is-eng .lang-ru { display: none; }
+.lang-switch-btn.is-eng .lang-en { display: inline; }
 
 .lang-switch-btn:hover,
 .lang-switch-btn:active,
@@ -389,29 +370,6 @@ h1 {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1.5rem 6rem 1.5rem;
-}
-
-.photo-item {
-  width: calc(50% - 2.25rem);
-  max-width: 520px;
-  margin-top: var(--offset, 0rem);
-  transform: translate(var(--x-offset, 0%), var(--y-nudge, 0%));
-  transition: transform 0.6s var(--ease-smooth);
-}
-
-.photo-item img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 4px;
-  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.4), 0 6px 14px -2px rgba(0, 0, 0, 0.22);
-  cursor: pointer;
-  transition: transform 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
-}
-
-.photo-item img:hover {
-  transform: scale(1.02);
-  box-shadow: 0 24px 50px -6px rgba(0, 0, 0, 0.48), 0 8px 18px -2px rgba(0, 0, 0, 0.26);
 }
 
 /* === ФУТЕР === */
