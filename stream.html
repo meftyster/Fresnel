@@ -53,7 +53,7 @@
                   border-color 0.25s ease;
     }
 
-    /* Состояние активности при движении мыши */
+    /* Состояние активности при взаимодействии */
     .back-btn.visible {
       opacity: 1;
       visibility: visible;
@@ -208,7 +208,7 @@
 </head>
 <body>
 
-  <!-- Круглая кнопка возврата (только стрелка) -->
+  <!-- Круглая кнопка возврата (изначально скрыта) -->
   <a href="index.html" class="back-btn" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -246,7 +246,7 @@
       backBtn.classList.add('visible');
       clearTimeout(uiTimeout);
       
-      // Скрываем через 2.2 секунды покоя, если мышь не на кнопке
+      // Скрываем через 2.2 секунды покоя, если курсор не наведен на саму кнопку
       if (!isCursorOverBackBtn) {
         uiTimeout = setTimeout(() => {
           backBtn.classList.remove('visible');
@@ -254,7 +254,7 @@
       }
     }
 
-    // Слушатели активности
+    // Слушатели активности: кнопка покажется только при движении или касании
     window.addEventListener('mousemove', showUI);
     window.addEventListener('touchstart', showUI, { passive: true });
     window.addEventListener('wheel', showUI, { passive: true });
@@ -442,9 +442,7 @@
     window.addEventListener('touchend', onPointerUp, { passive: true });
 
     async function init() {
-      // Показываем кнопку при старте на пару секунд, затем плавно скрываем
-      showUI();
-
+      // Запуск анимации потока
       requestAnimationFrame(animate);
 
       try {
