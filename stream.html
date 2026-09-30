@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Эффект Френеля — Поток</title>
+  <title>Эффект Френеля — наблюдение</title>
   <style>
     * {
       box-sizing: border-box;
@@ -14,24 +14,13 @@
     html, body {
       width: 100%;
       height: 100%;
-      overflow: hidden; /* Скрываем системный скроллбар */
+      overflow: hidden;
       background-color: #0b0d10;
     }
 
-    /* Фоновый градиент на весь экран */
-    .background-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
-
-    /* Окно просмотра */
+    /* Окно просмотра на весь экран */
     .stream-viewport {
       position: relative;
-      z-index: 1;
       width: 100%;
       height: 100vh;
       overflow: hidden;
@@ -39,32 +28,33 @@
       justify-content: center;
     }
 
-    /* Бегущая лента */
     .stream-track {
+      position: absolute;
+      top: 0;
+      width: 100vw;
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 100%;
-      max-width: 440px; /* Элегантная ширина ленты по центру экрана */
-      padding: 0 1rem;
-      /* Регулировка скорости: 120s для медитативного хода */
-      animation: infiniteScroll 120s linear infinite;
       will-change: transform;
+      animation: infiniteScroll 40s linear infinite;
     }
 
-    /* Пауза при наведении мыши */
+    /* При наведении/тапе лента замирает для просмотра */
     .stream-viewport:hover .stream-track {
       animation-play-state: paused;
     }
 
-    /* Группа фотографий (оригинал и клон) */
+    /* Группа фотографий (оригинал и бесшовный клон) */
     .stream-group {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4.5rem; /* Дистанция между кадрами */
-      padding-bottom: 4.5rem;
+      gap: 5rem;
+      padding-bottom: 5rem;
       width: 100%;
+      max-width: 440px; /* Ширина колонки с фото по центру */
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
 
     .photo-card {
@@ -80,7 +70,7 @@
       object-fit: cover;
       display: block;
       border-radius: 4px;
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
       cursor: pointer;
       transition: transform 0.3s ease;
     }
@@ -89,13 +79,13 @@
       transform: scale(1.02);
     }
 
-    /* Цикл бесконечного скольжения */
+    /* Бесшовный цикл: трек смещается ровно на -50% (высоту первой группы) */
     @keyframes infiniteScroll {
       0% {
         transform: translateY(0);
       }
       100% {
-        transform: translateY(-50%); /* Смещаем ровно на высоту первой группы */
+        transform: translateY(-50%);
       }
     }
 
@@ -126,13 +116,11 @@
 </head>
 <body>
 
-  <div class="background-canvas" id="bg"></div>
-
   <div class="stream-viewport">
     <div class="stream-track" id="track">
-      <!-- Группа 1 (оригинал) -->
+      <!-- Группа 1: Оригинал -->
       <div class="stream-group" id="groupOriginal"></div>
-      <!-- Группа 2 (клон для бесшовного зацикливания) -->
+      <!-- Группа 2: Дубликат для бесшовного лупа -->
       <div class="stream-group" id="groupClone" aria-hidden="true"></div>
     </div>
   </div>
@@ -144,12 +132,11 @@
   <script>
     const groupOriginal = document.getElementById('groupOriginal');
     const groupClone = document.getElementById('groupClone');
-    const bg = document.getElementById('bg');
     const track = document.getElementById('track');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
-    // Тот самый живой ритмичный дрейф
+    // Синкопированный горизонтальный ритм
     const mobileOffsets = [
       -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
        3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
@@ -157,7 +144,8 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    function applyDynamicGradient(data, count) {
+    // Привязываем градиент прямо к движущемуся треку
+    function applyMovingGradient(data, count) {
       let colors = [];
       if (Array.isArray(data.colors) && data.colors.length > 0) {
         colors = data.colors;
@@ -167,22 +155,33 @@
 
       if (colors.length === 0) return;
       if (colors.length === 1) {
-        bg.style.backgroundColor = colors[0];
+        track.style.backgroundColor = colors[0];
         return;
       }
 
-      const totalStopsNeeded = Math.max(count + 3, colors.length);
-      const stopColors = [];
-      for (let i = 0; i < totalStopsNeeded; i++) {
-        stopColors.push(colors[i % colors.length]);
+      // Формируем набор точек для одного полного круга
+      const stopsNeeded = Math.max(count + 2, colors.length);
+      const singleCycleColors = [];
+      for (let i = 0; i < stopsNeeded; i++) {
+        singleCycleColors.push(colors[i % colors.length]);
       }
 
-      const stopsWithPercents = stopColors.map((color, index) => {
-        const percent = Math.round((index / (totalStopsNeeded - 1)) * 100);
-        return `${color} ${percent}%`;
+      // Дублируем градиент ровно дважды: 0%..50% (для оригинала) и 50%..100% (для клона)
+      const allStops = [];
+      
+      // Первый цикл (0% - 50%)
+      singleCycleColors.forEach((col, idx) => {
+        const pct = (idx / (stopsNeeded - 1)) * 50;
+        allStops.push(`${col} ${pct.toFixed(2)}%`);
       });
 
-      bg.style.backgroundImage = `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
+      // Второй цикл (50% - 100%) — идеальный стык
+      singleCycleColors.forEach((col, idx) => {
+        const pct = 50 + (idx / (stopsNeeded - 1)) * 50;
+        allStops.push(`${col} ${pct.toFixed(2)}%`);
+      });
+
+      track.style.backgroundImage = `linear-gradient(180deg, ${allStops.join(', ')})`;
     }
 
     function createPhotoElement(item, index) {
@@ -214,27 +213,24 @@
 
         if (images.length === 0) return;
 
-        // Создаем оригинальную ленту и её дубликат
         images.forEach((item, index) => {
           groupOriginal.appendChild(createPhotoElement(item, index));
           groupClone.appendChild(createPhotoElement(item, index));
         });
 
-        // Динамический расчёт длительности: ~3.5 секунды на кадр для плавного созерцания
-        const totalDuration = Math.max(45, images.length * 3.5);
+        // Скорость: 1.6 сек на кадр (было 3.5 сек)
+        const totalDuration = Math.max(25, images.length * 1.6);
         track.style.animationDuration = `${totalDuration}s`;
 
-        // Применяем градиент
-        applyDynamicGradient(data, images.length);
+        // Навешиваем градиент на ленту
+        applyMovingGradient(data, images.length);
 
       } catch (err) {
         console.error('Ошибка инициализации потока:', err);
       }
     }
 
-    // Закрытие модального окна
     modal.addEventListener('click', () => modal.classList.remove('active'));
-
     init();
   </script>
 </body>
