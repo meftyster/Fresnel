@@ -53,8 +53,8 @@
     </svg>
   </a>
 
-  <!-- Кнопка звука (справа): видна со старта, гаснет без активности -->
-  <button class="sound-btn visible" id="soundBtn" aria-label="Включить звук">
+  <!-- Кнопка звука: в stream.html стартует в состоянии ON (playing) -->
+  <button class="sound-btn visible playing" id="soundBtn" aria-label="Выключить звук">
     <svg class="icon-mute" viewBox="0 0 24 24">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
       <line x1="23" y1="9" x2="17" y2="15"></line>
@@ -106,7 +106,6 @@
       }
     }
 
-    // Звуковая кнопка видна при старте, через 2.5 сек затухает, если нет активности
     uiTimeout = setTimeout(() => {
       if (!isCursorOverUI) {
         soundBtn.classList.remove('visible');
@@ -131,98 +130,92 @@
       });
     });
 
-    // Аудиосистема с попыткой автозапуска и плавным нарастанием
-    let audio = null;
-    let fadeInterval = null;
-    let userHasExplicitlyMuted = false;
+    // Аудиосистема со стартом сразу
+    const audio = new Audio('batlicsea.mp3');
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.volume = 0;
 
-    function initAudio(audioSrc) {
-      if (audio) return;
-      audio = new Audio(audioSrc);
-      audio.loop = true;
-      audio.volume = 0;
+    let isPlaying = false;
+    let userManuallyMuted = false;
+    let fadeTimer = null;
 
-      // Пробуем автозапуск сразу
-      tryAutoPlay();
-    }
+    function setVolumeSmooth(targetVol, duration, callback) {
+      clearInterval(fadeTimer);
+      const stepTime = 40;
+      const steps = duration / stepTime;
+      const stepDelta = (targetVol - audio.volume) / steps;
 
-    function fadeIn() {
-      clearInterval(fadeInterval);
-      fadeInterval = setInterval(() => {
-        if (audio.volume < 0.65) {
-          audio.volume = Math.min(0.65, audio.volume + 0.04);
-        } else {
-          clearInterval(fadeInterval);
-        }
-      }, 70);
-    }
-
-    function fadeOut(callback) {
-      clearInterval(fadeInterval);
-      fadeInterval = setInterval(() => {
-        if (audio.volume > 0.04) {
-          audio.volume = Math.max(0, audio.volume - 0.06);
-        } else {
-          audio.volume = 0;
-          clearInterval(fadeInterval);
+      fadeTimer = setInterval(() => {
+        let nextVol = audio.volume + stepDelta;
+        if ((stepDelta > 0 && nextVol >= targetVol) || (stepDelta < 0 && nextVol <= targetVol)) {
+          audio.volume = targetVol;
+          clearInterval(fadeTimer);
           if (callback) callback();
+        } else {
+          audio.volume = Math.max(0, Math.min(1, nextVol));
         }
-      }, 50);
+      }, stepTime);
     }
 
-    function startSound() {
-      if (!audio) return;
-      userHasExplicitlyMuted = false;
-      audio.play().then(() => {
-        soundBtn.classList.add('playing');
-        soundBtn.setAttribute('aria-label', 'Выключить звук');
-        fadeIn();
-      }).catch(err => {
-        soundBtn.classList.remove('playing');
-      });
-    }
+    function playAudio() {
+      if (userManuallyMuted) return;
+      isPlaying = true;
+      soundBtn.classList.add('playing');
+      soundBtn.setAttribute('aria-label', 'Выключить звук');
 
-    function stopSound() {
-      if (!audio) return;
-      userHasExplicitlyMuted = true;
-      soundBtn.classList.remove('playing');
-      soundBtn.setAttribute('aria-label', 'Включить звук');
-      fadeOut(() => {
-        audio.pause();
-      });
-    }
-
-    function tryAutoPlay() {
-      if (!audio || userHasExplicitlyMuted) return;
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          soundBtn.classList.add('playing');
-          soundBtn.setAttribute('aria-label', 'Выключить звук');
-          fadeIn();
+      const p = audio.play();
+      if (p !== undefined) {
+        p.then(() => {
+          setVolumeSmooth(0.65, 800);
+          removeUnlockListeners();
         }).catch(() => {
-          // Если браузер заблокировал автоплей — ждём первого клика/тапа по полотну
-          soundBtn.classList.remove('playing');
-          const unlockAudio = () => {
-            if (!userHasExplicitlyMuted && audio && (audio.paused || audio.volume === 0)) {
-              startSound();
-            }
-            window.removeEventListener('click', unlockAudio);
-            window.removeEventListener('touchstart', unlockAudio);
-          };
-          window.addEventListener('click', unlockAudio, { once: true });
-          window.addEventListener('touchstart', unlockAudio, { once: true });
+          attachUnlockListeners();
         });
       }
     }
 
+    function pauseAudio() {
+      isPlaying = false;
+      userManuallyMuted = true;
+      soundBtn.classList.remove('playing');
+      soundBtn.setAttribute('aria-label', 'Включить звук');
+      removeUnlockListeners();
+
+      setVolumeSmooth(0, 600, () => {
+        audio.pause();
+      });
+    }
+
+    function onUserGesture() {
+      if (!userManuallyMuted && !isPlaying) {
+        playAudio();
+      }
+    }
+
+    function attachUnlockListeners() {
+      window.addEventListener('mousemove', onUserGesture, { once: true });
+      window.addEventListener('wheel', onUserGesture, { once: true, passive: true });
+      window.addEventListener('touchstart', onUserGesture, { once: true, passive: true });
+      window.addEventListener('pointerdown', onUserGesture, { once: true });
+    }
+
+    function removeUnlockListeners() {
+      window.removeEventListener('mousemove', onUserGesture);
+      window.removeEventListener('wheel', onUserGesture);
+      window.removeEventListener('touchstart', onUserGesture);
+      window.removeEventListener('pointerdown', onUserGesture);
+    }
+
+    playAudio();
+
     soundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!audio) return;
-      if (audio.paused || audio.volume === 0) {
-        startSound();
+      if (!isPlaying) {
+        userManuallyMuted = false;
+        playAudio();
       } else {
-        stopSound();
+        pauseAudio();
       }
     });
 
@@ -450,9 +443,10 @@
 
         if (rawImages.length === 0) return;
 
-        // Инициализируем аудио
-        const audioSrc = data.audio || 'BalticSea.MP3';
-        initAudio(audioSrc);
+        if (data.audio && data.audio !== 'batlicsea.mp3') {
+          audio.src = data.audio;
+          if (isPlaying) audio.play();
+        }
 
         const images = sortImagesByNumericIndex(rawImages);
         const allColors = extractColors(data);
