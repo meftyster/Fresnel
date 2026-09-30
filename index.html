@@ -17,8 +17,9 @@
 
   <footer id="footer" class="site-footer"></footer>
 
-  <div class="modal" id="modal">
-    <img id="modalImg" src="" alt="Fullscreen">
+  <!-- Модальное окно фокуса -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <img id="modalImg" src="" alt="Фокус на изображении">
   </div>
 
   <script>
@@ -29,25 +30,15 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
-    // Вертикальные смещения десктопных пар
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
     ];
 
-    // Динамичный, синкопированный ритм для мобильных (40 кадров в %):
-    // Резкие контрастные прыжки, кластеры с одной стороны, паузы по центру
     const mobileOffsets = [
-      // 1-10: резкий старт, центр, уход вправо и сдвоенный левый шаг
       -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
-
-      // 11-20: сдвоенный правый шаг, бросок в левый край, центр и контрастный выпад
        3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
-
-      // 21-30: микроколебания вокруг центра и серия размашистых шагов
        1.2, -1.0,  3.6, -3.5, -1.8,  2.2,  3.2, -2.5,  0.0,  3.4,
-
-      // 31-40: несимметричный дрейф к финалу с точкой равновесия
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
@@ -81,6 +72,24 @@
       document.documentElement.style.backgroundImage = gradientStyle;
     }
 
+    function openModal(src) {
+      modalImg.src = src;
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden'; // Блокируем скролл страницы на время фокуса
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+          modalImg.src = '';
+        }
+      }, 300);
+    }
+
     async function init() {
       try {
         const res = await fetch('data.json?v=' + Date.now());
@@ -97,7 +106,7 @@
             .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
         }
 
-        // 2. Описание и авторская подпись
+        // 2. Описание и подпись автора
         if (data.description) {
           let descHtml = data.description
             .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
@@ -119,19 +128,16 @@
           pageDesc.innerHTML = descHtml;
         }
 
-        // 3. Подвал: разбор данных из content.md с дифференцированными отступами
+        // 3. Подвал
         const currentYear = new Date().getFullYear();
         let footerRaw = data.footer && data.footer.trim() 
           ? data.footer 
           : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
 
-        // Парсинг markdown-ссылок и замена года
         footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
         footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
 
-        // Разделение на абзацы: 1. ссылка режима, 2. соцсети, 3. копирайт
         const footerParts = footerRaw.split(/\n\s*\n/);
-        
         let modeHtml = '';
         let contactsHtml = '';
         let copyrightHtml = '';
@@ -151,17 +157,16 @@
           <div class="footer-copyright">${copyrightHtml}</div>
         `;
 
-        // 4. Построение сетки изображений
+        // 4. Сетка изображений с привязкой клика
         gallery.innerHTML = '';
         const images = data.images || [];
         images.forEach((item, index) => {
           const el = document.createElement('div');
           el.className = 'photo-item';
 
-          // Десктопный вертикальный сдвиг
+          // Десктопный сдвиг
           const pairIndex = Math.floor(index / 2);
           const shiftValue = offsets[pairIndex % offsets.length];
-
           let itemOffset = 0;
           if (index % 2 === 0) {
             itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
@@ -170,15 +175,15 @@
           }
           el.style.setProperty('--offset', `${itemOffset}rem`);
 
-          // Мобильный горизонтальный ритм
+          // Мобильный сдвиг
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
           el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
 
+          // Открытие изображения в полном фокусе
           el.querySelector('img').addEventListener('click', () => {
-            modalImg.src = item.src;
-            modal.classList.add('active');
+            openModal(item.src);
           });
 
           gallery.appendChild(el);
@@ -193,7 +198,16 @@
       }
     }
 
-    modal.addEventListener('click', () => modal.classList.remove('active'));
+    // Закрытие модального окна по клику в любую область
+    modal.addEventListener('click', closeModal);
+
+    // Закрытие по нажатию клавиши Escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
     init();
   </script>
 </body>
