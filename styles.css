@@ -138,6 +138,14 @@ body.page-stream {
   padding: 5rem 1.5rem;
 }
 
+/* Пустой блок-спейсер для отступа перед первой группой в потоке */
+.stream-spacer {
+  width: 100%;
+  height: 10rem;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
 /* Элементы потока */
 .photo-card {
   width: calc(50% - 2rem);
@@ -217,6 +225,7 @@ body.page-stream {
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
+  display: block;
 }
 
 /* Переключение Солнце / Луна на кнопке темы */
@@ -507,6 +516,7 @@ h1 {
     margin-top: 0 !important;
   }
 
+  /* Первая фотография стоит строго в левом створе без смещения */
   .photo-item:first-child,
   .photo-card:first-child {
     transform: none !important;
