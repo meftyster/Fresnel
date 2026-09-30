@@ -8,7 +8,7 @@
 </head>
 <body class="page-index">
 
-  <!-- Кнопка звука: видна при загрузке, гаснет при бездействии -->
+  <!-- Кнопка звука: в index.html по умолчанию выключена -->
   <button class="sound-btn visible" id="soundBtn" aria-label="Включить звук">
     <svg class="icon-mute" viewBox="0 0 24 24">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -44,7 +44,7 @@
     const modalImg = document.getElementById('modalImg');
     const soundBtn = document.getElementById('soundBtn');
 
-    // Логика затухания кнопки звука при неактивности
+    // Кнопка звука: затухание при бездействии
     let soundUiTimeout = null;
     let isHoveringSound = false;
 
@@ -58,7 +58,6 @@
       }
     }
 
-    // Инициализация стартового таймера затухания
     soundUiTimeout = setTimeout(() => {
       if (!isHoveringSound) soundBtn.classList.remove('visible');
     }, 2500);
@@ -78,67 +77,67 @@
       triggerSoundUi();
     });
 
-    // Аудиосистема: строго без автозапуска на index.html
-    let audio = null;
-    let fadeInterval = null;
+    // Надежная аудиосистема (синхронное создание)
+    const audio = new Audio('BalticSea.MP3');
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.volume = 0;
 
-    function initAudio(audioSrc) {
-      audio = new Audio(audioSrc);
-      audio.loop = true;
-      audio.volume = 0;
-    }
+    let isPlaying = false;
+    let fadeTimer = null;
 
-    function fadeIn() {
-      clearInterval(fadeInterval);
-      fadeInterval = setInterval(() => {
-        if (audio.volume < 0.65) {
-          audio.volume = Math.min(0.65, audio.volume + 0.04);
-        } else {
-          clearInterval(fadeInterval);
-        }
-      }, 70);
-    }
+    function setVolumeSmooth(targetVol, duration, callback) {
+      clearInterval(fadeTimer);
+      const stepTime = 40;
+      const steps = duration / stepTime;
+      const stepDelta = (targetVol - audio.volume) / steps;
 
-    function fadeOut(callback) {
-      clearInterval(fadeInterval);
-      fadeInterval = setInterval(() => {
-        if (audio.volume > 0.04) {
-          audio.volume = Math.max(0, audio.volume - 0.06);
-        } else {
-          audio.volume = 0;
-          clearInterval(fadeInterval);
+      fadeTimer = setInterval(() => {
+        let nextVol = audio.volume + stepDelta;
+        if ((stepDelta > 0 && nextVol >= targetVol) || (stepDelta < 0 && nextVol <= targetVol)) {
+          audio.volume = targetVol;
+          clearInterval(fadeTimer);
           if (callback) callback();
+        } else {
+          audio.volume = Math.max(0, Math.min(1, nextVol));
         }
-      }, 50);
+      }, stepTime);
     }
 
-    function startSound() {
-      if (!audio) return;
-      audio.play().then(() => {
-        soundBtn.classList.add('playing');
-        soundBtn.setAttribute('aria-label', 'Выключить звук');
-        fadeIn();
-      }).catch(err => {
-        soundBtn.classList.remove('playing');
-      });
+    function playAudio() {
+      isPlaying = true;
+      soundBtn.classList.add('playing');
+      soundBtn.setAttribute('aria-label', 'Выключить звук');
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setVolumeSmooth(0.65, 800);
+        }).catch(err => {
+          console.warn("Воспроизведение заблокировано браузером:", err);
+          isPlaying = false;
+          soundBtn.classList.remove('playing');
+        });
+      }
     }
 
-    function stopSound() {
-      if (!audio) return;
+    function pauseAudio() {
+      isPlaying = false;
       soundBtn.classList.remove('playing');
       soundBtn.setAttribute('aria-label', 'Включить звук');
-      fadeOut(() => {
+
+      setVolumeSmooth(0, 600, () => {
         audio.pause();
       });
     }
 
+    // Клик строго синхронно переключает on/off
     soundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!audio) return;
-      if (audio.paused || audio.volume === 0) {
-        startSound();
+      if (!isPlaying) {
+        playAudio();
       } else {
-        stopSound();
+        pauseAudio();
       }
     });
 
@@ -228,9 +227,9 @@
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
 
-        // Аудио (по умолчанию BalticSea.MP3)
-        const audioSrc = data.audio || 'BalticSea.MP3';
-        initAudio(audioSrc);
+        if (data.audio && data.audio !== 'BalticSea.MP3') {
+          audio.src = data.audio;
+        }
 
         // 1. Заголовок
         if (data.title) {
