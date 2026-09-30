@@ -77,8 +77,8 @@
       triggerSoundUi();
     });
 
-    // Надежная аудиосистема (синхронное создание)
-    const audio = new Audio('BalticSea.MP3');
+    // Аудиосистема с плавным fade
+    const audio = new Audio('batlicsea.mp3');
     audio.loop = true;
     audio.preload = 'auto';
     audio.volume = 0;
@@ -131,7 +131,6 @@
       });
     }
 
-    // Клик строго синхронно переключает on/off
     soundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (!isPlaying) {
@@ -227,7 +226,7 @@
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
 
-        if (data.audio && data.audio !== 'BalticSea.MP3') {
+        if (data.audio && data.audio !== 'batlicsea.mp3') {
           audio.src = data.audio;
         }
 
