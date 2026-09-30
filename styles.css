@@ -76,7 +76,7 @@ header h1 b {
 }
 
 /* ==========================================================================
-   ОБЩАЯ ДВУХКОЛОНОЧНАЯ СЕТКА (1080px) ДЛЯ INDEX И STREAM
+   ОБЩАЯ ДВУХКОЛОНОЧНАЯ СЕТКА (1080px)
    ========================================================================== */
 .gallery-grid,
 .stream-group {
@@ -95,7 +95,7 @@ header h1 b {
 }
 
 /* ==========================================================================
-   ОБЩИЕ КАРТОЧКИ ФОТО И АДАПТИВНЫЙ ЗАДНИЙ СВЕТ ПО ЦВЕТУ ГРАДИЕНТА
+   ОБЩИЕ КАРТОЧКИ ФОТО — ТЕСТОВЫЙ ПЛОТНЫЙ ЦВЕТОВОЙ ОРЕОЛ
    ========================================================================== */
 .photo-item,
 .photo-card {
@@ -115,8 +115,8 @@ header h1 b {
   object-fit: cover;
   display: block;
   border-radius: 4px;
-  /* Цвет света берется индивидуально для каждой пары из таблицы цветов */
-  box-shadow: 0 14px 30px var(--glow-color, rgba(245, 245, 247, 0.1));
+  /* 100% плотный свет для проверки привязки к градиенту */
+  box-shadow: 0 16px 36px var(--glow-color, #f5f5f7);
   cursor: zoom-in;
   pointer-events: auto;
   transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s ease;
@@ -129,66 +129,7 @@ header h1 b {
 .photo-item img:hover,
 .photo-card img:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 18px 40px var(--glow-hover, rgba(245, 245, 247, 0.16));
-}
-
-/* ==========================================================================
-   КНОПКА «НАЗАД» (stream.html)
-   ========================================================================== */
-.back-btn {
-  position: fixed;
-  top: 1.8rem;
-  left: 1.8rem;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: rgba(11, 13, 16, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(245, 245, 247, 0.08);
-  color: rgba(245, 245, 247, 0.6);
-  text-decoration: none;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transform: scale(0.92);
-  transition: opacity 0.5s cubic-bezier(0.2, 0, 0, 1),
-              transform 0.5s cubic-bezier(0.2, 0, 0, 1),
-              visibility 0.5s ease,
-              color 0.25s ease,
-              background 0.25s ease,
-              border-color 0.25s ease;
-}
-
-.back-btn.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: scale(1);
-}
-
-.back-btn svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-  transition: transform 0.25s ease;
-}
-
-.back-btn:hover {
-  color: #f3dfc0;
-  background: rgba(20, 24, 30, 0.75);
-  border-color: rgba(243, 223, 192, 0.3);
-}
-
-.back-btn:hover svg {
-  transform: translateX(-2px);
+  box-shadow: 0 22px 50px var(--glow-hover, #f5f5f7);
 }
 
 /* ==========================================================================
@@ -246,7 +187,7 @@ header h1 b {
 }
 
 /* ==========================================================================
-   МОДАЛЬНОЕ ОКНО ФОКУСА (Глубокое затемнение)
+   МОДАЛЬНОЕ ОКНО ФОКУСА
    ========================================================================== */
 .modal {
   position: fixed;
@@ -338,19 +279,7 @@ header h1 b {
 
   .photo-item img,
   .photo-card img {
-    box-shadow: 0 12px 28px var(--glow-color, rgba(245, 245, 247, 0.09));
-  }
-
-  .back-btn {
-    top: 1.2rem;
-    left: 1.2rem;
-    width: 38px;
-    height: 38px;
-  }
-
-  .back-btn svg {
-    width: 16px;
-    height: 16px;
+    box-shadow: 0 14px 30px var(--glow-color, #f5f5f7);
   }
 
   .site-footer {
