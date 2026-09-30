@@ -10,6 +10,25 @@
   --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* === СКРЫТИЕ ПОЛОСЫ ПРОКРУТКИ БЕЗ СКАЧКОВ UI === */
+html {
+  overflow-y: scroll;
+  scrollbar-width: none;           /* Firefox */
+  -ms-overflow-style: none;        /* IE и старый Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;                  /* Chrome, Safari, Chromium */
+  width: 0;
+  height: 0;
+}
+
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 /* === ВТОРИЧНЫЙ ТЁМНЫЙ РЕЖИМ (ГРАДИЕНТ И СВЕЧЕНИЕ) === */
 body.theme-dark {
   --bg-color: #0b0c10;
