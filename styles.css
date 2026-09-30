@@ -312,7 +312,24 @@ h1 {
   transform: scale(1);
 }
 
-/* Адаптив для мобильных устройств */
+/* Диапазон от 1280px до мобильного брейкпоинта: больше воздуха и защита от срезов */
+@media (max-width: 1280px) and (min-width: 769px) {
+  .gallery-grid,
+  .stream-group {
+    max-width: 1060px;
+    padding-left: 3.5rem;
+    padding-right: 3.5rem;
+    gap: 3.5rem 3rem;
+  }
+
+  .photo-item,
+  .photo-card {
+    width: calc(50% - 1.5rem);
+    max-width: 430px;
+  }
+}
+
+/* Мобильные экраны: переход в одну колонку */
 @media (max-width: 768px) {
   .photo-item,
   .photo-card {
@@ -325,6 +342,8 @@ h1 {
   .stream-group {
     gap: 3rem 0;
     padding-top: 2rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   h1 {
