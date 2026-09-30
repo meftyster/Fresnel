@@ -42,7 +42,7 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Сортировка строго по числу в имени файла (1, 2, ... 10)
+    // Сортировка строго по числу в имени файла
     function sortImagesByNumericIndex(images) {
       return [...images].sort((a, b) => {
         const nameA = (a.src || '').split('/').pop();
@@ -73,6 +73,14 @@
         return data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || ['#f5f5f7'];
       }
       return ['#f5f5f7'];
+    }
+
+    // Выделяем палитру именно для пар фото
+    function getPhotoPalette(allColors) {
+      if (allColors.length > 3) {
+        return allColors.slice(2, -1);
+      }
+      return allColors.filter((_, idx) => idx !== 1);
     }
 
     function applyDynamicGradient(data, pairCount) {
@@ -133,7 +141,7 @@
             .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
         }
 
-        // 2. Описание и авторская подпись
+        // 2. Описание
         if (data.description) {
           let descHtml = data.description
             .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
@@ -184,11 +192,12 @@
           <div class="footer-copyright">${copyrightHtml}</div>
         `;
 
-        // 4. Сетка фото
+        // 4. Сетка фото с изолированной палитрой
         gallery.innerHTML = '';
         const rawImages = data.images || [];
         const images = sortImagesByNumericIndex(rawImages);
-        const colors = extractColors(data);
+        const allColors = extractColors(data);
+        const photoColors = getPhotoPalette(allColors);
 
         images.forEach((item, index) => {
           const el = document.createElement('div');
@@ -207,8 +216,8 @@
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
-          // ТЕСТ: 100% НЕПРОЗРАЧНОСТЬ (alpha = 1.0)
-          const pairColorHex = colors[pairIndex % colors.length];
+          // ТЕСТ: 100% НЕПРОЗРАЧНОСТЬ строго из промежуточных цветов фото
+          const pairColorHex = photoColors[pairIndex % photoColors.length];
           el.style.setProperty('--glow-color', hexToRgba(pairColorHex, 1.0));
           el.style.setProperty('--glow-hover', hexToRgba(pairColorHex, 1.0));
 
@@ -221,7 +230,7 @@
           gallery.appendChild(el);
         });
 
-        // 5. Фоновый градиент
+        // 5. Градиент
         const pairCount = Math.ceil(images.length / 2);
         applyDynamicGradient(data, pairCount);
 
