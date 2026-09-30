@@ -21,7 +21,7 @@
       user-select: none;
     }
 
-    /* Окно просмотра */
+    /* Окно просмотра на весь экран */
     .stream-viewport {
       position: relative;
       width: 100%;
@@ -36,7 +36,7 @@
       cursor: grabbing;
     }
 
-    /* Движущийся трек */
+    /* Трек, передвигаемый виртуальным скроллом */
     .stream-track {
       position: absolute;
       top: 0;
@@ -47,25 +47,23 @@
       will-change: transform;
     }
 
-    /* Группа фотографий */
+    /* ==========================================================================
+       ДЕСКТОП: Двухколоночная сетка 1080px из index.html
+       ========================================================================== */
     .stream-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5rem;
-      padding-top: 7rem;
-      padding-bottom: 7rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 4.5rem;
+      row-gap: 8rem;
       width: 100%;
-      max-width: 440px;
-      padding-left: 1rem;
-      padding-right: 1rem;
+      max-width: 1080px;
+      padding: 8rem 2rem;
     }
 
     .photo-card {
-      width: 100%;
       display: flex;
-      justify-content: center;
-      transform: translateX(var(--x-offset, 0%));
+      flex-direction: column;
+      margin-top: var(--offset, 0rem); /* Вертикальный оффсет десктопа */
     }
 
     .photo-card img {
@@ -74,14 +72,41 @@
       object-fit: cover;
       display: block;
       border-radius: 4px;
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
       cursor: pointer;
       pointer-events: auto;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s ease;
     }
 
     .photo-card img:hover {
-      transform: scale(1.02);
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ==========================================================================
+       МОБИЛЬНАЯ ВЕРСИЯ (Экран <= 768px): Поточная колонка с горизонтальным сдвигом
+       ========================================================================== */
+    @media (max-width: 768px) {
+      .stream-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        row-gap: 5rem;
+        column-gap: 0;
+        max-width: 100%;
+        padding: 6rem 1rem;
+      }
+
+      .photo-card {
+        margin-top: 0 !important;
+        width: 91%;
+        max-width: 430px;
+        transform: translateX(var(--x-offset, 0%));
+      }
+
+      .photo-card img {
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+      }
     }
 
     /* Модальное окно */
@@ -115,7 +140,7 @@
     <div class="stream-track" id="track">
       <!-- Группа 1: Оригинал -->
       <div class="stream-group" id="groupOriginal"></div>
-      <!-- Группа 2: Дубликат для бесконечного цикла -->
+      <!-- Группа 2: Дубликат для бесконечного лупа -->
       <div class="stream-group" id="groupClone" aria-hidden="true"></div>
     </div>
   </div>
@@ -132,6 +157,13 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
+    // Десктопные вертикальные оффсеты пар
+    const offsets = [
+      7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
+      4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
+    ];
+
+    // Мобильный горизонтальный ритм
     const mobileOffsets = [
       -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
        3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
@@ -139,8 +171,8 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Ровно на 10% быстрее исходной медитативной скорости
-    const AUTO_SPEED = 0.38;        // пикселей за кадр (~22-24 px в секунду)
+    // Скорость: на 10% быстрее исходной медитативной
+    const AUTO_SPEED = 0.38;
     let currentY = 0;
     let userVelocity = 0;
     let isUserInteracting = false;
@@ -189,8 +221,20 @@
       const card = document.createElement('div');
       card.className = 'photo-card';
 
-      const shift = mobileOffsets[index % mobileOffsets.length];
-      card.style.setProperty('--x-offset', `${shift}%`);
+      // 1. Десктопный вертикальный сдвиг
+      const pairIndex = Math.floor(index / 2);
+      const shiftValue = offsets[pairIndex % offsets.length];
+      let itemOffset = 0;
+      if (index % 2 === 0) {
+        itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
+      } else {
+        itemOffset = shiftValue > 0 ? shiftValue : 0;
+      }
+      card.style.setProperty('--offset', `${itemOffset}rem`);
+
+      // 2. Мобильный горизонтальный сдвиг
+      const mobileShift = mobileOffsets[index % mobileOffsets.length];
+      card.style.setProperty('--x-offset', `${mobileShift}%`);
 
       const img = document.createElement('img');
       img.src = item.src;
@@ -207,9 +251,8 @@
       return card;
     }
 
-    // Главный цикл: стартует немедленно
+    // Цикл физики и рендера
     function animate() {
-      // Обновляем фактическую высоту блока динамически
       const measuredHeight = groupOriginal.offsetHeight;
       if (measuredHeight > 0) {
         groupHeight = measuredHeight;
@@ -234,7 +277,7 @@
       requestAnimationFrame(animate);
     }
 
-    // Обработка колеса мыши и трекпада
+    // Колесо мыши / трекпад
     window.addEventListener('wheel', (e) => {
       userVelocity += e.deltaY * 0.15;
       userVelocity = Math.max(-20, Math.min(20, userVelocity));
@@ -245,7 +288,7 @@
       }, 350);
     }, { passive: true });
 
-    // Обработка тач-свайпов и мыши
+    // Тач / драг мышью
     function onPointerDown(e) {
       isUserInteracting = true;
       isDragThresholdPassed = false;
@@ -290,7 +333,6 @@
     window.addEventListener('touchend', onPointerUp, { passive: true });
 
     async function init() {
-      // Запускаем анимацию сразу же
       requestAnimationFrame(animate);
 
       try {
@@ -305,8 +347,12 @@
           groupClone.appendChild(createPhotoElement(item, index));
         });
 
-        applyMovingGradient(data, images.length);
+        applyMovingGradient(data, Math.ceil(images.length / 2));
         groupHeight = groupOriginal.offsetHeight;
+
+        window.addEventListener('resize', () => {
+          groupHeight = groupOriginal.offsetHeight;
+        });
 
       } catch (err) {
         console.error('Ошибка инициализации потока:', err);
