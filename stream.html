@@ -44,8 +44,8 @@
 </head>
 <body class="page-stream">
 
-  <!-- Кнопка «назад» (слева) -->
-  <a href="index.html" class="back-btn" id="backBtn" aria-label="Назад к галерее">
+  <!-- Кнопка «назад» (слева): ведет в корень проекта -->
+  <a href="./" class="back-btn" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
       <polyline points="12 19 5 12 12 5"></polyline>
@@ -182,7 +182,6 @@
       if (userManuallyMuted) return;
       initAudioGraph();
 
-      // Гарантируем разблокировку AudioContext
       const resumePromise = audioCtx.state === 'suspended' ? audioCtx.resume() : Promise.resolve();
 
       resumePromise.then(() => {
@@ -203,7 +202,6 @@
           scheduleCrossfade(playerA, playerB, gainA, gainB);
           removeUnlockListeners();
         }).catch(() => {
-          // Автоплей заблокирован браузером до первого действия пользователя
           isPlaying = false;
           attachUnlockListeners();
         });
@@ -237,7 +235,6 @@
       }, FADE_TIME * 1000);
     }
 
-    // Слушатель жестов для разблокировки звука
     function onUserGesture() {
       if (!userManuallyMuted && !isPlaying) {
         playAudio();
@@ -258,7 +255,6 @@
       window.removeEventListener('pointerdown', onUserGesture);
     }
 
-    // Попытка автозапуска при загрузке
     playAudio();
 
     soundBtn.addEventListener('click', (e) => {
