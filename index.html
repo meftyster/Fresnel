@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=18">
-  <script src="./gallery-core.js?v=1"></script>
+  <link rel="stylesheet" href="./styles.css?v=19">
+  <script src="./gallery-core.js?v=2"></script>
 </head>
 <body class="page-index">
 
-  <!-- Кнопка темы: на белом фоне — солнце, на градиенте — луна -->
+  <!-- Кнопка темы (Солнце / Луна) -->
   <button class="theme-toggle-btn visible" id="themeToggleBtn" aria-label="Сменить тему">
     <svg class="icon-sun" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="4"></circle>
@@ -24,6 +24,15 @@
     </svg>
     <svg class="icon-moon" viewBox="0 0 24 24">
       <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </svg>
+  </button>
+
+  <!-- Кнопка смены ритма/волны (Waves из Lucide) -->
+  <button class="pattern-btn visible" id="patternBtn" aria-label="Сменить ритм раскладки">
+    <svg viewBox="0 0 24 24">
+      <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+      <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+      <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
     </svg>
   </button>
 
@@ -60,6 +69,7 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
     const streamNavBtn = document.getElementById('streamNavBtn');
+    const patternBtn = document.getElementById('patternBtn');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
     // === ПЕРЕКЛЮЧЕНИЕ ТЕМЫ (БЕЛЫЙ ПО УМОЛЧАНИЮ) ===
@@ -94,9 +104,15 @@
       applyTheme();
     });
 
+    // Переключение ритма сетки
+    patternBtn.addEventListener('click', () => {
+      GalleryCore.nextPattern();
+    });
+
     // Управление видимостью кнопок и скрытием очков в конце страницы
     let topUiTimeout = null;
     let isHoveringTopUi = false;
+    const allTopBtns = [themeToggleBtn, patternBtn, streamNavBtn];
 
     function isAtBottom() {
       const scrollPos = window.innerHeight + window.scrollY;
@@ -112,6 +128,7 @@
 
     function triggerTopUi() {
       themeToggleBtn.classList.add('visible');
+      patternBtn.classList.add('visible');
 
       if (!isAtBottom()) {
         streamNavBtn.classList.add('visible');
@@ -123,16 +140,14 @@
 
       if (!isHoveringTopUi) {
         topUiTimeout = setTimeout(() => {
-          themeToggleBtn.classList.remove('visible');
-          streamNavBtn.classList.remove('visible');
+          allTopBtns.forEach(btn => btn.classList.remove('visible'));
         }, 2500);
       }
     }
 
     topUiTimeout = setTimeout(() => {
       if (!isHoveringTopUi) {
-        themeToggleBtn.classList.remove('visible');
-        streamNavBtn.classList.remove('visible');
+        allTopBtns.forEach(btn => btn.classList.remove('visible'));
       }
     }, 2500);
 
@@ -143,14 +158,15 @@
       checkBottomAndToggleStreamBtn();
     }, { passive: true });
 
-    [themeToggleBtn, streamNavBtn].forEach(btn => {
+    allTopBtns.forEach(btn => {
       btn.addEventListener('mouseenter', () => {
         isHoveringTopUi = true;
         clearTimeout(topUiTimeout);
-        themeToggleBtn.classList.add('visible');
-        if (!isAtBottom() || btn === streamNavBtn) {
-          streamNavBtn.classList.add('visible');
-        }
+        allTopBtns.forEach(b => {
+          if (b !== streamNavBtn || !isAtBottom()) {
+            b.classList.add('visible');
+          }
+        });
       });
 
       btn.addEventListener('mouseleave', () => {
@@ -284,7 +300,6 @@
           const el = document.createElement('div');
           el.className = 'photo-item';
 
-          // Используем единый метод расчёта раскладки
           GalleryCore.applyCardLayout(el, index, photoColors);
 
           el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
