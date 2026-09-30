@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
+  <!-- Все визуальные стили, карточки, сетка и модалка подключены из styles.css -->
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Только параметры виртуального полотна */
+    /* Исключительно правила кинематики виртуального скролла */
     html, body {
       width: 100%;
       height: 100%;
@@ -45,7 +46,7 @@
 </head>
 <body>
 
-  <!-- Кнопка «назад» (оформлена в styles.css) -->
+  <!-- Кнопка «назад» (оформлена в styles.css, скрыта при старте) -->
   <a href="index.html" class="back-btn" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -53,7 +54,7 @@
     </svg>
   </a>
 
-  <!-- Трек потока -->
+  <!-- Трек виртуального потока -->
   <div class="stream-viewport" id="viewport">
     <div class="stream-track" id="track">
       <div class="stream-group" id="groupOriginal"></div>
@@ -105,7 +106,6 @@
       showUI();
     });
 
-    // Оффсеты сетки
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
@@ -130,7 +130,7 @@
     let lastTime = 0;
     let isDragThresholdPassed = false;
 
-    // Сортировка по числовому индексу в имени файла (1, 2, ... 10)
+    // Сортировка строго по числовому индексу в имени файла
     function sortImagesByNumericIndex(images) {
       return [...images].sort((a, b) => {
         const nameA = (a.src || '').split('/').pop();
@@ -141,6 +141,18 @@
         const numB = matchB ? parseInt(matchB[0], 10) : 0;
         return numA - numB;
       });
+    }
+
+    function hexToRgba(hex, alpha) {
+      let c = (hex || '#f5f5f7').replace('#', '').trim();
+      if (c.length === 3) {
+        c = c.split('').map(x => x + x).join('');
+      }
+      const num = parseInt(c, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
     function applyMovingGradient(data, count) {
@@ -176,7 +188,7 @@
       track.style.backgroundImage = `linear-gradient(180deg, ${allStops.join(', ')})`;
     }
 
-    function createPhotoElement(item, index) {
+    function createPhotoElement(item, index, colors) {
       const card = document.createElement('div');
       card.className = 'photo-card';
 
@@ -192,6 +204,11 @@
 
       const mobileShift = mobileOffsets[index % mobileOffsets.length];
       card.style.setProperty('--x-offset', `${mobileShift}%`);
+
+      // Назначаем задний цвет из таблицы цветов для текущей пары
+      const pairColorHex = colors[pairIndex % colors.length];
+      card.style.setProperty('--glow-color', hexToRgba(pairColorHex, 0.16));
+      card.style.setProperty('--glow-hover', hexToRgba(pairColorHex, 0.26));
 
       const img = document.createElement('img');
       img.src = item.src;
@@ -320,10 +337,13 @@
         if (rawImages.length === 0) return;
 
         const images = sortImagesByNumericIndex(rawImages);
+        const colors = (Array.isArray(data.colors) && data.colors.length > 0)
+          ? data.colors
+          : (typeof data.gradient === 'string' ? data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || ['#f5f5f7'] : ['#f5f5f7']);
 
         images.forEach((item, index) => {
-          groupOriginal.appendChild(createPhotoElement(item, index));
-          groupClone.appendChild(createPhotoElement(item, index));
+          groupOriginal.appendChild(createPhotoElement(item, index, colors));
+          groupClone.appendChild(createPhotoElement(item, index, colors));
         });
 
         applyMovingGradient(data, Math.ceil(images.length / 2));
