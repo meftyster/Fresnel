@@ -40,7 +40,22 @@ jobs:
           fi
 
       - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Auto-generate data.json [skip ci]"
-          file_pattern: 'data.json'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 1. Забираем любые коммиты, пришедшие в main, пока работал скрипт
+          git pull --rebase origin main
+
+          # 2. Индексируем только data.json
+          git add data.json
+
+          # 3. Пушим только если файл действительно изменился
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "Auto-generate data.json [skip ci]"
+            # Повторный pull-rebase непосредственно перед push на случай миллисекундных гонок
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "No changes in data.json to commit"
+          fi
