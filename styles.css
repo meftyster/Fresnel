@@ -316,24 +316,23 @@ h1 {
   font-weight: 600;
 }
 
-/* === КНОПКА ЯЗЫКА В ПОТОКЕ (ДЕСКТОП: 18x18) === */
+/* === КНОПКА ЯЗЫКА В ПОТОКЕ (ДЕСКТОП: 18px с учетом рамки 20x20) === */
 .lang-switch-btn {
   display: inline-grid;
   place-items: center;
   position: relative;
   vertical-align: baseline;
   
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  min-height: 18px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   box-sizing: border-box;
   padding: 0;
   margin: 0 0 0 0.6rem;
   
-  /* Ювелирный сдвиг вверх ровно на середину высоты строчных букв */
   top: -0.16em;
   
   background: var(--glass-bg);
@@ -495,7 +494,6 @@ h1 {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
-px;
   align-items: center;
   justify-content: center;
   opacity: 0;
@@ -539,7 +537,7 @@ px;
   }
 }
 
-/* === АДАПТИВНОСТЬ: ДО 768px (ПЛАНШЕТЫ: 15x15) === */
+/* === АДАПТИВНОСТЬ: ДО 768px (ПЛАНШЕТЫ: 15px с учетом рамки 17x17) === */
 @media (max-width: 768px) {
   header {
     text-align: left;
@@ -563,10 +561,10 @@ px;
   }
 
   .lang-switch-btn {
-    width: 15px;
-    height: 15px;
-    min-width: 15px;
-    min-height: 15px;
+    width: 17px;
+    height: 17px;
+    min-width: 17px;
+    min-height: 17px;
     margin-left: 0.5rem;
   }
 
@@ -621,7 +619,7 @@ px;
   }
 }
 
-/* === АДАПТИВНОСТЬ: ДО 480px (МОБИЛКИ: 12x12) === */
+/* === АДАПТИВНОСТЬ: ДО 480px (МОБИЛКИ: 12px с учетом рамки 14x14) === */
 @media (max-width: 480px) {
   header {
     padding-top: 1.5rem;
@@ -646,10 +644,10 @@ px;
   }
 
   .lang-switch-btn {
-    width: 12px;
-    height: 12px;
-    min-width: 12px;
-    min-height: 12px;
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
     margin-left: 0.4rem;
   }
 
