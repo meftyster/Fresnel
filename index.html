@@ -119,23 +119,34 @@
           pageDesc.innerHTML = descHtml;
         }
 
-        // 3. Подвал с раздельной разметкой и независимыми отступами
+        // 3. Подвал: разбор данных из content.md с дифференцированными отступами
         const currentYear = new Date().getFullYear();
         let footerRaw = data.footer && data.footer.trim() 
           ? data.footer 
-          : `[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
+          : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
 
         // Парсинг markdown-ссылок и замена года
         footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
         footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
 
-        // Разделение контактов и копирайта
+        // Разделение на абзацы: 1. ссылка режима, 2. соцсети, 3. копирайт
         const footerParts = footerRaw.split(/\n\s*\n/);
-        const contactsHtml = footerParts[0] ? footerParts[0].trim() : '';
-        const copyrightHtml = footerParts.slice(1).join('<br>').trim();
+        
+        let modeHtml = '';
+        let contactsHtml = '';
+        let copyrightHtml = '';
+
+        if (footerParts.length >= 3) {
+          modeHtml = footerParts[0].trim();
+          contactsHtml = footerParts[1].trim();
+          copyrightHtml = footerParts.slice(2).join('<br>').trim();
+        } else {
+          contactsHtml = footerParts[0] || '';
+          copyrightHtml = footerParts.slice(1).join('<br>').trim();
+        }
 
         pageFooter.innerHTML = `
-          <a href="stream.html" class="footer-mode-link">версия без текста для наблюдения</a>
+          ${modeHtml ? `<div class="footer-mode-link">${modeHtml}</div>` : ''}
           <div class="footer-contacts">${contactsHtml}</div>
           <div class="footer-copyright">${copyrightHtml}</div>
         `;
@@ -147,7 +158,7 @@
           const el = document.createElement('div');
           el.className = 'photo-item';
 
-          // Десктопный сдвиг
+          // Десктопный вертикальный сдвиг
           const pairIndex = Math.floor(index / 2);
           const shiftValue = offsets[pairIndex % offsets.length];
 
@@ -159,7 +170,7 @@
           }
           el.style.setProperty('--offset', `${itemOffset}rem`);
 
-          // Мобильный ритм
+          // Мобильный горизонтальный ритм
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
