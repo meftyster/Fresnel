@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <!-- Все визуальные стили карточек, сетки, света и модалки берутся из styles.css -->
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Исключительно правила кинематики виртуального полотна */
+    /* Только кинематика виртуального полотна */
     html, body {
       width: 100%;
       height: 100%;
@@ -44,15 +43,28 @@
     }
   </style>
 </head>
-<body>
+<body class="page-stream">
 
-  <!-- Кнопка «назад» (оформлена в styles.css, скрыта при старте) -->
+  <!-- Кнопка «назад» (слева): скрыта со старта, появляется при активности -->
   <a href="index.html" class="back-btn" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
       <polyline points="12 19 5 12 12 5"></polyline>
     </svg>
   </a>
+
+  <!-- Кнопка звука (справа): видна со старта, гаснет без активности -->
+  <button class="sound-btn visible" id="soundBtn" aria-label="Включить звук">
+    <svg class="icon-mute" viewBox="0 0 24 24">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+    <svg class="icon-sound" viewBox="0 0 24 24">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </svg>
+  </button>
 
   <!-- Трек виртуального потока -->
   <div class="stream-viewport" id="viewport">
@@ -75,35 +87,143 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
     const backBtn = document.getElementById('backBtn');
+    const soundBtn = document.getElementById('soundBtn');
 
-    // Логика автоскрытия кнопки «назад»
+    // Логика автоскрытия элементов интерфейса
     let uiTimeout = null;
-    let isCursorOverBackBtn = false;
+    let isCursorOverUI = false;
 
     function showUI() {
       backBtn.classList.add('visible');
+      soundBtn.classList.add('visible');
       clearTimeout(uiTimeout);
       
-      if (!isCursorOverBackBtn) {
+      if (!isCursorOverUI) {
         uiTimeout = setTimeout(() => {
           backBtn.classList.remove('visible');
-        }, 2200);
+          soundBtn.classList.remove('visible');
+        }, 2500);
       }
     }
+
+    // Звуковая кнопка видна при старте, через 2.5 сек затухает, если нет активности
+    uiTimeout = setTimeout(() => {
+      if (!isCursorOverUI) {
+        soundBtn.classList.remove('visible');
+      }
+    }, 2500);
 
     window.addEventListener('mousemove', showUI);
     window.addEventListener('touchstart', showUI, { passive: true });
     window.addEventListener('wheel', showUI, { passive: true });
 
-    backBtn.addEventListener('mouseenter', () => {
-      isCursorOverBackBtn = true;
-      clearTimeout(uiTimeout);
-      backBtn.classList.add('visible');
+    [backBtn, soundBtn].forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        isCursorOverUI = true;
+        clearTimeout(uiTimeout);
+        backBtn.classList.add('visible');
+        soundBtn.classList.add('visible');
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        isCursorOverUI = false;
+        showUI();
+      });
     });
 
-    backBtn.addEventListener('mouseleave', () => {
-      isCursorOverBackBtn = false;
-      showUI();
+    // Аудиосистема с попыткой автозапуска и плавным нарастанием
+    let audio = null;
+    let fadeInterval = null;
+    let userHasExplicitlyMuted = false;
+
+    function initAudio(audioSrc) {
+      if (audio) return;
+      audio = new Audio(audioSrc);
+      audio.loop = true;
+      audio.volume = 0;
+
+      // Пробуем автозапуск сразу
+      tryAutoPlay();
+    }
+
+    function fadeIn() {
+      clearInterval(fadeInterval);
+      fadeInterval = setInterval(() => {
+        if (audio.volume < 0.65) {
+          audio.volume = Math.min(0.65, audio.volume + 0.04);
+        } else {
+          clearInterval(fadeInterval);
+        }
+      }, 70);
+    }
+
+    function fadeOut(callback) {
+      clearInterval(fadeInterval);
+      fadeInterval = setInterval(() => {
+        if (audio.volume > 0.04) {
+          audio.volume = Math.max(0, audio.volume - 0.06);
+        } else {
+          audio.volume = 0;
+          clearInterval(fadeInterval);
+          if (callback) callback();
+        }
+      }, 50);
+    }
+
+    function startSound() {
+      if (!audio) return;
+      userHasExplicitlyMuted = false;
+      audio.play().then(() => {
+        soundBtn.classList.add('playing');
+        soundBtn.setAttribute('aria-label', 'Выключить звук');
+        fadeIn();
+      }).catch(err => {
+        soundBtn.classList.remove('playing');
+      });
+    }
+
+    function stopSound() {
+      if (!audio) return;
+      userHasExplicitlyMuted = true;
+      soundBtn.classList.remove('playing');
+      soundBtn.setAttribute('aria-label', 'Включить звук');
+      fadeOut(() => {
+        audio.pause();
+      });
+    }
+
+    function tryAutoPlay() {
+      if (!audio || userHasExplicitlyMuted) return;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          soundBtn.classList.add('playing');
+          soundBtn.setAttribute('aria-label', 'Выключить звук');
+          fadeIn();
+        }).catch(() => {
+          // Если браузер заблокировал автоплей — ждём первого клика/тапа по полотну
+          soundBtn.classList.remove('playing');
+          const unlockAudio = () => {
+            if (!userHasExplicitlyMuted && audio && (audio.paused || audio.volume === 0)) {
+              startSound();
+            }
+            window.removeEventListener('click', unlockAudio);
+            window.removeEventListener('touchstart', unlockAudio);
+          };
+          window.addEventListener('click', unlockAudio, { once: true });
+          window.addEventListener('touchstart', unlockAudio, { once: true });
+        });
+      }
+    }
+
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!audio) return;
+      if (audio.paused || audio.volume === 0) {
+        startSound();
+      } else {
+        stopSound();
+      }
     });
 
     const offsets = [
@@ -130,7 +250,6 @@
     let lastTime = 0;
     let isDragThresholdPassed = false;
 
-    // Сортировка по числовому номеру в имени файла (1, 2, ... 10)
     function sortImagesByNumericIndex(images) {
       return [...images].sort((a, b) => {
         const nameA = (a.src || '').split('/').pop();
@@ -151,7 +270,6 @@
       return ['#f5f5f7'];
     }
 
-    // Исключаем цвет начала (0), акцент текста (1) и подвал (последний)
     function getPhotoPalette(allColors) {
       if (allColors.length > 3) {
         return allColors.slice(2, -1);
@@ -190,7 +308,6 @@
       const card = document.createElement('div');
       card.className = 'photo-card';
 
-      // Вертикальный ритм для десктопа
       const pairIndex = Math.floor(index / 2);
       const shiftValue = offsets[pairIndex % offsets.length];
       let itemOffset = 0;
@@ -201,11 +318,9 @@
       }
       card.style.setProperty('--offset', `${itemOffset}rem`);
 
-      // Горизонтальный ритм для мобильных экранов
       const mobileShift = mobileOffsets[index % mobileOffsets.length];
       card.style.setProperty('--x-offset', `${mobileShift}%`);
 
-      // Назначаем чистый цвет пары (прозрачность, размытие и ховер контролируются в styles.css)
       const pairColorHex = photoColors[pairIndex % photoColors.length];
       card.style.setProperty('--glow-color', pairColorHex);
 
@@ -239,7 +354,6 @@
       }, 300);
     }
 
-    // Кинематика бесконечного скролла
     function animate() {
       const measuredHeight = groupOriginal.offsetHeight;
       if (measuredHeight > 0) {
@@ -275,7 +389,7 @@
     }, { passive: true });
 
     function onPointerDown(e) {
-      if (e.target.closest('.back-btn')) return;
+      if (e.target.closest('.back-btn') || e.target.closest('.sound-btn')) return;
 
       isUserInteracting = true;
       isDragThresholdPassed = false;
@@ -336,7 +450,10 @@
 
         if (rawImages.length === 0) return;
 
-        // Числовая сортировка картинок
+        // Инициализируем аудио
+        const audioSrc = data.audio || 'BalticSea.MP3';
+        initAudio(audioSrc);
+
         const images = sortImagesByNumericIndex(rawImages);
         const allColors = extractColors(data);
         const photoColors = getPhotoPalette(allColors);
