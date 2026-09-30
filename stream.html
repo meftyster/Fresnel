@@ -4,7 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=16">
+  <style>
+    /* Пустой блок-спейсер только перед первой группой */
+    .stream-spacer {
+      width: 100%;
+      height: 10rem;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body class="page-stream">
 
@@ -247,7 +256,6 @@
       }
     }
 
-    // Стартовое автоскрытие обеих кнопок через 2.5 секунды
     uiTimeout = setTimeout(() => {
       if (!isCursorOverUI) {
         backBtn.classList.remove('visible');
@@ -324,6 +332,7 @@
       return allColors.filter((_, idx) => idx !== 1);
     }
 
+    // Бесшовный луп: последний цвет строго равен первому
     function applyMovingGradient(data, count) {
       const colors = extractColors(data);
       if (colors.length === 0) return;
@@ -337,6 +346,9 @@
       for (let i = 0; i < stopsNeeded; i++) {
         singleCycleColors.push(colors[i % colors.length]);
       }
+
+      // Принудительно замыкаем цикл
+      singleCycleColors[singleCycleColors.length - 1] = singleCycleColors[0];
 
       const allStops = [];
       singleCycleColors.forEach((col, idx) => {
@@ -513,6 +525,11 @@
         const images = sortImagesByNumericIndex(rawImages);
         const allColors = extractColors(data);
         const photoColors = getPhotoPalette(allColors);
+
+        // Вставляем пустой блок-спейсер строго только перед первой группой
+        const spacerOriginal = document.createElement('div');
+        spacerOriginal.className = 'stream-spacer';
+        groupOriginal.appendChild(spacerOriginal);
 
         images.forEach((item, index) => {
           groupOriginal.appendChild(createPhotoElement(item, index, photoColors));
