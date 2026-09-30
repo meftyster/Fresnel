@@ -219,6 +219,21 @@ body.page-stream {
   fill: none;
 }
 
+/* Переключение Солнце / Луна на кнопке темы */
+.theme-toggle-btn .icon-sun {
+  display: block;
+}
+.theme-toggle-btn .icon-moon {
+  display: none;
+}
+
+body.theme-dark .theme-toggle-btn .icon-sun {
+  display: none;
+}
+body.theme-dark .theme-toggle-btn .icon-moon {
+  display: block;
+}
+
 /* Кнопка темы на index.html */
 .theme-toggle-btn {
   top: 1.5rem;
@@ -472,7 +487,6 @@ h1 {
     margin-top: 0 !important;
   }
 
-  /* Первая фотография стоит строго в левом створе без смещения */
   .photo-item:first-child,
   .photo-card:first-child {
     transform: none !important;
