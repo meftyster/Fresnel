@@ -238,12 +238,14 @@ body.page-stream {
   display: block;
 }
 
+/* Скрытие очков внизу страницы */
 .stream-nav-btn:not(.visible) {
   opacity: 0;
   pointer-events: none;
   transform: translateY(-8px);
 }
 
+/* Кнопка «Наверх» на 3-й позиции */
 .scroll-top-btn {
   top: 8.1rem;
   right: 1.5rem;
@@ -285,6 +287,7 @@ header {
   text-align: center;
 }
 
+/* Заголовок: строгий inline-flex с выравниванием по базовой линии текста */
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
@@ -292,12 +295,12 @@ h1 {
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
   color: #121316;
-  position: relative;
-  display: inline-block;
-  text-align: center;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
 }
 
-/* Коробка под текст заголовка */
+/* Фиксированная коробка под заголовок */
 .title-text-box {
   display: inline-block;
   width: 290px;
@@ -311,15 +314,14 @@ h1 {
   font-weight: 600;
 }
 
-/* === КНОПКА СТРОГО МЕЖДУ КРАСНЫМИ ЛИНИЯМИ СТРОЧНЫХ БУКВ === */
+/* === КНОПКА СТРОГО МЕЖДУ БАЗОВОЙ ЛИНИЕЙ И ВЕРХОМ СТРОЧНЫХ БУКВ === */
 .lang-switch-btn {
-  position: absolute;
-  left: 100%;
-  margin-left: 0.65rem;
-  /* Низ круга касается нижней красной линии (базовой линии) */
-  bottom: 4px;
+  /* Чистый inline-grid: нижний край встаёт ровно на базовую линию шрифта */
+  display: inline-grid;
+  place-items: center;
+  vertical-align: baseline;
   
-  /* Высота ровно 18px — строго от нижней до верхней границы букв «е, к, т, я» на десктопе */
+  /* Размер 18px строго равен высоте букв «е, к, т, я» на десктопе */
   width: 18px;
   height: 18px;
   min-width: 18px;
@@ -327,6 +329,9 @@ h1 {
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   box-sizing: border-box;
+  padding: 0;
+  margin: 0 0 0 0.65rem;
+  
   background: var(--glass-bg);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
@@ -336,12 +341,6 @@ h1 {
   cursor: pointer;
   outline: none;
   
-  display: grid;
-  place-items: center;
-  padding: 0;
-  line-height: 0;
-  
-  transform: none !important;
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
@@ -414,6 +413,7 @@ h1 {
   transition: transform 0.6s var(--ease-smooth);
 }
 
+/* Чёрные тени 40% для светлого режима */
 .photo-item img {
   width: 100%;
   height: auto;
@@ -551,7 +551,7 @@ h1 {
     margin-top: 0;
     margin-bottom: 1.25rem;
     text-align: left;
-    display: inline-block;
+    justify-content: flex-start;
   }
 
   .title-text-box {
@@ -559,14 +559,13 @@ h1 {
     text-align: left;
   }
 
-  /* Планшет: кнопка 15px строго по высоте букв, на нижней базовой линии */
+  /* Планшет: размер 15px строго по высоте строчных букв */
   .lang-switch-btn {
     width: 15px;
     height: 15px;
     min-width: 15px;
     min-height: 15px;
     margin-left: 0.55rem;
-    bottom: 3px;
   }
 
   .lang-switch-btn .icon-cross {
@@ -636,6 +635,7 @@ h1 {
     margin-top: 0;
     margin-bottom: 1rem;
     text-align: left;
+    justify-content: flex-start;
   }
 
   .title-text-box {
@@ -643,14 +643,13 @@ h1 {
     text-align: left;
   }
 
-  /* Смартфоны: кнопка 12px строго по высоте букв, на нижней базовой линии */
+  /* Смартфоны: размер 12.5px строго по высоте строчных букв */
   .lang-switch-btn {
-    width: 12px;
-    height: 12px;
-    min-width: 12px;
-    min-height: 12px;
+    width: 12.5px;
+    height: 12.5px;
+    min-width: 12.5px;
+    min-height: 12.5px;
     margin-left: 0.45rem;
-    bottom: 2.5px;
   }
 
   .lang-switch-btn .icon-cross {
