@@ -4,6 +4,19 @@
   padding: 0;
 }
 
+/* ==========================================================================
+   ГЛОБАЛЬНЫЙ ПУЛЬТ УПРАВЛЕНИЯ СВЕТОМ
+   ========================================================================== */
+:root {
+  --glow-blur: 36px;          /* Размытие ореола */
+  --glow-y: 16px;             /* Сдвиг тени вниз */
+  --glow-spread: 0px;         /* Расширение пятна тени */
+  --glow-alpha: 1;            /* Прозрачность в покое: 0.1, 0.18, 0.5, 1.0 */
+  --glow-hover-alpha: 1;      /* Прозрачность при наведении */
+  --glow-hover-blur: 48px;    /* Размытие при наведении */
+  --glow-hover-y: 20px;       /* Сдвиг вниз при наведении */
+}
+
 html {
   min-height: 100%;
 }
@@ -95,7 +108,7 @@ header h1 b {
 }
 
 /* ==========================================================================
-   ОБЩИЕ КАРТОЧКИ ФОТО — ТЕСТОВЫЙ ПЛОТНЫЙ ЦВЕТОВОЙ ОРЕОЛ
+   КАРТОЧКИ ФОТО: ФИЗИКА СВЕТА ЦЕЛИКОМ В CSS
    ========================================================================== */
 .photo-item,
 .photo-card {
@@ -115,8 +128,11 @@ header h1 b {
   object-fit: cover;
   display: block;
   border-radius: 4px;
-  /* 100% плотный свет для проверки привязки к градиенту */
-  box-shadow: 0 16px 36px var(--glow-color, #f5f5f7);
+  
+  /* Вся магия света собирается здесь из параметров :root и цвета пары */
+  box-shadow: 0 var(--glow-y) var(--glow-blur) var(--glow-spread) 
+              rgb(from var(--glow-color, #f5f5f7) r g b / var(--glow-alpha));
+              
   cursor: zoom-in;
   pointer-events: auto;
   transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s ease;
@@ -129,11 +145,12 @@ header h1 b {
 .photo-item img:hover,
 .photo-card img:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 22px 50px var(--glow-hover, #f5f5f7);
+  box-shadow: 0 var(--glow-hover-y) var(--glow-hover-blur) var(--glow-spread) 
+              rgb(from var(--glow-color, #f5f5f7) r g b / var(--glow-hover-alpha));
 }
 
 /* ==========================================================================
-   ПОДВАЛ (index.html)
+   ПОДВАЛ
    ========================================================================== */
 .site-footer {
   max-width: 1080px;
@@ -279,7 +296,7 @@ header h1 b {
 
   .photo-item img,
   .photo-card img {
-    box-shadow: 0 14px 30px var(--glow-color, #f5f5f7);
+    box-shadow: 0 12px 28px rgb(from var(--glow-color, #f5f5f7) r g b / var(--glow-alpha));
   }
 
   .site-footer {
