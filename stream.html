@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="styles.css?v=18">
+  <script src="./gallery-core.js?v=1"></script>
 </head>
 <body class="page-stream">
 
@@ -272,18 +273,6 @@
       });
     });
 
-    const offsets = [
-      7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
-      4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
-    ];
-
-    const mobileOffsets = [
-      -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
-       3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
-       1.2, -1.0,  3.6, -3.5, -1.8,  2.2,  3.2, -2.5,  0.0,  3.4,
-      -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
-    ];
-
     const AUTO_SPEED = 0.38;
     let currentY = 0;
     let userVelocity = 0;
@@ -296,36 +285,9 @@
     let lastTime = 0;
     let isDragThresholdPassed = false;
 
-    function sortImagesByNumericIndex(images) {
-      return [...images].sort((a, b) => {
-        const nameA = (a.src || '').split('/').pop();
-        const nameB = (b.src || '').split('/').pop();
-        const matchA = nameA.match(/\d+/);
-        const matchB = nameB.match(/\d+/);
-        const numA = matchA ? parseInt(matchA[0], 10) : 0;
-        const numB = matchB ? parseInt(matchB[0], 10) : 0;
-        return numA - numB;
-      });
-    }
-
-    function extractColors(data) {
-      if (Array.isArray(data.colors) && data.colors.length > 0) return data.colors;
-      if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
-        return data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || ['#f5f5f7'];
-      }
-      return ['#f5f5f7'];
-    }
-
-    function getPhotoPalette(allColors) {
-      if (allColors.length > 3) {
-        return allColors.slice(2, -1);
-      }
-      return allColors.filter((_, idx) => idx !== 1);
-    }
-
     // Бесшовный луп: последний цвет строго равен первому
     function applyMovingGradient(data, count) {
-      const colors = extractColors(data);
+      const colors = GalleryCore.extractColors(data);
       if (colors.length === 0) return;
       if (colors.length === 1) {
         track.style.backgroundColor = colors[0];
@@ -357,24 +319,8 @@
       const card = document.createElement('div');
       card.className = 'photo-card';
 
-      const pairIndex = Math.floor(index / 2);
-      const shiftValue = offsets[pairIndex % offsets.length];
-      let itemOffset = 0;
-
-      if (index === 0) {
-        itemOffset = 0;
-      } else if (index % 2 === 0) {
-        itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
-      } else {
-        itemOffset = shiftValue > 0 ? shiftValue : 0;
-      }
-      card.style.setProperty('--offset', `${itemOffset}rem`);
-
-      const mobileShift = mobileOffsets[index % mobileOffsets.length];
-      card.style.setProperty('--x-offset', `${mobileShift}%`);
-
-      const pairColorHex = photoColors[pairIndex % photoColors.length];
-      card.style.setProperty('--glow-color', pairColorHex);
+      // Единый метод назначения стилей раскладки
+      GalleryCore.applyCardLayout(card, index, photoColors);
 
       const img = document.createElement('img');
       img.src = item.src;
@@ -512,11 +458,11 @@
           }
         }
 
-        const images = sortImagesByNumericIndex(rawImages);
-        const allColors = extractColors(data);
-        const photoColors = getPhotoPalette(allColors);
+        const images = GalleryCore.sortImages(rawImages);
+        const allColors = GalleryCore.extractColors(data);
+        const photoColors = GalleryCore.getPhotoPalette(allColors);
 
-        // Вставляем пустой блок-спейсер строго только перед первой группой
+        // Вставляем спейсер строго перед первой группой
         const spacerOriginal = document.createElement('div');
         spacerOriginal.className = 'stream-spacer';
         groupOriginal.appendChild(spacerOriginal);
