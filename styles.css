@@ -390,7 +390,7 @@ h1 {
   }
 }
 
-/* Экраны 480px и ниже: размер фото 70%, текст 12px, строгий створ первой фото */
+/* Экраны 480px и ниже: размер фото 75%, текст 12px, строгий створ первой фото */
 @media (max-width: 480px) {
   header {
     padding-top: 1.5rem;
@@ -431,8 +431,8 @@ h1 {
 
   .photo-item,
   .photo-card {
-    width: 70%;
-    max-width: 70%;
+    width: 75%;
+    max-width: 75%;
     margin-top: 0 !important;
   }
 
