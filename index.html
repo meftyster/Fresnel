@@ -29,18 +29,18 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
-    // Вертикальные смещения для десктопа (парные)
+    // Вертикальные смещения десктопных пар
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
     ];
 
-    // Горизонтальный ритмический дрейф для мобильных (на 40 кадров в %)
+    // Нелинейный ритм для мобильных (кластеры, паузы около центра, несимметричный дрейф в %)
     const mobileOffsets = [
-      -3.5,  2.0, -1.5,  4.0, -2.5,  3.0, -4.0,  1.5, -2.0,  3.5,
-      -1.0,  4.0, -3.0,  1.0, -4.0,  2.5, -2.0,  3.5, -1.5,  4.0,
-      -3.0,  1.5, -4.0,  2.0, -1.5,  3.5, -2.5,  4.0, -1.0,  2.5,
-      -4.0,  3.0, -2.0,  1.5, -3.5,  4.0, -1.5,  2.5, -4.0,  2.0
+      -3.2, -1.8,  0.5,  2.8,  3.5,  1.2, -2.5, -3.8, -1.5,  0.8,
+       3.0,  3.8,  1.5, -0.5, -2.8, -3.2, -1.0,  1.8,  3.2,  2.0,
+      -1.5, -3.0, -3.5, -0.8,  1.2,  2.8,  3.6,  1.0, -1.8, -3.4,
+      -2.0,  0.5,  2.5,  3.8,  2.2, -1.2, -2.8, -3.6, -1.5,  1.0
     ];
 
     function applyDynamicGradient(data, pairCount) {
@@ -78,7 +78,7 @@
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
 
-        // 1. Шапка: Заголовок
+        // 1. Заголовок
         if (data.title) {
           const cleanTitle = data.title.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
           document.title = cleanTitle;
@@ -89,33 +89,47 @@
             .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
         }
 
-        // 2. Описание: подсветка слов без жирности
+        // 2. Описание: выделение ключевых слов цветом, а подписи автора — стилем .author-line
         if (data.description) {
-          pageDesc.innerHTML = data.description
+          let descHtml = data.description
             .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
             .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="highlight">$1</span>')
-            .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>')
-            .replace(/\n/g, '<br>');
+            .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+
+          // Если в конце описания есть строка с автором, оформляем её классом .author-line
+          const paragraphs = descHtml.split(/\n\s*\n/);
+          if (paragraphs.length > 1) {
+            const lastIdx = paragraphs.length - 1;
+            const lastP = paragraphs[lastIdx].trim();
+            if (lastP.includes('/') || lastP.includes('Антон') || lastP.includes('Rick')) {
+              paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
+            }
+            descHtml = paragraphs.join('<br><br>');
+          } else {
+            descHtml = descHtml.replace(/\n/g, '<br>');
+          }
+
+          pageDesc.innerHTML = descHtml;
         }
 
-        // 3. Подвал: ссылки и актуальный год
+        // 3. Подвал
         const currentYear = new Date().getFullYear();
         let footerText = data.footer && data.footer.trim() 
           ? data.footer 
-          : `[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Anton Ivchenko / Rick Antilles. All rights reserved.`;
+          : `[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
 
         footerText = footerText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
         footerText = footerText.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
         pageFooter.innerHTML = footerText.replace(/\n/g, '<br>');
 
-        // 4. Карточки галереи со смещением
+        // 4. Построение сетки изображений
         gallery.innerHTML = '';
         const images = data.images || [];
         images.forEach((item, index) => {
           const el = document.createElement('div');
           el.className = 'photo-item';
 
-          // Десктопное вертикальное смещение
+          // Десктопный вертикальный сдвиг
           const pairIndex = Math.floor(index / 2);
           const shiftValue = offsets[pairIndex % offsets.length];
 
@@ -127,7 +141,7 @@
           }
           el.style.setProperty('--offset', `${itemOffset}rem`);
 
-          // Мобильное горизонтальное смещение (лесенка)
+          // Мобильный горизонтальный ритм
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
@@ -141,12 +155,12 @@
           gallery.appendChild(el);
         });
 
-        // 5. Применение градиента
+        // 5. Расчёт градиента
         const pairCount = Math.ceil(images.length / 2);
         applyDynamicGradient(data, pairCount);
 
       } catch (e) {
-        console.error("Ошибка загрузки:", e);
+        console.error("Ошибка загрузки данных:", e);
       }
     }
 
