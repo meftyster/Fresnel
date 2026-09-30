@@ -11,7 +11,7 @@
   --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* === СКРЫТИЕ ПОЛОСЫ ПРОКРУТКИ БЕЗ СКАТКОВ UI === */
+/* === СКРЫТИЕ ПОЛОСЫ ПРОКРУТКИ БЕЗ СКАЧКОВ UI === */
 html {
   overflow-y: scroll;
   scrollbar-width: none;
@@ -285,23 +285,22 @@ header {
   text-align: center;
 }
 
+/* Единый контейнер — точка отсчета для абсолютной кнопки */
 .title-row {
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: center;
+  position: relative;
+  display: inline-block;
   margin-bottom: 1.5rem;
 }
 
 h1 {
   font-size: 2.2rem;
   font-weight: 300;
-  line-height: 1;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   margin: 0;
   padding: 0;
   color: #121316;
-  display: inline-flex;
-  align-items: baseline;
+  text-align: center;
 }
 
 .title-text-box {
@@ -317,25 +316,20 @@ h1 {
   font-weight: 600;
 }
 
-/* === КНОПКА ЯЗЫКА: СТРОГО В ТЕЛЕ СТРОЧНЫХ БУКВ И С ИДЕАЛЬНЫМ ЦЕНТРОМ КРЕСТИКА === */
+/* === КНОПКА ЯЗЫКА (АБСОЛЮТНЫЙ КОНТРОЛЬ ОТСТУПОВ) === */
 .lang-switch-btn {
-  display: inline-block;
-  position: relative;
-  vertical-align: baseline;
+  position: absolute;
+  left: calc(100% + 0.65rem);
+  bottom: 0.22em; /* ювелирная привязка низа круга к базовой линии */
   
-  /* Точный размер в высоту строчной буквы (x-height) на десктопе */
   width: 18px;
   height: 18px;
   min-width: 18px;
   min-height: 18px;
-  aspect-ratio: 1 / 1;
   border-radius: 50%;
   box-sizing: border-box;
   padding: 0;
-  margin: 0 0 0 0.65rem;
-  
-  /* Ювелирный сдвиг вверх ровно на середину высоты строчной буквы */
-  top: -0.22em;
+  margin: 0;
   
   background: var(--glass-bg);
   backdrop-filter: blur(16px) saturate(160%);
@@ -346,10 +340,12 @@ h1 {
   cursor: pointer;
   outline: none;
   
+  display: grid;
+  place-items: center;
+  
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
-/* Крестик привязан к абсолютному математическому центру круга */
 .lang-switch-btn .icon-cross {
   position: absolute;
   top: 50%;
@@ -554,14 +550,14 @@ h1 {
   }
 
   .title-row {
-    justify-content: flex-start;
+    display: block;
+    text-align: left;
     margin-bottom: 1.25rem;
   }
 
   h1 {
     font-size: 1.85rem;
-    line-height: 1;
-    letter-spacing: -0.015em;
+    text-align: left;
   }
 
   .title-text-box {
@@ -569,14 +565,15 @@ h1 {
     text-align: left;
   }
 
-  /* Планшет: диаметр строго под строчную букву (15px) */
+  /* Планшет: диаметр 15px под строчную букву */
   .lang-switch-btn {
     width: 15px;
     height: 15px;
     min-width: 15px;
     min-height: 15px;
+    left: auto;
     margin-left: 0.55rem;
-    top: -0.22em;
+    bottom: 0.22em;
   }
 
   .lang-switch-btn .icon-cross {
@@ -641,13 +638,14 @@ h1 {
   }
 
   .title-row {
-    justify-content: flex-start;
+    display: block;
+    text-align: left;
     margin-bottom: 1rem;
   }
 
   h1 {
     font-size: 1.5rem;
-    line-height: 1;
+    text-align: left;
   }
 
   .title-text-box {
@@ -655,14 +653,15 @@ h1 {
     text-align: left;
   }
 
-  /* Смартфоны: диаметр строго под строчную букву (12.5px) */
+  /* Смартфон: диаметр 12.5px под строчную букву */
   .lang-switch-btn {
     width: 12.5px;
     height: 12.5px;
     min-width: 12.5px;
     min-height: 12.5px;
+    left: auto;
     margin-left: 0.45rem;
-    top: -0.22em;
+    bottom: 0.22em;
   }
 
   .lang-switch-btn .icon-cross {
