@@ -224,22 +224,29 @@ window.GalleryCore = {
     if (!Array.isArray(allColors) || allColors.length <= 3) {
       return ['#f5f5f7'];
     }
-    // Отрезаем старт (0), текст (1) и футер (последний элемент), 
-    // оставляя всю середину под фото-палитру.
     return allColors.slice(2, -1);
   },
 
-  // Принимает общий объем карточек (totalCards) для точного маппинга нечетного остатка
-  getCardLayout(index, totalCards, photoColors) {
+  // Гибкая сигнатура: принимает arg2 как totalCards ИЛИ photoColors, не ломая старые вызовы
+  getCardLayout(index, arg2, arg3) {
     if (!this.activeXOffsets) {
       this.initRandomPattern();
+    }
+
+    let totalCards, photoColors;
+    if (Array.isArray(arg2)) {
+      photoColors = arg2;
+      totalCards = document.querySelectorAll('.photo-item, .photo-card').length || (photoColors.length * 2);
+    } else {
+      totalCards = arg2;
+      photoColors = arg3;
     }
 
     const pairIndex = Math.floor(index / 2);
     const maxColorIndex = photoColors.length - 1;
     
-    // Если это самая последняя карточка и всего их нечетное количество — даем ей строго последний цвет палитры
-    const colorIndex = (index === totalCards - 1 && totalCards % 2 !== 0)
+    // Если это последняя одиночная карточка при нечетном общем числе — даем ей строго последний цвет
+    const colorIndex = (index === totalCards - 1 && totalCards % 2 !== 0 && maxColorIndex >= 0)
       ? maxColorIndex
       : (pairIndex % photoColors.length);
 
@@ -257,7 +264,7 @@ window.GalleryCore = {
     const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
     const xOffsetPercent = index === 0 ? 0 : rawVal;
     const yNudgePercent = parseFloat((-rawVal * 0.45).toFixed(2));
-    const glowColor = photoColors[colorIndex];
+    const glowColor = photoColors[colorIndex] || '#f5f5f7';
 
     return {
       offsetRem,
@@ -267,8 +274,8 @@ window.GalleryCore = {
     };
   },
 
-  applyCardLayout(element, index, totalCards, photoColors) {
-    const layout = this.getCardLayout(index, totalCards, photoColors);
+  applyCardLayout(element, index, arg2, arg3) {
+    const layout = this.getCardLayout(index, arg2, arg3);
     element.style.setProperty('--offset', `${layout.offsetRem}rem`);
     element.style.setProperty('--x-offset', `${layout.xOffsetPercent}%`);
     element.style.setProperty('--y-nudge', `${layout.yNudgePercent}%`);
