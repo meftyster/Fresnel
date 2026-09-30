@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Эффект Френеля</title>
-  <link rel="stylesheet" href="./styles.css?v=41">
+  <link rel="stylesheet" href="./styles.css?v=42">
   <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-index">
@@ -47,7 +47,7 @@
     </svg>
   </a>
 
-  <!-- Кнопка «Наверх» на 3-й позиции справа (появляется только внизу) -->
+  <!-- Кнопка «Наверх» на 3-й позиции справа -->
   <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Наверх страницы">
     <svg viewBox="0 0 24 24">
       <line x1="12" y1="19" x2="12" y2="5"></line>
@@ -58,11 +58,10 @@
   <header>
     <div class="title-row">
       <h1 id="titleContainer"><span id="titleText" class="title-text-box">...</span></h1>
+      <!-- Текстовый переключатель RU / EN -->
       <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Сменить язык">
-        <svg class="icon-cross" viewBox="0 0 24 24">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
+        <span class="lang-ru">RU</span>
+        <span class="lang-en">EN</span>
       </button>
     </div>
     <div id="desc" class="description"></div>
