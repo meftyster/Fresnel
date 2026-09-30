@@ -4,26 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
+  <!-- Единый источник стилей для фото, света и модального окна -->
+  <link rel="stylesheet" href="styles.css">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    /* Только специфичные параметры бесконечного виртуального потока */
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #0b0d10;
+      padding: 0;
+      margin: 0;
       touch-action: none;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* ==========================================================================
-       МИНИМАЛИСТИЧНАЯ КНОПКА «НАЗАД» С АВТОСКРЫТИЕМ
-       ========================================================================== */
+    /* Окно просмотра на весь экран */
+    .stream-viewport {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      cursor: grab;
+    }
+
+    .stream-viewport:active {
+      cursor: grabbing;
+    }
+
+    /* Трек виртуального скролла */
+    .stream-track {
+      position: absolute;
+      top: 0;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      will-change: transform;
+    }
+
+    /* Десктопная группа: двухколоночная сетка 1080px */
+    .stream-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 4.5rem;
+      row-gap: 8rem;
+      width: 100%;
+      max-width: 1080px;
+      padding: 8rem 2rem;
+    }
+
+    /* Кнопка «назад» с автоскрытием */
     .back-btn {
       position: fixed;
       top: 1.8rem;
@@ -53,7 +86,6 @@
                   border-color 0.25s ease;
     }
 
-    /* Состояние активности при взаимодействии */
     .back-btn.visible {
       opacity: 1;
       visibility: visible;
@@ -81,71 +113,7 @@
       transform: translateX(-2px);
     }
 
-    /* Окно просмотра на весь экран */
-    .stream-viewport {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      cursor: grab;
-    }
-
-    .stream-viewport:active {
-      cursor: grabbing;
-    }
-
-    /* Трек виртуального скролла */
-    .stream-track {
-      position: absolute;
-      top: 0;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      will-change: transform;
-    }
-
-    /* ==========================================================================
-       ДЕСКТОП: Двухколоночная сетка 1080px
-       ========================================================================== */
-    .stream-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 4.5rem;
-      row-gap: 8rem;
-      width: 100%;
-      max-width: 1080px;
-      padding: 8rem 2rem;
-    }
-
-    .photo-card {
-      display: flex;
-      flex-direction: column;
-      margin-top: var(--offset, 0rem);
-    }
-
-    .photo-card img {
-      width: 100%;
-      aspect-ratio: 9 / 16;
-      object-fit: cover;
-      display: block;
-      border-radius: 4px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-      cursor: pointer;
-      pointer-events: auto;
-      transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s ease;
-    }
-
-    .photo-card img:hover {
-      transform: translateY(-4px) scale(1.01);
-      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6);
-    }
-
-    /* ==========================================================================
-       МОБИЛЬНАЯ ВЕРСИЯ (Экран <= 768px)
-       ========================================================================== */
+    /* Мобильная версия группы потока */
     @media (max-width: 768px) {
       .back-btn {
         top: 1.2rem;
@@ -168,47 +136,12 @@
         max-width: 100%;
         padding: 6rem 1rem;
       }
-
-      .photo-card {
-        margin-top: 0 !important;
-        width: 91%;
-        max-width: 430px;
-        transform: translateX(var(--x-offset, 0%));
-      }
-
-      .photo-card img {
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
-      }
-    }
-
-    /* Модальное окно */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      padding: 2rem;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal img {
-      max-width: 94vw;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 2px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Круглая кнопка возврата (изначально скрыта) -->
+  <!-- Кнопка возврата (скрыта при старте) -->
   <a href="index.html" class="back-btn" id="backBtn" aria-label="Назад к галерее">
     <svg viewBox="0 0 24 24">
       <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -225,8 +158,9 @@
     </div>
   </div>
 
-  <div class="modal" id="modal">
-    <img id="modalImg" src="" alt="Fullscreen">
+  <!-- Модальное окно фокуса -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <img id="modalImg" src="" alt="Фокус на изображении">
   </div>
 
   <script>
@@ -238,7 +172,7 @@
     const modalImg = document.getElementById('modalImg');
     const backBtn = document.getElementById('backBtn');
 
-    // Логика плавного автоскрытия кнопки "назад"
+    // Логика автоскрытия кнопки «назад»
     let uiTimeout = null;
     let isCursorOverBackBtn = false;
 
@@ -246,7 +180,6 @@
       backBtn.classList.add('visible');
       clearTimeout(uiTimeout);
       
-      // Скрываем через 2.2 секунды покоя, если курсор не наведен на саму кнопку
       if (!isCursorOverBackBtn) {
         uiTimeout = setTimeout(() => {
           backBtn.classList.remove('visible');
@@ -254,7 +187,6 @@
       }
     }
 
-    // Слушатели активности: кнопка покажется только при движении или касании
     window.addEventListener('mousemove', showUI);
     window.addEventListener('touchstart', showUI, { passive: true });
     window.addEventListener('wheel', showUI, { passive: true });
@@ -270,13 +202,11 @@
       showUI();
     });
 
-    // Десктопные вертикальные оффсеты пар
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
       4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
     ];
 
-    // Синкопированный горизонтальный ритм
     const mobileOffsets = [
       -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
        3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
@@ -284,7 +214,6 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Скорость: на 10% быстрее базовой медитативной
     const AUTO_SPEED = 0.38;
     let currentY = 0;
     let userVelocity = 0;
@@ -354,12 +283,27 @@
       img.addEventListener('click', (e) => {
         if (isDragThresholdPassed) return;
         e.stopPropagation();
-        modalImg.src = item.src;
-        modal.classList.add('active');
+        openModal(item.src);
       });
 
       card.appendChild(img);
       return card;
+    }
+
+    function openModal(src) {
+      modalImg.src = src;
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+          modalImg.src = '';
+        }
+      }, 300);
     }
 
     function animate() {
@@ -441,8 +385,14 @@
     window.addEventListener('touchmove', onPointerMove, { passive: true });
     window.addEventListener('touchend', onPointerUp, { passive: true });
 
+    modal.addEventListener('click', closeModal);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
     async function init() {
-      // Запуск анимации потока
       requestAnimationFrame(animate);
 
       try {
@@ -469,7 +419,6 @@
       }
     }
 
-    modal.addEventListener('click', () => modal.classList.remove('active'));
     init();
   </script>
 </body>
