@@ -48,7 +48,7 @@ window.GalleryCore = {
       -3.2, -1.5,  3.4,  1.8, -2.8, -2.0,  3.6,  2.4, -3.0, -1.2,
        3.2,  2.0, -3.5, -1.6,  2.8,  3.2, -2.2, -3.4,  1.8,  3.0,
       -3.4, -2.2,  3.0,  1.6, -3.2, -1.4,  3.5,  2.2, -2.6, -3.0,
-       2.4,  3.5, -1.8, -3.2,  2.0,  3.4, -2.5, -1.6,  3.2,  1.8
+       2.4,  3.5, -1.8, -3.2,  2.0, -3.4, -2.5, -1.6,  3.2,  1.8
     ],
     [
        1.5, -1.8,  2.4, -2.0,  1.8, -2.6,  2.2, -1.6,  2.5, -2.2,
@@ -191,12 +191,12 @@ window.GalleryCore = {
   },
 
   extractColors(data) {
-    if (Array.isArray(data.colors) && data.colors.length > 0) {
+    if (data && Array.isArray(data.colors) && data.colors.length > 0) {
       return data.colors;
     }
 
     let rawSource = '';
-    if (typeof data.gradient === 'string') {
+    if (data && typeof data.gradient === 'string') {
       rawSource = data.gradient;
     } else if (typeof data === 'string') {
       rawSource = data;
@@ -223,7 +223,9 @@ window.GalleryCore = {
     if (!Array.isArray(allColors) || allColors.length < 4) {
       return ['#f5f5f7'];
     }
-    return allColors.slice(2, 19);
+    // Захватываем строго до индекса 20, чтобы вошел #422922 (индекс 18), 
+    // оставляя #0c141c (индекс 19) для футера.
+    return allColors.slice(2, 20);
   },
 
   getCardLayout(index, photoColors) {
