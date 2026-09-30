@@ -10,6 +10,64 @@
   --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* === СВЕТЛАЯ ТЕМА (ЧИСТО БЕЛАЯ СТЕНА) === */
+body.theme-light {
+  --bg-color: #ffffff;
+  --text-main: #18191c;
+  --text-dim: #4f535a;
+  --accent: #0f1012;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-hover: rgba(0, 0, 0, 0.06);
+  --glass-hover-border: rgba(0, 0, 0, 0.25);
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: var(--text-main);
+}
+
+body.theme-light h1 {
+  color: #121316;
+}
+
+body.theme-light .title-accent,
+body.theme-light .highlight {
+  color: #000000;
+  font-weight: 600;
+}
+
+body.theme-light .author-line {
+  color: #2b2e35;
+  opacity: 0.9;
+}
+
+body.theme-light .photo-item img,
+body.theme-light .photo-card img {
+  box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.14) !important;
+}
+
+body.theme-light .photo-item img:hover,
+body.theme-light .photo-card img:hover {
+  box-shadow: 0 18px 38px -6px rgba(0, 0, 0, 0.22) !important;
+}
+
+body.theme-light .site-footer {
+  color: #636770;
+}
+
+body.theme-light .site-footer a {
+  color: #111215;
+  font-weight: 500;
+}
+
+body.theme-light .site-footer a:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+body.theme-light .site-footer .footer-copyright {
+  opacity: 0.75;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -21,7 +79,7 @@ html, body {
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   min-height: 100vh;
-  transition: background-image 1.2s ease, background-color 1.2s ease;
+  transition: background-image 1.2s ease, background-color 0.4s ease, color 0.4s ease;
 }
 
 /* Блокировка прокрутки при открытии модалки */
@@ -102,7 +160,8 @@ body.page-stream {
 /* Верхние плавающие кнопки */
 .sound-btn,
 .stream-nav-btn,
-.back-btn {
+.back-btn,
+.theme-toggle-btn {
   position: fixed;
   z-index: 100;
   width: 42px;
@@ -126,7 +185,8 @@ body.page-stream {
 
 .sound-btn.visible,
 .stream-nav-btn.visible,
-.back-btn.visible {
+.back-btn.visible,
+.theme-toggle-btn.visible {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
@@ -134,7 +194,8 @@ body.page-stream {
 
 .sound-btn:hover,
 .stream-nav-btn:hover,
-.back-btn:hover {
+.back-btn:hover,
+.theme-toggle-btn:hover {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
@@ -142,7 +203,8 @@ body.page-stream {
 
 .sound-btn svg,
 .stream-nav-btn svg,
-.back-btn svg {
+.back-btn svg,
+.theme-toggle-btn svg {
   width: 18px;
   height: 18px;
   stroke: currentColor;
@@ -152,20 +214,26 @@ body.page-stream {
   fill: none;
 }
 
-/* Кнопка перехода в стрим на главной (index.html) */
-.stream-nav-btn {
+/* Кнопка смены темы (Солнце): верхний правый угол на index.html */
+.theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
 }
 
-/* Кнопка «Назад» на странице стрима: верхний правый угол */
+/* Кнопка перехода в стрим (Очки): под солнцем на index.html */
+.stream-nav-btn {
+  top: 4.8rem;
+  right: 1.5rem;
+}
+
+/* Кнопка «Назад» на stream.html: верхний правый угол */
 .back-btn {
   top: 1.5rem;
   right: 1.5rem;
   left: auto;
 }
 
-/* Кнопка звука на странице стрима: строго под кнопкой «Назад» */
+/* Кнопка звука на stream.html: под кнопкой «Назад» */
 .page-stream .sound-btn {
   top: 4.8rem;
   right: 1.5rem;
@@ -300,6 +368,10 @@ h1 {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.35s var(--ease-smooth);
+}
+
+body.theme-light .modal {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .modal.active {
