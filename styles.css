@@ -285,7 +285,6 @@ header {
   text-align: center;
 }
 
-/* Единый базовый ряд для заголовка и кнопки языка */
 .title-row {
   display: inline-flex;
   align-items: baseline;
@@ -305,7 +304,6 @@ h1 {
   align-items: baseline;
 }
 
-/* Фиксированная коробка под заголовок на десктопе */
 .title-text-box {
   display: inline-block;
   width: 290px;
@@ -325,16 +323,18 @@ h1 {
   place-items: center;
   vertical-align: baseline;
   
-  /* 18px ровно в размер строчной буквы на десктопе */
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  min-height: 18px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   box-sizing: border-box;
   padding: 0;
   margin: 0 0 0 0.65rem;
+  
+  /* Ювелирная посадка ровно между верхней и нижней красной линией букв */
+  transform: translateY(-0.16em);
   
   background: var(--glass-bg);
   backdrop-filter: blur(16px) saturate(160%);
@@ -345,12 +345,12 @@ h1 {
   cursor: pointer;
   outline: none;
   
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
 }
 
 .lang-switch-btn .icon-cross {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   stroke: currentColor;
   stroke-width: 1.4;
   stroke-linecap: round;
@@ -367,6 +367,7 @@ h1 {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
+  transform: translateY(-0.16em);
 }
 
 .lang-switch-btn:hover .icon-cross {
@@ -417,7 +418,6 @@ h1 {
   transition: transform 0.6s var(--ease-smooth);
 }
 
-/* Чёрные тени 40% для светлого режима */
 .photo-item img {
   width: 100%;
   height: auto;
@@ -564,18 +564,24 @@ h1 {
     text-align: left;
   }
 
-  /* 15px строго по высоте строчной буквы на планшетах */
   .lang-switch-btn {
-    width: 15px;
-    height: 15px;
-    min-width: 15px;
-    min-height: 15px;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
     margin-left: 0.55rem;
+    transform: translateY(-0.16em);
+  }
+
+  .lang-switch-btn:hover,
+  .lang-switch-btn:active,
+  .lang-switch-btn:focus {
+    transform: translateY(-0.16em);
   }
 
   .lang-switch-btn .icon-cross {
-    width: 8.5px;
-    height: 8.5px;
+    width: 9.5px;
+    height: 9.5px;
   }
 
   .scroll-top-btn {
@@ -649,18 +655,24 @@ h1 {
     text-align: left;
   }
 
-  /* 12.5px строго по высоте строчной буквы на смартфонах */
   .lang-switch-btn {
-    width: 12.5px;
-    height: 12.5px;
-    min-width: 12.5px;
-    min-height: 12.5px;
+    width: 15px;
+    height: 15px;
+    min-width: 15px;
+    min-height: 15px;
     margin-left: 0.45rem;
+    transform: translateY(-0.16em);
+  }
+
+  .lang-switch-btn:hover,
+  .lang-switch-btn:active,
+  .lang-switch-btn:focus {
+    transform: translateY(-0.16em);
   }
 
   .lang-switch-btn .icon-cross {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     stroke-width: 1.3;
   }
 
