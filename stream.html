@@ -105,7 +105,7 @@
     let activePlayer = 'A';
     let currentAudioSrc = 'batlicsea.mp3';
 
-    function getAudioContext() {
+    function initAudioGraph() {
       if (!audioCtx) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContextClass();
@@ -127,10 +127,6 @@
         sourceA.connect(gainA).connect(masterGain);
         sourceB.connect(gainB).connect(masterGain);
       }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
     }
 
     function scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain) {
@@ -184,24 +180,35 @@
 
     function playAudio() {
       if (userManuallyMuted) return;
-      const ctx = getAudioContext();
-      isPlaying = true;
-      soundBtn.classList.add('playing');
-      soundBtn.setAttribute('aria-label', 'Выключить звук');
+      initAudioGraph();
 
-      gainA.gain.setValueAtTime(1.0, ctx.currentTime);
-      gainB.gain.setValueAtTime(0, ctx.currentTime);
-      activePlayer = 'A';
+      // Гарантируем разблокировку AudioContext
+      const resumePromise = audioCtx.state === 'suspended' ? audioCtx.resume() : Promise.resolve();
 
-      playerA.play().then(() => {
-        const now = ctx.currentTime;
-        masterGain.gain.cancelScheduledValues(now);
-        masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-        masterGain.gain.linearRampToValueAtTime(TARGET_VOLUME, now + FADE_TIME);
+      resumePromise.then(() => {
+        gainA.gain.setValueAtTime(1.0, audioCtx.currentTime);
+        gainB.gain.setValueAtTime(0, audioCtx.currentTime);
+        activePlayer = 'A';
 
-        scheduleCrossfade(playerA, playerB, gainA, gainB);
-        removeUnlockListeners();
+        playerA.play().then(() => {
+          isPlaying = true;
+          soundBtn.classList.add('playing');
+          soundBtn.setAttribute('aria-label', 'Выключить звук');
+
+          const now = audioCtx.currentTime;
+          masterGain.gain.cancelScheduledValues(now);
+          masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+          masterGain.gain.linearRampToValueAtTime(TARGET_VOLUME, now + FADE_TIME);
+
+          scheduleCrossfade(playerA, playerB, gainA, gainB);
+          removeUnlockListeners();
+        }).catch(() => {
+          // Автоплей заблокирован браузером до первого действия пользователя
+          isPlaying = false;
+          attachUnlockListeners();
+        });
       }).catch(() => {
+        isPlaying = false;
         attachUnlockListeners();
       });
     }
@@ -230,6 +237,7 @@
       }, FADE_TIME * 1000);
     }
 
+    // Слушатель жестов для разблокировки звука
     function onUserGesture() {
       if (!userManuallyMuted && !isPlaying) {
         playAudio();
@@ -250,6 +258,7 @@
       window.removeEventListener('pointerdown', onUserGesture);
     }
 
+    // Попытка автозапуска при загрузке
     playAudio();
 
     soundBtn.addEventListener('click', (e) => {
