@@ -42,7 +42,7 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Сортировка строго по числу в имени файла
+    // Сортировка строго по числу в имени файла (1, 2, ... 10)
     function sortImagesByNumericIndex(images) {
       return [...images].sort((a, b) => {
         const nameA = (a.src || '').split('/').pop();
@@ -207,10 +207,10 @@
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
-          // Привязываем цвет заднего света к цвету текущей пары из градиента
+          // ТЕСТ: 100% НЕПРОЗРАЧНОСТЬ (alpha = 1.0)
           const pairColorHex = colors[pairIndex % colors.length];
-          el.style.setProperty('--glow-color', hexToRgba(pairColorHex, 0.16));
-          el.style.setProperty('--glow-hover', hexToRgba(pairColorHex, 0.26));
+          el.style.setProperty('--glow-color', hexToRgba(pairColorHex, 1.0));
+          el.style.setProperty('--glow-hover', hexToRgba(pairColorHex, 1.0));
 
           el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
 
@@ -221,7 +221,7 @@
           gallery.appendChild(el);
         });
 
-        // 5. Расчёт фонового градиента
+        // 5. Фоновый градиент
         const pairCount = Math.ceil(images.length / 2);
         applyDynamicGradient(data, pairCount);
 
