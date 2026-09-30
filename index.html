@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=12">
+  <link rel="stylesheet" href="./styles.css?v=13">
 </head>
 <body class="page-index">
 
   <!-- Кнопка темы: на белом фоне — солнце, на градиенте — луна -->
   <button class="theme-toggle-btn visible" id="themeToggleBtn" aria-label="Сменить тему">
-    <!-- Иконка Солнца (для белого фона) -->
     <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="4"></circle>
       <path d="M12 2v2"></path>
@@ -22,7 +21,6 @@
       <path d="m6.34 17.66-1.41 1.41"></path>
       <path d="m19.07 4.93-1.41 1.41"></path>
     </svg>
-    <!-- Иконка Луны (для градиента) -->
     <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
     </svg>
@@ -212,6 +210,9 @@
       }, 350);
     }
 
+    // Иконка бинокля/очков для ссылки в футере
+    const glassesIconSvg = `<svg class="footer-glasses-icon" viewBox="0 0 24 24"><circle cx="6" cy="15" r="4"></circle><circle cx="18" cy="15" r="4"></circle><path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"></path><path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2"></path><path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2"></path></svg>`;
+
     async function init() {
       try {
         const res = await fetch('data.json?v=' + Date.now());
@@ -252,12 +253,19 @@
         const currentYear = new Date().getFullYear();
         let footerRaw = data.footer && data.footer.trim() 
           ? data.footer 
-          : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
+          : `[версия без текста — для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
 
+        // Парсинг ссылок Markdown с заменой тире на иконку
         footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
           const isExternal = /^https?:\/\//i.test(url);
           const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
-          return `<a href="${url}"${targetAttr}>${text}</a>`;
+          
+          let formattedText = text;
+          if (url.includes('stream.html') || text.toLowerCase().includes('наблюдения')) {
+            formattedText = text.replace(/\s*[-—–]\s*/, ` ${glassesIconSvg} `);
+          }
+          
+          return `<a href="${url}"${targetAttr}>${formattedText}</a>`;
         });
 
         footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
