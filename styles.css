@@ -204,7 +204,7 @@ body.page-stream {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
-  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  transition: opacity 0.35s var(--ease-smooth), transform 0.35s var(--ease-smooth), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 .sound-btn:hover,
@@ -234,28 +234,6 @@ body.page-stream {
   display: block;
 }
 
-/* Скрытие очков в самом низу страницы */
-.stream-nav-btn:not(.visible) {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-8px);
-}
-
-/* Кнопка «Наверх» в правом нижнем углу */
-.scroll-top-btn {
-  bottom: 2.2rem;
-  right: 1.5rem;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-}
-
-.scroll-top-btn.visible {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
 /* Переключение Солнце / Луна */
 .theme-toggle-btn .icon-sun {
   display: block;
@@ -271,7 +249,7 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   display: block;
 }
 
-/* Вертикальный стек из 3 кнопок в правом верхнем углу */
+/* Вертикальный стек из кнопок в правом верхнем углу */
 .theme-toggle-btn {
   top: 1.5rem;
   right: 1.5rem;
@@ -282,9 +260,31 @@ body.theme-dark .theme-toggle-btn .icon-moon {
   right: 1.5rem;
 }
 
+/* 3-я позиция: кнопка стрима с очками */
 .stream-nav-btn {
   top: 8.1rem;
   right: 1.5rem;
+}
+
+.stream-nav-btn:not(.visible) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+/* 3-я позиция: кнопка «Наверх» встаёт ровно на место очков */
+.scroll-top-btn {
+  top: 8.1rem;
+  right: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.scroll-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 /* Кнопки stream.html */
@@ -345,7 +345,7 @@ h1 {
   font-weight: 600;
 }
 
-/* Круглая кнопка языка RU / EN — нижний край круга лежит строго на базовой линии заголовка */
+/* Круглая кнопка языка RU / EN */
 .lang-switch-btn {
   display: inline-flex;
   align-items: center;
@@ -448,7 +448,6 @@ h1 {
   line-height: 1.8;
 }
 
-/* Ссылки без подчёркиваний */
 .site-footer a {
   color: #111215;
   font-weight: 500;
@@ -574,12 +573,6 @@ h1 {
     font-size: 7.5px;
     margin-left: 0.85rem;
     margin-bottom: 0.15em;
-  }
-
-  /* Кнопка наверх на мобильных экранах */
-  .scroll-top-btn {
-    bottom: 1.5rem;
-    right: 1.5rem;
   }
 
   .description {
