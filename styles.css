@@ -179,7 +179,7 @@ body.page-stream {
   box-shadow: 0 20px 50px -8px var(--glow-color, rgba(0, 0, 0, 0.8));
 }
 
-/* Верхние плавающие кнопки (видимы ВСЕГДА) */
+/* Верхние плавающие кнопки */
 .sound-btn,
 .pattern-btn,
 .stream-nav-btn,
@@ -231,14 +231,12 @@ body.page-stream {
   display: block;
 }
 
-/* Скрытие очков внизу страницы */
 .stream-nav-btn:not(.visible) {
   opacity: 0;
   pointer-events: none;
   transform: translateY(-8px);
 }
 
-/* Переключение Солнце / Луна */
 .theme-toggle-btn .icon-sun {
   display: block;
 }
@@ -315,10 +313,9 @@ h1 {
   margin-bottom: 1.5rem;
   color: #121316;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.85rem;
 }
 
 .title-accent,
@@ -327,13 +324,15 @@ h1 {
   font-weight: 600;
 }
 
-/* Кнопка переключения языка RU / EN справа от заголовка */
+/* Кнопка языка RU / EN: в размер заглавной буквы заголовка, без масштабирования */
 .lang-switch-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  height: 1cap;
+  width: 1cap;
+  min-height: 0.72em;
+  min-width: 0.72em;
   border-radius: 50%;
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -341,20 +340,25 @@ h1 {
   border: 1px solid var(--glass-border);
   color: var(--text-dim);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 0.42em;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
+  line-height: 1;
   cursor: pointer;
   outline: none;
-  transition: all 0.25s var(--ease-smooth);
+  vertical-align: 0.08em;
+  margin-left: 0.35em;
   flex-shrink: 0;
+  transform: none !important;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
-.lang-switch-btn:hover {
+.lang-switch-btn:hover,
+.lang-switch-btn:active {
   background: var(--glass-hover);
   border-color: var(--glass-hover-border);
   color: var(--accent);
-  transform: scale(1.08);
+  transform: none !important;
 }
 
 .description {
@@ -392,7 +396,6 @@ h1 {
   transition: transform 0.6s var(--ease-smooth);
 }
 
-/* Чёрные тени 40% для светлого режима */
 .photo-item img {
   width: 100%;
   height: auto;
@@ -514,7 +517,7 @@ h1 {
   }
 }
 
-/* Мобильные экраны до 768px: заголовок и кнопка ровно в створе */
+/* Мобильные экраны до 768px */
 @media (max-width: 768px) {
   header {
     text-align: left;
@@ -531,12 +534,6 @@ h1 {
     margin-bottom: 1.25rem;
     text-align: left;
     justify-content: flex-start;
-  }
-
-  .lang-switch-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 10px;
   }
 
   .description {
