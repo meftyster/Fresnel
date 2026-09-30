@@ -90,7 +90,7 @@ header h1 b {
 .photo-item {
   display: flex;
   flex-direction: column;
-  margin-top: var(--offset, 0rem); /* Вертикальный оффсет десктопа */
+  margin-top: var(--offset, 0rem);
 }
 
 /* Вертикальные фотографии 9:16 */
@@ -101,7 +101,7 @@ header h1 b {
   display: block;
   border-radius: 4px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-  cursor: pointer;
+  cursor: zoom-in;
   transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s ease;
 }
 
@@ -127,7 +127,7 @@ header h1 b {
 
 /* Ссылка на режим наблюдения */
 .footer-mode-link {
-  margin-bottom: 3.2rem; /* Просторный отступ до соцсетей */
+  margin-bottom: 3.2rem;
 }
 
 .footer-mode-link a {
@@ -147,7 +147,7 @@ header h1 b {
 
 /* Соцсети */
 .footer-contacts {
-  margin-bottom: 1.2rem; /* Компактный отступ до копирайта */
+  margin-bottom: 1.2rem;
 }
 
 .footer-contacts a {
@@ -168,29 +168,44 @@ header h1 b {
 }
 
 /* ==========================================================================
-   МОДАЛЬНОЕ ОКНО
+   МОДАЛЬНОЕ ОКНО (Фокус на изображении с плавной анимацией)
    ========================================================================== */
 .modal {
-  display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(8, 10, 12, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   z-index: 1000;
+  display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
+  cursor: zoom-out;
   padding: 2rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1), visibility 0.3s ease;
 }
 
 .modal.active {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .modal img {
-  max-width: 94vw;
+  max-width: 92vw;
   max-height: 90vh;
   object-fit: contain;
-  border-radius: 2px;
+  border-radius: 4px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  transform: scale(0.96);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal.active img {
+  transform: scale(1);
 }
 
 /* ==========================================================================
@@ -221,7 +236,6 @@ header h1 b {
     margin-top: 2.5rem;
   }
 
-  /* Поточная одноколоночная раскладка */
   .gallery-grid {
     display: flex;
     flex-direction: column;
@@ -232,9 +246,9 @@ header h1 b {
 
   .photo-item {
     margin-top: 0 !important;
-    width: 91%;          /* Крупные кадры с воздухом по краям */
-    max-width: 430px;    /* Оптимальный лимит для современных экранов */
-    transform: translateX(var(--x-offset, 0%)); /* Горизонтальный ритмичный сдвиг */
+    width: 91%;
+    max-width: 430px;
+    transform: translateX(var(--x-offset, 0%));
   }
 
   .photo-item img {
