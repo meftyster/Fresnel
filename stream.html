@@ -289,20 +289,27 @@
 
     function applyMovingGradient(data, count) {
       if (!window.GalleryCore) return;
-      const colors = GalleryCore.extractColors(data);
-      if (colors.length === 0) return;
-      if (colors.length === 1) {
-        track.style.backgroundColor = colors[0];
+      const allColors = GalleryCore.extractColors(data);
+      if (allColors.length === 0) return;
+      if (allColors.length === 1) {
+        track.style.backgroundColor = allColors[0];
         return;
       }
 
-      const stopsNeeded = Math.max(count + 2, colors.length);
+      // Новая логика: 1-й цвет (индекс 0) — старт, 2-й (индекс 1) пропускаем, далее берем цвета для потока
+      const rawPalette = allColors.slice(2);
+      const stopsNeeded = Math.max(count + 2, rawPalette.length);
       const singleCycleColors = [];
-      for (let i = 0; i < stopsNeeded; i++) {
-        singleCycleColors.push(colors[i % colors.length]);
+
+      // Стартовый цвет
+      singleCycleColors.push(allColors[0]);
+
+      for (let i = 0; i < stopsNeeded - 1; i++) {
+        singleCycleColors.push(rawPalette[i % rawPalette.length]);
       }
 
-      singleCycleColors[singleCycleColors.length - 1] = singleCycleColors[0];
+      // Заменяем последний цвет на самый первый для идеальной петли
+      singleCycleColors[singleCycleColors.length - 1] = allColors[0];
 
       const allStops = [];
       singleCycleColors.forEach((col, idx) => {
@@ -368,7 +375,6 @@
       }
 
       if (groupHeight > 0) {
-        // Закольцовывание вниз
         if (currentY >= groupHeight) {
           currentY -= groupHeight;
           if (window.GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
@@ -377,7 +383,6 @@
             GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
           }
         } 
-        // Закольцовывание вверх
         else if (currentY < 0) {
           currentY += groupHeight;
           if (window.GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
@@ -472,7 +477,9 @@
 
         const images = GalleryCore.sortImages(rawImages);
         const allColors = GalleryCore.extractColors(data);
-        const photoColors = GalleryCore.getPhotoPalette(allColors);
+        
+        // Палитра для карточек (без первых двух цветов, срез под глоу)
+        const photoColors = allColors.slice(2, 20);
 
         groupOriginal.innerHTML = '';
         groupClone.innerHTML = '';
@@ -498,7 +505,6 @@
           groupHeight = groupOriginal.offsetHeight;
         });
 
-        // Запускаем анимацию только после того, как все фото добавлены в DOM
         requestAnimationFrame(animate);
 
       } catch (err) {
