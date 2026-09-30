@@ -169,7 +169,6 @@ window.GalleryCore = {
     return this.currentPatternIndex;
   },
 
-  // Применяет конкретный паттерн к контейнеру с карточками
   applyPatternToGroup(container, patternIndex) {
     const pattern = this.xPatterns[patternIndex % this.xPatterns.length];
     const cards = container.querySelectorAll('.photo-item, .photo-card');
@@ -184,7 +183,6 @@ window.GalleryCore = {
     });
   },
 
-  // Смена паттерна вручную (по кнопке)
   nextPattern() {
     this.currentPatternIndex = (this.currentPatternIndex + 1) % this.xPatterns.length;
     this.activeXOffsets = this.xPatterns[this.currentPatternIndex];
@@ -226,17 +224,25 @@ window.GalleryCore = {
     if (!Array.isArray(allColors) || allColors.length <= 3) {
       return ['#f5f5f7'];
     }
-    // Динамический срез: автоматически отрезает первые 2 цвета (старт, текст) 
-    // и последний 1 цвет (футер), оставляя всё промежуточное тело под пары фото.
+    // Отрезаем старт (0), текст (1) и футер (последний элемент), 
+    // оставляя всю середину под фото-палитру.
     return allColors.slice(2, -1);
   },
 
-  getCardLayout(index, photoColors) {
+  // Принимает общий объем карточек (totalCards) для точного маппинга нечетного остатка
+  getCardLayout(index, totalCards, photoColors) {
     if (!this.activeXOffsets) {
       this.initRandomPattern();
     }
 
     const pairIndex = Math.floor(index / 2);
+    const maxColorIndex = photoColors.length - 1;
+    
+    // Если это самая последняя карточка и всего их нечетное количество — даем ей строго последний цвет палитры
+    const colorIndex = (index === totalCards - 1 && totalCards % 2 !== 0)
+      ? maxColorIndex
+      : (pairIndex % photoColors.length);
+
     const shiftValue = this.offsets[pairIndex % this.offsets.length];
     let offsetRem = 0;
 
@@ -251,7 +257,7 @@ window.GalleryCore = {
     const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
     const xOffsetPercent = index === 0 ? 0 : rawVal;
     const yNudgePercent = parseFloat((-rawVal * 0.45).toFixed(2));
-    const glowColor = photoColors[pairIndex % photoColors.length];
+    const glowColor = photoColors[colorIndex];
 
     return {
       offsetRem,
@@ -261,8 +267,8 @@ window.GalleryCore = {
     };
   },
 
-  applyCardLayout(element, index, photoColors) {
-    const layout = this.getCardLayout(index, photoColors);
+  applyCardLayout(element, index, totalCards, photoColors) {
+    const layout = this.getCardLayout(index, totalCards, photoColors);
     element.style.setProperty('--offset', `${layout.offsetRem}rem`);
     element.style.setProperty('--x-offset', `${layout.xOffsetPercent}%`);
     element.style.setProperty('--y-nudge', `${layout.yNudgePercent}%`);
