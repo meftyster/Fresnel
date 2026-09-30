@@ -1,50 +1,153 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Галерея</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body class="page-index">
-
-  <!-- Кнопка звука: в index.html по умолчанию выключена -->
-  <button class="sound-btn visible" id="soundBtn" aria-label="Включить звук">
-    <svg class="icon-mute" viewBox="0 0 24 24">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-      <line x1="23" y1="9" x2="17" y2="15"></line>
-      <line x1="17" y1="9" x2="23" y2="15"></line>
-    </svg>
-    <svg class="icon-sound" viewBox="0 0 24 24">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-    </svg>
-  </button>
-
-  <header>
-    <h1 id="title">...</h1>
-    <div id="desc" class="description"></div>
-  </header>
-
-  <main class="gallery-grid" id="gallery"></main>
-
-  <footer id="footer" class="site-footer"></footer>
-
-  <!-- Модальное окно фокуса -->
-  <div class="modal" id="modal" aria-hidden="true">
-    <img id="modalImg" src="" alt="Фокус на изображении">
-  </div>
-
-  <script>
-    const gallery = document.getElementById('gallery');
-    const pageTitle = document.getElementById('title');
-    const pageDesc = document.getElementById('desc');
-    const pageFooter = document.getElementById('footer');
-    const modal = document.getElementById('modal');
-    const modalImg = document.getElementById('modalImg');
+// ==========================================================================
+    // ПРОФЕССИОНАЛЬНЫЙ БЕСШОВНЫЙ АУДИОДВИЖОК (WEB AUDIO API + CROSSFADE)
+    // ==========================================================================
     const soundBtn = document.getElementById('soundBtn');
+    const TARGET_VOLUME = 0.65;
+    const FADE_TIME = 1.8;      // Длительность мягкого старта/остановки (сек)
+    const CROSSFADE_TIME = 3.0; // Длина перехлёста конца и начала лупа (сек)
 
-    // Кнопка звука: затухание при бездействии
+    let audioCtx = null;
+    let masterGain = null;
+    let playerA = null;
+    let playerB = null;
+    let gainA = null;
+    let gainB = null;
+    let isPlaying = false;
+    let crossfadeTimer = null;
+    let activePlayer = 'A'; // Текущий играющий плеер
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+
+        // Создаем два параллельных плеера
+        playerA = new Audio('batlicsea.mp3');
+        playerB = new Audio('batlicsea.mp3');
+        playerA.preload = 'auto';
+        playerB.preload = 'auto';
+
+        const sourceA = audioCtx.createMediaElementSource(playerA);
+        const sourceB = audioCtx.createMediaElementSource(playerB);
+
+        gainA = audioCtx.createGain();
+        gainB = audioCtx.createGain();
+
+        sourceA.connect(gainA).connect(masterGain);
+        sourceB.connect(gainB).connect(masterGain);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Алгоритм бесшовной сшивки конца трека с началом
+    function scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain) {
+      if (!isPlaying) return;
+
+      const duration = fromPlayer.duration;
+      if (!duration || isNaN(duration)) {
+        // Если метаданные еще подгружаются, ждем
+        fromPlayer.addEventListener('loadedmetadata', () => {
+          scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain);
+        }, { once: true });
+        return;
+      }
+
+      const timeLeft = duration - fromPlayer.currentTime;
+      const timeUntilFade = Math.max(0, (timeLeft - CROSSFADE_TIME) * 1000);
+
+      clearTimeout(crossfadeTimer);
+      crossfadeTimer = setTimeout(() => {
+        if (!isPlaying) return;
+
+        // 1. Сбрасываем и готовим следующий плеер
+        toPlayer.currentTime = 0;
+        toGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        toPlayer.play().then(() => {
+          const now = audioCtx.currentTime;
+          // Плавное нарастание нового трека и угасание старого внахлёст
+          toGain.gain.exponentialRampToValueAtTime(1.0, now + CROSSFADE_TIME);
+          fromGain.gain.setValueAtTime(Math.max(0.001, fromGain.gain.value), now);
+          fromGain.gain.exponentialRampToValueAtTime(0.001, now + CROSSFADE_TIME);
+
+          // Переключаем активную роль
+          activePlayer = activePlayer === 'A' ? 'B' : 'A';
+
+          setTimeout(() => {
+            fromPlayer.pause();
+            fromPlayer.currentTime = 0;
+            // Планируем следующий круг для нового активного плеера
+            if (activePlayer === 'B') {
+              scheduleCrossfade(playerB, playerA, gainB, gainA);
+            } else {
+              scheduleCrossfade(playerA, playerB, gainA, gainB);
+            }
+          }, CROSSFADE_TIME * 1000);
+        }).catch(err => console.warn(err));
+
+      }, timeUntilFade);
+    }
+
+    function playAudio() {
+      const ctx = getAudioContext();
+      isPlaying = true;
+      soundBtn.classList.add('playing');
+      soundBtn.setAttribute('aria-label', 'Выключить звук');
+
+      gainA.gain.setValueAtTime(1.0, ctx.currentTime);
+      gainB.gain.setValueAtTime(0.001, ctx.currentTime);
+      activePlayer = 'A';
+
+      playerA.play().then(() => {
+        const now = ctx.currentTime;
+        // Мягкий Fade-In общего мастера
+        masterGain.gain.cancelScheduledValues(now);
+        masterGain.gain.setValueAtTime(Math.max(0.0001, masterGain.gain.value), now);
+        masterGain.gain.exponentialRampToValueAtTime(TARGET_VOLUME, now + FADE_TIME);
+
+        scheduleCrossfade(playerA, playerB, gainA, gainB);
+      }).catch(err => {
+        isPlaying = false;
+        soundBtn.classList.remove('playing');
+        console.warn("Автоплей заблокирован:", err);
+      });
+    }
+
+    function pauseAudio() {
+      if (!audioCtx) return;
+      isPlaying = false;
+      clearTimeout(crossfadeTimer);
+      soundBtn.classList.remove('playing');
+      soundBtn.setAttribute('aria-label', 'Включить звук');
+
+      const now = audioCtx.currentTime;
+      masterGain.gain.cancelScheduledValues(now);
+      masterGain.gain.setValueAtTime(Math.max(0.0001, masterGain.gain.value), now);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, now + FADE_TIME);
+
+      setTimeout(() => {
+        if (!isPlaying) {
+          playerA.pause();
+          playerB.pause();
+        }
+      }, FADE_TIME * 1000);
+    }
+
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!isPlaying) {
+        playAudio();
+      } else {
+        pauseAudio();
+      }
+    });
+
+    // Автоскрытие тумблера при неактивности
     let soundUiTimeout = null;
     let isHoveringSound = false;
 
@@ -76,275 +179,3 @@
       isHoveringSound = false;
       triggerSoundUi();
     });
-
-    // Аудиосистема с плавным fade
-    const audio = new Audio('batlicsea.mp3');
-    audio.loop = true;
-    audio.preload = 'auto';
-    audio.volume = 0;
-
-    let isPlaying = false;
-    let fadeTimer = null;
-
-    function setVolumeSmooth(targetVol, duration, callback) {
-      clearInterval(fadeTimer);
-      const stepTime = 40;
-      const steps = duration / stepTime;
-      const stepDelta = (targetVol - audio.volume) / steps;
-
-      fadeTimer = setInterval(() => {
-        let nextVol = audio.volume + stepDelta;
-        if ((stepDelta > 0 && nextVol >= targetVol) || (stepDelta < 0 && nextVol <= targetVol)) {
-          audio.volume = targetVol;
-          clearInterval(fadeTimer);
-          if (callback) callback();
-        } else {
-          audio.volume = Math.max(0, Math.min(1, nextVol));
-        }
-      }, stepTime);
-    }
-
-    function playAudio() {
-      isPlaying = true;
-      soundBtn.classList.add('playing');
-      soundBtn.setAttribute('aria-label', 'Выключить звук');
-
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          setVolumeSmooth(0.65, 800);
-        }).catch(err => {
-          console.warn("Воспроизведение заблокировано браузером:", err);
-          isPlaying = false;
-          soundBtn.classList.remove('playing');
-        });
-      }
-    }
-
-    function pauseAudio() {
-      isPlaying = false;
-      soundBtn.classList.remove('playing');
-      soundBtn.setAttribute('aria-label', 'Включить звук');
-
-      setVolumeSmooth(0, 600, () => {
-        audio.pause();
-      });
-    }
-
-    soundBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!isPlaying) {
-        playAudio();
-      } else {
-        pauseAudio();
-      }
-    });
-
-    const offsets = [
-      7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
-      4, 8.5, -7, 3, 11.5, 6, -5, 9, 3.5, 7.5
-    ];
-
-    const mobileOffsets = [
-      -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
-       3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
-       1.2, -1.0,  3.6, -3.5, -1.8,  2.2,  3.2, -2.5,  0.0,  3.4,
-      -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
-    ];
-
-    function sortImagesByNumericIndex(images) {
-      return [...images].sort((a, b) => {
-        const nameA = (a.src || '').split('/').pop();
-        const nameB = (b.src || '').split('/').pop();
-        const matchA = nameA.match(/\d+/);
-        const matchB = nameB.match(/\d+/);
-        const numA = matchA ? parseInt(matchA[0], 10) : 0;
-        const numB = matchB ? parseInt(matchB[0], 10) : 0;
-        return numA - numB;
-      });
-    }
-
-    function extractColors(data) {
-      if (Array.isArray(data.colors) && data.colors.length > 0) return data.colors;
-      if (typeof data.gradient === 'string' && data.gradient.includes('#')) {
-        return data.gradient.match(/#[a-fA-F0-9]{3,8}/g) || ['#f5f5f7'];
-      }
-      return ['#f5f5f7'];
-    }
-
-    function getPhotoPalette(allColors) {
-      if (allColors.length > 3) {
-        return allColors.slice(2, -1);
-      }
-      return allColors.filter((_, idx) => idx !== 1);
-    }
-
-    function applyDynamicGradient(data, pairCount) {
-      const colors = extractColors(data);
-      if (colors.length === 0) return;
-      if (colors.length === 1) {
-        document.body.style.backgroundColor = colors[0];
-        return;
-      }
-
-      const totalStopsNeeded = Math.max(pairCount + 3, colors.length);
-      const stopColors = [];
-      for (let i = 0; i < totalStopsNeeded; i++) {
-        stopColors.push(colors[i % colors.length]);
-      }
-
-      const stopsWithPercents = stopColors.map((color, index) => {
-        const percent = Math.round((index / (totalStopsNeeded - 1)) * 100);
-        return `${color} ${percent}%`;
-      });
-
-      const gradientStyle = `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
-      document.body.style.backgroundImage = gradientStyle;
-      document.documentElement.style.backgroundImage = gradientStyle;
-    }
-
-    function openModal(src) {
-      modalImg.src = src;
-      modal.classList.add('active');
-      modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      modal.classList.remove('active');
-      modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      setTimeout(() => {
-        if (!modal.classList.contains('active')) {
-          modalImg.src = '';
-        }
-      }, 350);
-    }
-
-    async function init() {
-      try {
-        const res = await fetch('data.json?v=' + Date.now());
-        const data = await res.json();
-
-        if (data.audio && data.audio !== 'batlicsea.mp3') {
-          audio.src = data.audio;
-        }
-
-        // 1. Заголовок
-        if (data.title) {
-          const cleanTitle = data.title.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
-          document.title = cleanTitle;
-
-          pageTitle.innerHTML = data.title
-            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="title-accent">$1</span>')
-            .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="title-accent">$1</span>')
-            .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
-        }
-
-        // 2. Описание
-        if (data.description) {
-          let descHtml = data.description
-            .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
-            .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="highlight">$1</span>')
-            .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
-
-          const paragraphs = descHtml.split(/\n\s*\n/);
-          if (paragraphs.length > 1) {
-            const lastIdx = paragraphs.length - 1;
-            const lastP = paragraphs[lastIdx].trim();
-            if (lastP.includes('/') || lastP.includes('Антон') || lastP.includes('Rick')) {
-              paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
-            }
-            descHtml = paragraphs.join('<br><br>');
-          } else {
-            descHtml = descHtml.replace(/\n/g, '<br>');
-          }
-
-          pageDesc.innerHTML = descHtml;
-        }
-
-        // 3. Подвал
-        const currentYear = new Date().getFullYear();
-        let footerRaw = data.footer && data.footer.trim() 
-          ? data.footer 
-          : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
-
-        footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-        footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
-
-        const footerParts = footerRaw.split(/\n\s*\n/);
-        let modeHtml = '';
-        let contactsHtml = '';
-        let copyrightHtml = '';
-
-        if (footerParts.length >= 3) {
-          modeHtml = footerParts[0].trim();
-          contactsHtml = footerParts[1].trim();
-          copyrightHtml = footerParts.slice(2).join('<br>').trim();
-        } else {
-          contactsHtml = footerParts[0] || '';
-          copyrightHtml = footerParts.slice(1).join('<br>').trim();
-        }
-
-        pageFooter.innerHTML = `
-          ${modeHtml ? `<div class="footer-mode-link">${modeHtml}</div>` : ''}
-          <div class="footer-contacts">${contactsHtml}</div>
-          <div class="footer-copyright">${copyrightHtml}</div>
-        `;
-
-        // 4. Сетка фото
-        gallery.innerHTML = '';
-        const rawImages = data.images || [];
-        const images = sortImagesByNumericIndex(rawImages);
-        const allColors = extractColors(data);
-        const photoColors = getPhotoPalette(allColors);
-
-        images.forEach((item, index) => {
-          const el = document.createElement('div');
-          el.className = 'photo-item';
-
-          const pairIndex = Math.floor(index / 2);
-          const shiftValue = offsets[pairIndex % offsets.length];
-          let itemOffset = 0;
-          if (index % 2 === 0) {
-            itemOffset = shiftValue < 0 ? Math.abs(shiftValue) : 0;
-          } else {
-            itemOffset = shiftValue > 0 ? shiftValue : 0;
-          }
-          el.style.setProperty('--offset', `${itemOffset}rem`);
-
-          const mobileXShift = mobileOffsets[index % mobileOffsets.length];
-          el.style.setProperty('--x-offset', `${mobileXShift}%`);
-
-          const pairColorHex = photoColors[pairIndex % photoColors.length];
-          el.style.setProperty('--glow-color', pairColorHex);
-
-          el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
-
-          el.querySelector('img').addEventListener('click', () => {
-            openModal(item.src);
-          });
-
-          gallery.appendChild(el);
-        });
-
-        // 5. Градиент
-        const pairCount = Math.ceil(images.length / 2);
-        applyDynamicGradient(data, pairCount);
-
-      } catch (e) {
-        console.error("Ошибка загрузки данных:", e);
-      }
-    }
-
-    modal.addEventListener('click', closeModal);
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('active')) {
-        closeModal();
-      }
-    });
-
-    init();
-  </script>
-</body>
-</html>
