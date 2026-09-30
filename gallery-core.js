@@ -223,29 +223,12 @@ window.GalleryCore = {
   },
 
   getPhotoPalette(allColors) {
-    // Жёстко и точно мапим ровно 17 цветов для 17 пар фотографий (с индекса 2 по 18 включительно)
-    if (Array.isArray(allColors) && allColors.length >= 19) {
-      return [
-        allColors[2],  // Пара 1
-        allColors[3],  // Пара 2
-        allColors[4],  // Пара 3
-        allColors[5],  // Пара 4
-        allColors[6],  // Пара 5
-        allColors[7],  // Пара 6
-        allColors[8],  // Пара 7
-        allColors[9],  // Пара 8
-        allColors[10], // Пара 9
-        allColors[11], // Пара 10
-        allColors[12], // Пара 11
-        allColors[13], // Пара 12
-        allColors[14], // Пара 13
-        allColors[15], // Пара 14
-        allColors[16], // Пара 15
-        allColors[17], // Пара 16
-        allColors[18]  // Пара 17 (последняя пара -> #422922)
-      ];
+    if (!Array.isArray(allColors) || allColors.length <= 3) {
+      return ['#f5f5f7'];
     }
-    return allColors.slice(2, 19);
+    // Динамический срез: автоматически отрезает первые 2 цвета (старт, текст) 
+    // и последний 1 цвет (футер), оставляя всё промежуточное тело под пары фото.
+    return allColors.slice(2, -1);
   },
 
   getCardLayout(index, photoColors) {
