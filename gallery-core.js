@@ -154,7 +154,8 @@ window.GalleryCore = {
     cards.forEach((el, index) => {
       const rawVal = pattern[index % pattern.length];
       const xVal = index === 0 ? 0 : rawVal;
-      const yVal = parseFloat((-rawVal * 0.45).toFixed(2));
+      // Уменьшили вертикальный коэффициент с 0.45 до 0.28, чтобы карточки не налегали друг на друга
+      const yVal = parseFloat((-rawVal * 0.28).toFixed(2));
 
       el.style.setProperty('--x-offset', `${xVal}%`);
       el.style.setProperty('--y-nudge', `${yVal}%`);
@@ -169,7 +170,8 @@ window.GalleryCore = {
     cards.forEach((el, index) => {
       const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
       const xVal = index === 0 ? 0 : rawVal;
-      const yVal = parseFloat((-rawVal * 0.45).toFixed(2));
+      // Уменьшили вертикальный коэффициент с 0.45 до 0.28
+      const yVal = parseFloat((-rawVal * 0.28).toFixed(2));
 
       el.style.setProperty('--x-offset', `${xVal}%`);
       el.style.setProperty('--y-nudge', `${yVal}%`);
@@ -223,8 +225,6 @@ window.GalleryCore = {
     if (!Array.isArray(allColors) || allColors.length < 4) {
       return ['#f5f5f7'];
     }
-    // Захватываем строго до индекса 20, чтобы вошел #422922 (индекс 18), 
-    // оставляя #0c141c (индекс 19) для футера.
     return allColors.slice(2, 20);
   },
 
@@ -247,7 +247,8 @@ window.GalleryCore = {
 
     const rawVal = this.activeXOffsets[index % this.activeXOffsets.length];
     const xOffsetPercent = index === 0 ? 0 : rawVal;
-    const yNudgePercent = parseFloat((-rawVal * 0.45).toFixed(2));
+    // Уменьшили вертикальный коэффициент с 0.45 до 0.28
+    const yNudgePercent = parseFloat((-rawVal * 0.28).toFixed(2));
     const glowColor = photoColors[pairIndex % photoColors.length];
 
     return {
