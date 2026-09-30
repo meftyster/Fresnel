@@ -16,10 +16,12 @@ body {
   background-repeat: no-repeat;
   background-size: 100% 100%;
   padding: 5rem 2rem 12rem;
-  overflow-x: hidden; /* Защита от горизонтальной прокрутки при смещении фото */
+  overflow-x: hidden;
 }
 
-/* Шапка: компактная книжная колонка и увеличенный воздух до первой пары фото */
+/* ==========================================================================
+   ДЕСКТОПНЫЙ БЛОК ШАПКИ
+   ========================================================================== */
 header {
   max-width: 660px;
   margin: 0 auto 10.5rem;
@@ -43,7 +45,6 @@ header h1 b {
   color: #f3dfc0 !important;
 }
 
-/* Текстовый манифест: комфортная длина строки и академический ритм */
 .description {
   margin-top: 0;
   color: rgba(245, 245, 247, 0.72);
@@ -62,7 +63,7 @@ header h1 b {
   color: #f3dfc0 !important;
 }
 
-/* Авторская подпись под манифестом */
+/* Авторская подпись */
 .author-line {
   display: block;
   margin-top: 3.5rem;
@@ -74,7 +75,9 @@ header h1 b {
   text-align: center;
 }
 
-/* Двухколоночная сетка для десктопа */
+/* ==========================================================================
+   ДЕСКТОПНАЯ СЕТКА ГАЛЕРЕИ (Исходная двухколоночная сетка 1080px)
+   ========================================================================== */
 .gallery-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -87,7 +90,7 @@ header h1 b {
 .photo-item {
   display: flex;
   flex-direction: column;
-  margin-top: var(--offset, 0rem);
+  margin-top: var(--offset, 0rem); /* Вертикальный оффсет десктопа */
 }
 
 /* Вертикальные фотографии 9:16 */
@@ -128,7 +131,7 @@ header h1 b {
   color: #f3dfc0;
 }
 
-/* Полноэкранный просмотр */
+/* Модальное окно */
 .modal {
   display: none;
   position: fixed;
@@ -152,15 +155,18 @@ header h1 b {
   border-radius: 2px;
 }
 
-/* Мобильная адаптация: галерейное дыхание и деликатная лесенка */
+/* ==========================================================================
+   МОБИЛЬНАЯ ВЕРСИЯ (Экран <= 768px)
+   ========================================================================== */
 @media (max-width: 768px) {
   body {
-    padding: 3.5rem 1.25rem 8rem;
+    padding: 3.5rem 1rem 8rem;
   }
 
   header {
     margin-bottom: 5.5rem;
     max-width: 100%;
+    padding: 0 0.5rem;
   }
 
   header h1 {
@@ -177,23 +183,24 @@ header h1 b {
     margin-top: 2.5rem;
   }
 
+  /* Поточная одноколоночная раскладка */
   .gallery-grid {
     display: flex;
     flex-direction: column;
     align-items: center;
-    row-gap: 5.5rem; /* Щедрый вертикальный воздух между кадрами */
+    row-gap: 5rem;
     width: 100%;
   }
 
   .photo-item {
     margin-top: 0 !important;
-    width: 84%; /* Фотографии дышат полями слева и справа */
-    max-width: 360px;
-    transform: translateX(var(--x-offset, 0%)); /* Ненавязчивый волновой сдвиг */
+    width: 91%;          /* Крупные кадры с сохранением лёгких боковых полей */
+    max-width: 430px;    /* Комфортный предел для крупных экранов */
+    transform: translateX(var(--x-offset, 0%)); /* Горизонтальный ритмичный сдвиг */
   }
 
   .photo-item img {
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
   }
 
   .site-footer {
