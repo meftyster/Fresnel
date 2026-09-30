@@ -6,6 +6,25 @@
   <title>Эффект Френеля</title>
   <link rel="stylesheet" href="./styles.css?v=43">
   <script src="./gallery-core.js?v=5"></script>
+  <style>
+    /* Стили для подписи в модальном окне */
+    .modal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-caption {
+      margin-top: 1rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.75);
+      text-align: center;
+      pointer-events: none;
+      text-transform: lowercase;
+    }
+  </style>
 </head>
 <body class="page-index">
 
@@ -74,6 +93,7 @@
   <!-- Модальное окно фокуса -->
   <div class="modal" id="modal" aria-hidden="true">
     <img id="modalImg" src="" alt="Фокус на изображении">
+    <div class="modal-caption" id="modalCaption"></div>
   </div>
 
   <script>
@@ -83,6 +103,7 @@
     const pageFooter = document.getElementById('footer');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
+    const modalCaption = document.getElementById('modalCaption');
     const streamNavBtn = document.getElementById('streamNavBtn');
     const patternBtn = document.getElementById('patternBtn');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -168,6 +189,9 @@
 
     function openModal(src) {
       modalImg.src = src;
+      const fileName = src.split('/').pop().replace(/\.[^/.]+$/, '');
+      modalCaption.textContent = fileName;
+
       modal.classList.add('active');
       modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('modal-open');
@@ -180,6 +204,7 @@
       setTimeout(() => {
         if (!modal.classList.contains('active')) {
           modalImg.src = '';
+          modalCaption.textContent = '';
         }
       }, 350);
     }
