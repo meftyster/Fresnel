@@ -157,8 +157,9 @@ body.page-stream {
   right: 1.5rem;
 }
 
+/* На index.html кнопка стрима занимает позицию верхнего правого угла */
 .stream-nav-btn {
-  top: 4.8rem;
+  top: 1.5rem;
   right: 1.5rem;
 }
 
@@ -329,11 +330,10 @@ h1 {
   }
 }
 
-/* Мобильные экраны до 768px */
+/* Мобильные экраны до 768px: верх 1.5rem вровень с кнопкой, створ по левому краю */
 @media (max-width: 768px) {
   header {
     text-align: left;
-    /* Верхний отступ 1.5rem совпадает с top: 1.5rem у кнопки звука */
     padding: 1.5rem 4.5rem 2.5rem 2rem;
     max-width: 480px;
     margin: 0 auto;
@@ -379,7 +379,7 @@ h1 {
     margin-top: 0 !important;
   }
 
-  /* Первая фотография стоит строго в общем левом створе без смещения */
+  /* Первая фотография стоит строго в левом створе без смещения */
   .photo-item:first-child,
   .photo-card:first-child {
     transform: none !important;
@@ -390,7 +390,7 @@ h1 {
   }
 }
 
-/* Экраны 480px и ниже */
+/* Экраны 480px и ниже: верх 1.5rem, текст 12px, строгий створ первой фото */
 @media (max-width: 480px) {
   header {
     padding-top: 1.5rem;
@@ -432,7 +432,6 @@ h1 {
     max-width: 100%;
   }
 
-  /* Левый край первой фотографии строго совпадает с левым краем текста */
   .photo-item:first-child,
   .photo-card:first-child {
     transform: none !important;
