@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=32">
+  <link rel="stylesheet" href="./styles.css?v=33">
   <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-index">
@@ -47,7 +47,7 @@
     </svg>
   </a>
 
-  <!-- Кнопка «Наверх» в правом нижнем углу (появляется только в самом низу страницы) -->
+  <!-- Кнопка «Наверх» на 3-й позиции справа (появляется только внизу) -->
   <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Наверх страницы">
     <svg viewBox="0 0 24 24">
       <line x1="12" y1="19" x2="12" y2="5"></line>
@@ -56,11 +56,14 @@
   </button>
 
   <header>
-    <h1 id="titleContainer">
-      <span id="titleText">...</span>
-      <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">RU</button>
-    </h1>
-    <div id="desc" class="description"></div>
+    <div class="header-inner">
+      <h1 id="titleContainer">
+        <span id="titleText">...</span>
+        <!-- Кнопка зафиксирована на месте и не прыгает -->
+        <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Переключить язык">RU</button>
+      </h1>
+      <div id="desc" class="description"></div>
+    </div>
   </header>
 
   <main class="gallery-grid" id="gallery"></main>
@@ -121,7 +124,6 @@
       GalleryCore.nextPattern();
     });
 
-    // Плавный скролл наверх по клику
     scrollTopBtn.addEventListener('click', () => {
       window.scrollTo({
         top: 0,
@@ -129,7 +131,6 @@
       });
     });
 
-    // Логика переключения очков и кнопки «Наверх» у самого дна страницы
     function checkBottomPosition() {
       const scrollPos = window.innerHeight + window.scrollY;
       const threshold = document.documentElement.scrollHeight - 70;
