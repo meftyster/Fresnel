@@ -2,60 +2,74 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Эффект Френеля — Поток</title>
-  <link rel="stylesheet" href="styles.css?v=26">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Эффект Френеля</title>
+  <link rel="stylesheet" href="./styles.css?v=44">
   <script src="./gallery-core.js?v=5"></script>
-  <style>
-    /* Стили для подписи в модальном окне */
-    .modal {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-caption {
-      margin-top: 1rem;
-      font-family: inherit;
-      font-size: 0.9rem;
-      letter-spacing: 0.08em;
-      color: rgba(255, 255, 255, 0.75);
-      text-align: center;
-      pointer-events: none;
-      text-transform: lowercase;
-    }
-  </style>
 </head>
-<body class="page-stream">
+<body class="page-index">
 
-  <!-- Кнопка «назад» -->
-  <a href="./" class="back-btn visible" id="backBtn" aria-label="Назад к галерее">
-    <svg viewBox="0 0 24 24">
-      <line x1="19" y1="12" x2="5" y2="12"></line>
-      <polyline points="12 19 5 12 12 5"></polyline>
+  <!-- Кнопка темы (Солнце / Луна) -->
+  <button class="theme-toggle-btn visible" id="themeToggleBtn" aria-label="Сменить тему">
+    <svg class="icon-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2"></path>
+      <path d="M12 20v2"></path>
+      <path d="m4.93 4.93 1.41 1.41"></path>
+      <path d="m17.66 17.66 1.41 1.41"></path>
+      <path d="M2 12h2"></path>
+      <path d="M20 12h2"></path>
+      <path d="m6.34 17.66-1.41 1.41"></path>
+      <path d="m19.07 4.93-1.41 1.41"></path>
     </svg>
-  </a>
-
-  <!-- Кнопка звука -->
-  <button class="sound-btn visible playing" id="soundBtn" aria-label="Выключить звук">
-    <svg class="icon-mute" viewBox="0 0 24 24">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-      <line x1="23" y1="9" x2="17" y2="15"></line>
-      <line x1="17" y1="9" x2="23" y2="15"></line>
-    </svg>
-    <svg class="icon-sound" viewBox="0 0 24 24">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    <svg class="icon-moon" viewBox="0 0 24 24">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
     </svg>
   </button>
 
-  <!-- Трек бесконечного потока -->
-  <div class="stream-viewport" id="viewport">
-    <div class="stream-track" id="track">
-      <div class="stream-group" id="groupOriginal"></div>
-      <div class="stream-group" id="groupClone" aria-hidden="true"></div>
+  <!-- Кнопка смены ритма/волны -->
+  <button class="pattern-btn visible" id="patternBtn" aria-label="Сменить ритм раскладки">
+    <svg viewBox="0 0 24 24">
+      <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+      <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+      <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+    </svg>
+  </button>
+
+  <!-- Кнопка перехода в стрим -->
+  <a href="stream.html" class="stream-nav-btn visible" id="streamNavBtn" aria-label="Режим наблюдения">
+    <svg viewBox="0 0 24 24">
+      <circle cx="6" cy="15" r="4"></circle>
+      <circle cx="18" cy="15" r="4"></circle>
+      <path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"></path>
+      <path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2"></path>
+      <path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2"></path>
+    </svg>
+  </a>
+
+  <!-- Кнопка «Наверх» на 3-й позиции справа -->
+  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Наверх страницы">
+    <svg viewBox="0 0 24 24">
+      <line x1="12" y1="19" x2="12" y2="5"></line>
+      <polyline points="5 12 12 5 19 12"></polyline>
+    </svg>
+  </button>
+
+  <header>
+    <div class="title-row">
+      <h1 id="titleContainer"><span id="titleText" class="title-text-box">...</span></h1>
+      <!-- Чистый текстовый переключатель RU / EN -->
+      <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Сменить язык">
+        <span class="lang-ru">RU</span>
+        <span class="lang-en">EN</span>
+      </button>
     </div>
-  </div>
+    <div id="desc" class="description"></div>
+  </header>
+
+  <main class="gallery-grid" id="gallery"></main>
+
+  <footer id="footer" class="site-footer"></footer>
 
   <!-- Модальное окно фокуса -->
   <div class="modal" id="modal" aria-hidden="true">
@@ -64,298 +78,94 @@
   </div>
 
   <script>
-    const viewport = document.getElementById('viewport');
-    const track = document.getElementById('track');
-    const groupOriginal = document.getElementById('groupOriginal');
-    const groupClone = document.getElementById('groupClone');
+    const gallery = document.getElementById('gallery');
+    const pageTitleText = document.getElementById('titleText');
+    const pageDesc = document.getElementById('desc');
+    const pageFooter = document.getElementById('footer');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
     const modalCaption = document.getElementById('modalCaption');
-    const backBtn = document.getElementById('backBtn');
-    const soundBtn = document.getElementById('soundBtn');
+    const streamNavBtn = document.getElementById('streamNavBtn');
+    const patternBtn = document.getElementById('patternBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const langSwitchBtn = document.getElementById('langSwitchBtn');
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
 
-    // === АУДИОМОДУЛЬ С КРОССФЕЙДОМ ===
-    const TARGET_VOLUME = 0.65;
-    const FADE_TIME = 1.8;
-    const CROSSFADE_TIME = 2.5;
+    // === ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ===
+    let currentRawData = null;
+    let savedTheme = localStorage.getItem('fresnel_theme');
+    let isDarkMode = savedTheme === 'dark';
+    let computedGradient = '';
 
-    let audioCtx = null;
-    let masterGain = null;
-    let playerA = null;
-    let playerB = null;
-    let gainA = null;
-    let gainB = null;
-    let isPlaying = false;
-    let userManuallyMuted = false;
-    let crossfadeTimer = null;
-    let activePlayer = 'A';
-    let currentAudioSrc = 'batlicsea.mp3';
-
-    function initAudioGraph() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-        masterGain = audioCtx.createGain();
-        masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        masterGain.connect(audioCtx.destination);
-
-        playerA = new Audio(currentAudioSrc);
-        playerB = new Audio(currentAudioSrc);
-        playerA.preload = 'auto';
-        playerB.preload = 'auto';
-
-        const sourceA = audioCtx.createMediaElementSource(playerA);
-        const sourceB = audioCtx.createMediaElementSource(playerB);
-
-        gainA = audioCtx.createGain();
-        gainB = audioCtx.createGain();
-
-        sourceA.connect(gainA).connect(masterGain);
-        sourceB.connect(gainB).connect(masterGain);
-      }
-    }
-
-    function scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain) {
-      if (!isPlaying) return;
-
-      const duration = fromPlayer.duration;
-      if (!duration || isNaN(duration)) {
-        fromPlayer.addEventListener('loadedmetadata', () => {
-          scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain);
-        }, { once: true });
-        return;
-      }
-
-      const timeLeft = duration - fromPlayer.currentTime;
-      const timeUntilFade = Math.max(0, (timeLeft - CROSSFADE_TIME) * 1000);
-
-      clearTimeout(crossfadeTimer);
-      crossfadeTimer = setTimeout(() => {
-        if (!isPlaying) return;
-
-        toPlayer.currentTime = 0;
-        toGain.gain.setValueAtTime(0, audioCtx.currentTime);
-
-        toPlayer.play().then(() => {
-          const now = audioCtx.currentTime;
-
-          toGain.gain.cancelScheduledValues(now);
-          fromGain.gain.cancelScheduledValues(now);
-
-          toGain.gain.setValueAtTime(0, now);
-          toGain.gain.linearRampToValueAtTime(1.0, now + CROSSFADE_TIME);
-
-          fromGain.gain.setValueAtTime(1.0, now);
-          fromGain.gain.linearRampToValueAtTime(0, now + CROSSFADE_TIME);
-
-          activePlayer = activePlayer === 'A' ? 'B' : 'A';
-
-          setTimeout(() => {
-            fromPlayer.pause();
-            fromPlayer.currentTime = 0;
-            if (activePlayer === 'B') {
-              scheduleCrossfade(playerB, playerA, gainB, gainA);
-            } else {
-              scheduleCrossfade(playerA, playerB, gainA, gainB);
-            }
-          }, CROSSFADE_TIME * 1000);
-        }).catch(err => console.warn(err));
-
-      }, timeUntilFade);
-    }
-
-    function playAudio() {
-      if (userManuallyMuted) return;
-      initAudioGraph();
-
-      const resumePromise = audioCtx.state === 'suspended' ? audioCtx.resume() : Promise.resolve();
-
-      resumePromise.then(() => {
-        gainA.gain.setValueAtTime(1.0, audioCtx.currentTime);
-        gainB.gain.setValueAtTime(0, audioCtx.currentTime);
-        activePlayer = 'A';
-
-        playerA.play().then(() => {
-          isPlaying = true;
-          soundBtn.classList.add('playing');
-          soundBtn.setAttribute('aria-label', 'Выключить звук');
-
-          const now = audioCtx.currentTime;
-          masterGain.gain.cancelScheduledValues(now);
-          masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-          masterGain.gain.linearRampToValueAtTime(TARGET_VOLUME, now + FADE_TIME);
-
-          scheduleCrossfade(playerA, playerB, gainA, gainB);
-          removeUnlockListeners();
-        }).catch(() => {
-          isPlaying = false;
-          attachUnlockListeners();
-        });
-      }).catch(() => {
-        isPlaying = false;
-        attachUnlockListeners();
-      });
-    }
-
-    function pauseAudio() {
-      if (!audioCtx) return;
-      isPlaying = false;
-      userManuallyMuted = true;
-      clearTimeout(crossfadeTimer);
-      soundBtn.classList.remove('playing');
-      soundBtn.setAttribute('aria-label', 'Включить звук');
-      removeUnlockListeners();
-
-      const now = audioCtx.currentTime;
-      masterGain.gain.cancelScheduledValues(now);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-      masterGain.gain.linearRampToValueAtTime(0, now + FADE_TIME);
-
-      setTimeout(() => {
-        if (!isPlaying) {
-          playerA.pause();
-          playerB.pause();
-          playerA.currentTime = 0;
-          playerB.currentTime = 0;
+    function applyTheme() {
+      if (isDarkMode) {
+        document.body.classList.add('theme-dark');
+        themeToggleBtn.setAttribute('aria-label', 'Включить светлую тему');
+        if (computedGradient) {
+          document.body.style.backgroundImage = computedGradient;
+          document.documentElement.style.backgroundImage = computedGradient;
         }
-      }, FADE_TIME * 1000);
-    }
-
-    function onUserGesture() {
-      if (!userManuallyMuted && !isPlaying) {
-        playAudio();
-      }
-    }
-
-    function attachUnlockListeners() {
-      window.addEventListener('mousemove', onUserGesture, { once: true });
-      window.addEventListener('wheel', onUserGesture, { once: true, passive: true });
-      window.addEventListener('touchstart', onUserGesture, { once: true, passive: true });
-      window.addEventListener('pointerdown', onUserGesture, { once: true });
-    }
-
-    function removeUnlockListeners() {
-      window.removeEventListener('mousemove', onUserGesture);
-      window.removeEventListener('wheel', onUserGesture);
-      window.removeEventListener('touchstart', onUserGesture);
-      window.removeEventListener('pointerdown', onUserGesture);
-    }
-
-    playAudio();
-
-    soundBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!isPlaying) {
-        userManuallyMuted = false;
-        playAudio();
       } else {
-        pauseAudio();
+        document.body.classList.remove('theme-dark');
+        themeToggleBtn.setAttribute('aria-label', 'Включить тему с градиентом');
+        document.body.style.backgroundImage = 'none';
+        document.documentElement.style.backgroundImage = 'none';
       }
+    }
+
+    if (isDarkMode) {
+      document.body.classList.add('theme-dark');
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      localStorage.setItem('fresnel_theme', isDarkMode ? 'dark' : 'light');
+      applyTheme();
     });
 
-    let uiTimeout = null;
-    let isCursorOverUI = false;
+    patternBtn.addEventListener('click', () => {
+      GalleryCore.nextPattern();
+    });
 
-    function showUI() {
-      backBtn.classList.add('visible');
-      soundBtn.classList.add('visible');
-      clearTimeout(uiTimeout);
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    function checkBottomPosition() {
+      const scrollPos = window.innerHeight + window.scrollY;
+      const threshold = document.documentElement.scrollHeight - 70;
       
-      if (!isCursorOverUI) {
-        uiTimeout = setTimeout(() => {
-          backBtn.classList.remove('visible');
-          soundBtn.classList.remove('visible');
-        }, 2500);
+      if (scrollPos >= threshold) {
+        streamNavBtn.classList.remove('visible');
+        scrollTopBtn.classList.add('visible');
+      } else {
+        streamNavBtn.classList.add('visible');
+        scrollTopBtn.classList.remove('visible');
       }
     }
 
-    uiTimeout = setTimeout(() => {
-      if (!isCursorOverUI) {
-        backBtn.classList.remove('visible');
-        soundBtn.classList.remove('visible');
-      }
-    }, 2500);
+    window.addEventListener('scroll', checkBottomPosition, { passive: true });
 
-    window.addEventListener('mousemove', showUI);
-    window.addEventListener('touchstart', showUI, { passive: true });
-    window.addEventListener('wheel', showUI, { passive: true });
-
-    [backBtn, soundBtn].forEach(btn => {
-      btn.addEventListener('mouseenter', () => {
-        isCursorOverUI = true;
-        clearTimeout(uiTimeout);
-        backBtn.classList.add('visible');
-        soundBtn.classList.add('visible');
-      });
-
-      btn.addEventListener('mouseleave', () => {
-        isCursorOverUI = false;
-        showUI();
-      });
-    });
-
-    // === ДВИЖОК ПОТОКА ===
-    const AUTO_SPEED = 0.38;
-    let currentY = 0;
-    let userVelocity = 0;
-    let isUserInteracting = false;
-    let resumeTimeout = null;
-    let groupHeight = 0;
-    let currentActivePattern = 0;
-
-    let startY = 0;
-    let lastY = 0;
-    let lastTime = 0;
-    let isDragThresholdPassed = false;
-
-    function applyMovingGradient(data, count) {
-      if (!window.GalleryCore) return;
+    function buildDynamicGradient(data, pairCount) {
       const colors = GalleryCore.extractColors(data);
-      if (colors.length === 0) return;
-      if (colors.length === 1) {
-        track.style.backgroundColor = colors[0];
-        return;
+      if (colors.length === 0) return '';
+      if (colors.length === 1) return colors[0];
+
+      const totalStopsNeeded = Math.max(pairCount + 3, colors.length);
+      const stopColors = [];
+      for (let i = 0; i < totalStopsNeeded; i++) {
+        stopColors.push(colors[i % colors.length]);
       }
 
-      const stopsNeeded = Math.max(count + 2, colors.length);
-      const singleCycleColors = [];
-      for (let i = 0; i < stopsNeeded; i++) {
-        singleCycleColors.push(colors[i % colors.length]);
-      }
-
-      singleCycleColors[singleCycleColors.length - 1] = singleCycleColors[0];
-
-      const allStops = [];
-      singleCycleColors.forEach((col, idx) => {
-        const pct = (idx / (stopsNeeded - 1)) * 50;
-        allStops.push(`${col} ${pct.toFixed(2)}%`);
-      });
-      singleCycleColors.forEach((col, idx) => {
-        const pct = 50 + (idx / (stopsNeeded - 1)) * 50;
-        allStops.push(`${col} ${pct.toFixed(2)}%`);
+      const stopsWithPercents = stopColors.map((color, index) => {
+        const percent = Math.round((index / (totalStopsNeeded - 1)) * 100);
+        return `${color} ${percent}%`;
       });
 
-      track.style.backgroundImage = `linear-gradient(180deg, ${allStops.join(', ')})`;
-    }
-
-    function createPhotoElement(item, index, photoColors) {
-      const card = document.createElement('div');
-      card.className = 'photo-card';
-
-      GalleryCore.applyCardLayout(card, index, photoColors);
-
-      const img = document.createElement('img');
-      img.src = item.src;
-      img.loading = 'eager';
-
-      img.addEventListener('click', (e) => {
-        if (isDragThresholdPassed) return;
-        e.stopPropagation();
-        openModal(item.src);
-      });
-
-      card.appendChild(img);
-      return card;
+      return `linear-gradient(168deg, ${stopsWithPercents.join(', ')})`;
     }
 
     function openModal(src) {
@@ -377,98 +187,200 @@
           modalImg.src = '';
           modalCaption.textContent = '';
         }
-      }, 300);
+      }, 350);
     }
 
-    function animate() {
-      const measuredHeight = groupOriginal.offsetHeight;
-      if (measuredHeight > 0) {
-        groupHeight = measuredHeight;
+    const glassesIconSvg = `<svg class="footer-glasses-icon" viewBox="0 0 24 24"><circle cx="6" cy="15" r="4"></circle><circle cx="18" cy="15" r="4"></circle><path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"></path><path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2"></path><path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2"></path></svg>`;
+
+    // === ПАРСИНГ И РЕНДЕР ТЕКСТОВ ===
+    let currentLang = localStorage.getItem('fresnel_lang') || 'ru';
+    let enTextData = null;
+
+    function renderHeaderAndDesc(rawTitle, rawDesc) {
+      if (rawTitle) {
+        const cleanTitle = rawTitle.replace(/<\/?[^>]+(>|$)/g, '').replace(/\*\*(.*?)\*\*/g, '$1').trim();
+        document.title = cleanTitle;
+
+        pageTitleText.innerHTML = rawTitle
+          .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="title-accent">$1</span>')
+          .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="title-accent">$1</span>')
+          .replace(/\*\*(.*?)\*\*/g, '<span class="title-accent">$1</span>');
       }
 
-      if (!isUserInteracting) {
-        userVelocity *= 0.92;
-        if (Math.abs(userVelocity) < 0.05) userVelocity = 0;
-        currentY += (AUTO_SPEED + userVelocity);
-      }
+      if (rawDesc) {
+        let descHtml = rawDesc
+          .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '<span class="highlight">$1</span>')
+          .replace(/<b[^>]*>(.*?)<\/b>/gi, '<span class="highlight">$1</span>')
+          .replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
 
-      if (groupHeight > 0) {
-        if (currentY >= groupHeight) {
-          currentY -= groupHeight;
-          if (window.GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
-            currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
-            GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
-            GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+        const paragraphs = descHtml.split(/\n\s*\n/);
+        if (paragraphs.length > 1) {
+          const lastIdx = paragraphs.length - 1;
+          const lastP = paragraphs[lastIdx].trim();
+          if (lastP.includes('/') || /Антон|Anton|Rick/i.test(lastP)) {
+            paragraphs[lastIdx] = `<span class="author-line">${lastP}</span>`;
           }
-        } 
-        else if (currentY < 0) {
-          currentY += groupHeight;
-          if (window.GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
-            currentActivePattern = GalleryCore.getRandomPatternIndex(currentActivePattern);
-            GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
-            GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
+          descHtml = paragraphs.join('<br><br>');
+        } else {
+          descHtml = descHtml.replace(/\n/g, '<br>');
+        }
+
+        pageDesc.innerHTML = descHtml;
+      }
+    }
+
+    function renderFooter(rawFooter) {
+      const currentYear = new Date().getFullYear();
+      let footerStr = rawFooter && rawFooter.trim() 
+        ? rawFooter.trim()
+        : (currentLang === 'en'
+            ? `[version without text - for observation](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} ANTON IVCHENKO / RICK ANTILLES. ALL RIGHTS RESERVED.`
+            : `[версия без текста — для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`);
+
+      footerStr = footerStr.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+        const isExternal = /^https?:\/\//i.test(url);
+        const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+        
+        let formattedText = text;
+        if (url.includes('stream.html') || /наблюден|observ/i.test(text)) {
+          formattedText = text.replace(/\s*[-—–]\s*/, ` ${glassesIconSvg} `);
+        }
+        
+        return `<a href="${url}"${targetAttr}>${formattedText}</a>`;
+      });
+
+      footerStr = footerStr.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
+
+      const footerParts = footerStr.split(/\n\s*\n/);
+      let modeHtml = '';
+      let contactsHtml = '';
+      let copyrightHtml = '';
+
+      if (footerParts.length >= 3) {
+        modeHtml = footerParts[0].trim();
+        contactsHtml = footerParts[1].trim();
+        copyrightHtml = footerParts.slice(2).join('<br>').trim();
+      } else {
+        contactsHtml = footerParts[0] || '';
+        copyrightHtml = footerParts.slice(1).join('<br>').trim();
+      }
+
+      pageFooter.innerHTML = `
+        ${modeHtml ? `<div class="footer-mode-link">${modeHtml}</div>` : ''}
+        <div class="footer-contacts">${contactsHtml}</div>
+        <div class="footer-copyright">${copyrightHtml}</div>
+      `;
+    }
+
+    async function parseEngMarkdown() {
+      if (enTextData) return enTextData;
+      try {
+        const res = await fetch('content-eng.md?v=' + Date.now());
+        if (!res.ok) throw new Error('content-eng.md not found');
+        const text = await res.text();
+
+        let cleanText = text;
+        let title = 'The Fresnel Effect';
+
+        const matchTitle = text.match(/^#\s+(.+)$/m);
+        if (matchTitle) {
+          title = matchTitle[1].trim();
+          cleanText = text.replace(/^#\s+(.+)$/m, '').trim();
+        } else {
+          const parts = text.split(/\n\s*\n/);
+          if (parts[0] && parts[0].length < 60) {
+            title = parts[0].trim();
+            cleanText = parts.slice(1).join('\n\n').trim();
           }
         }
+
+        let description = cleanText;
+        let footer = '';
+
+        if (cleanText.includes('---')) {
+          const hrParts = cleanText.split(/\n\s*---\s*\n/);
+          description = hrParts[0].trim();
+          footer = hrParts.slice(1).join('\n\n').trim();
+        } else if (cleanText.includes('***')) {
+          const hrParts = cleanText.split(/\n\s*\*\*\*\s*\n/);
+          description = hrParts[0].trim();
+          footer = hrParts.slice(1).join('\n\n').trim();
+        } else {
+          const streamIdx = cleanText.search(/\[.*?\]\(stream\.html\)/i);
+          if (streamIdx !== -1) {
+            description = cleanText.slice(0, streamIdx).trim();
+            footer = cleanText.slice(streamIdx).trim();
+          }
+        }
+
+        enTextData = { title, description, footer };
+        return enTextData;
+      } catch (err) {
+        console.warn('Не удалось загрузить content-eng.md', err);
+        return null;
       }
-
-      track.style.transform = `translate3d(0, ${-currentY}px, 0)`;
-      requestAnimationFrame(animate);
     }
 
-    window.addEventListener('wheel', (e) => {
-      userVelocity += e.deltaY * 0.15;
-      userVelocity = Math.max(-20, Math.min(20, userVelocity));
-      
-      clearTimeout(resumeTimeout);
-      resumeTimeout = setTimeout(() => {
-        userVelocity = 0;
-      }, 350);
-    }, { passive: true });
+    async function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('fresnel_lang', lang);
+      langSwitchBtn.classList.toggle('is-eng', lang === 'en');
 
-    function onPointerDown(e) {
-      if (e.target.closest('.back-btn') || e.target.closest('.sound-btn')) return;
-
-      isUserInteracting = true;
-      isDragThresholdPassed = false;
-      startY = e.clientY || (e.touches && e.touches[0].clientY);
-      lastY = startY;
-      lastTime = performance.now();
-      userVelocity = 0;
-      clearTimeout(resumeTimeout);
-    }
-
-    function onPointerMove(e) {
-      if (!isUserInteracting) return;
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      const deltaY = lastY - clientY;
-
-      if (Math.abs(clientY - startY) > 6) {
-        isDragThresholdPassed = true;
+      if (lang === 'en') {
+        const enData = await parseEngMarkdown();
+        if (enData) {
+          renderHeaderAndDesc(enData.title, enData.description);
+          renderFooter(enData.footer);
+        }
+      } else {
+        if (currentRawData) {
+          renderHeaderAndDesc(currentRawData.title, currentRawData.description);
+          renderFooter(currentRawData.footer);
+        }
       }
-
-      currentY += deltaY;
-
-      const now = performance.now();
-      const dt = Math.max(10, now - lastTime);
-      userVelocity = (deltaY / dt) * 16;
-
-      lastY = clientY;
-      lastTime = now;
     }
 
-    function onPointerUp() {
-      if (!isUserInteracting) return;
-      isUserInteracting = false;
-      userVelocity = Math.max(-25, Math.min(25, userVelocity));
+    langSwitchBtn.addEventListener('click', () => {
+      setLanguage(currentLang === 'ru' ? 'en' : 'ru');
+    });
+
+    async function init() {
+      try {
+        const res = await fetch('data.json?v=' + Date.now());
+        const data = await res.json();
+        currentRawData = data;
+
+        await setLanguage(currentLang);
+
+        gallery.innerHTML = '';
+        const rawImages = data.images || [];
+        const images = GalleryCore.sortImages(rawImages);
+        const allColors = GalleryCore.extractColors(data);
+        const photoColors = GalleryCore.getPhotoPalette(allColors);
+
+        images.forEach((item, index) => {
+          const el = document.createElement('div');
+          el.className = 'photo-item';
+
+          GalleryCore.applyCardLayout(el, index, photoColors);
+
+          el.innerHTML = `<img src="${item.src}" alt="" loading="lazy">`;
+
+          el.querySelector('img').addEventListener('click', () => {
+            openModal(item.src);
+          });
+
+          gallery.appendChild(el);
+        });
+
+        const pairCount = Math.ceil(images.length / 2);
+        computedGradient = buildDynamicGradient(data, pairCount);
+        applyTheme();
+
+      } catch (e) {
+        console.error("Ошибка загрузки данных:", e);
+      }
     }
-
-    window.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('mousemove', onPointerMove);
-    window.addEventListener('mouseup', onPointerUp);
-
-    window.addEventListener('touchstart', onPointerDown, { passive: true });
-    window.addEventListener('touchmove', onPointerMove, { passive: true });
-    window.addEventListener('touchend', onPointerUp, { passive: true });
 
     modal.addEventListener('click', closeModal);
     window.addEventListener('keydown', (e) => {
@@ -476,57 +388,6 @@
         closeModal();
       }
     });
-
-    async function init() {
-      try {
-        const res = await fetch('data.json?v=' + Date.now());
-        const data = await res.json();
-        const rawImages = data.images || [];
-
-        if (rawImages.length === 0) return;
-
-        if (data.audio) {
-          currentAudioSrc = data.audio;
-          if (playerA && playerB) {
-            playerA.src = data.audio;
-            playerB.src = data.audio;
-          }
-        }
-
-        const images = GalleryCore.sortImages(rawImages);
-        const allColors = GalleryCore.extractColors(data);
-        const photoColors = allColors.slice(1, 19);
-
-        groupOriginal.innerHTML = '';
-        groupClone.innerHTML = '';
-
-        if (GalleryCore && typeof GalleryCore.getRandomPatternIndex === 'function') {
-          currentActivePattern = GalleryCore.getRandomPatternIndex();
-        }
-
-        images.forEach((item, index) => {
-          groupOriginal.appendChild(createPhotoElement(item, index, photoColors));
-          groupClone.appendChild(createPhotoElement(item, index, photoColors));
-        });
-
-        if (GalleryCore && typeof GalleryCore.applyPatternToGroup === 'function') {
-          GalleryCore.applyPatternToGroup(groupOriginal, currentActivePattern);
-          GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
-        }
-
-        applyMovingGradient(data, Math.ceil(images.length / 2));
-        groupHeight = groupOriginal.offsetHeight;
-
-        window.addEventListener('resize', () => {
-          groupHeight = groupOriginal.offsetHeight;
-        });
-
-        requestAnimationFrame(animate);
-
-      } catch (err) {
-        console.error('Ошибка инициализации потока:', err);
-      }
-    }
 
     init();
   </script>
