@@ -2,13 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
@@ -16,9 +17,11 @@
       height: 100%;
       overflow: hidden;
       background-color: #0b0d10;
+      touch-action: none;
+      user-select: none;
     }
 
-    /* Окно просмотра на весь экран */
+    /* Окно просмотра */
     .stream-viewport {
       position: relative;
       width: 100%;
@@ -26,12 +29,14 @@
       overflow: hidden;
       display: flex;
       justify-content: center;
+      cursor: grab;
     }
 
-    /* 
-      Движущийся трек с градиентом, который скользит вместе с кадрами.
-      Базовая длительность анимации — 60s (в 2 раза быстрее первоначальных 120s)
-    */
+    .stream-viewport:active {
+      cursor: grabbing;
+    }
+
+    /* Движущийся трек */
     .stream-track {
       position: absolute;
       top: 0;
@@ -40,24 +45,18 @@
       flex-direction: column;
       align-items: center;
       will-change: transform;
-      animation: infiniteScroll 60s linear infinite;
     }
 
-    /* Пауза при наведении мыши / зажатии */
-    .stream-viewport:hover .stream-track {
-      animation-play-state: paused;
-    }
-
-    /* Группа фотографий (оригинал и бесшовный клон) */
+    /* Группа фотографий */
     .stream-group {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 5rem;
-      padding-top: 7rem;      /* Комфортный воздух перед первым кадром */
+      padding-top: 7rem;
       padding-bottom: 7rem;
       width: 100%;
-      max-width: 440px;      /* Ширина центральной ленты */
+      max-width: 440px;
       padding-left: 1rem;
       padding-right: 1rem;
     }
@@ -77,21 +76,12 @@
       border-radius: 4px;
       box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
       cursor: pointer;
+      pointer-events: auto;
       transition: transform 0.3s ease;
     }
 
     .photo-card img:hover {
       transform: scale(1.02);
-    }
-
-    /* Бесшовный цикл: трек смещается ровно на половину высоты */
-    @keyframes infiniteScroll {
-      0% {
-        transform: translateY(0);
-      }
-      100% {
-        transform: translateY(-50%);
-      }
     }
 
     /* Модальное окно */
@@ -121,11 +111,11 @@
 </head>
 <body>
 
-  <div class="stream-viewport">
+  <div class="stream-viewport" id="viewport">
     <div class="stream-track" id="track">
       <!-- Группа 1: Оригинал -->
       <div class="stream-group" id="groupOriginal"></div>
-      <!-- Группа 2: Дубликат для бесконечного лупа -->
+      <!-- Группа 2: Дубликат для бесконечного цикла -->
       <div class="stream-group" id="groupClone" aria-hidden="true"></div>
     </div>
   </div>
@@ -135,13 +125,13 @@
   </div>
 
   <script>
+    const viewport = document.getElementById('viewport');
+    const track = document.getElementById('track');
     const groupOriginal = document.getElementById('groupOriginal');
     const groupClone = document.getElementById('groupClone');
-    const track = document.getElementById('track');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
 
-    // Синкопированный горизонтальный ритм
     const mobileOffsets = [
       -3.5,  3.2, -1.2,   0.0,  2.8,  3.6, -3.0, -3.4,  1.0, -2.2,
        3.4,  1.8, -3.6,   2.5, -2.8, -1.4,  3.5,  0.0, -3.2,  3.0,
@@ -149,7 +139,19 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Градиент на всю длину ленты (два идентичных цикла подряд)
+    // Ровно на 10% быстрее исходной медитативной скорости
+    const AUTO_SPEED = 0.38;        // пикселей за кадр (~22-24 px в секунду)
+    let currentY = 0;
+    let userVelocity = 0;
+    let isUserInteracting = false;
+    let resumeTimeout = null;
+    let groupHeight = 0;
+
+    let startY = 0;
+    let lastY = 0;
+    let lastTime = 0;
+    let isDragThresholdPassed = false;
+
     function applyMovingGradient(data, count) {
       let colors = [];
       if (Array.isArray(data.colors) && data.colors.length > 0) {
@@ -171,14 +173,10 @@
       }
 
       const allStops = [];
-      
-      // Первый цикл (0% - 50%)
       singleCycleColors.forEach((col, idx) => {
         const pct = (idx / (stopsNeeded - 1)) * 50;
         allStops.push(`${col} ${pct.toFixed(2)}%`);
       });
-
-      // Второй цикл (50% - 100%)
       singleCycleColors.forEach((col, idx) => {
         const pct = 50 + (idx / (stopsNeeded - 1)) * 50;
         allStops.push(`${col} ${pct.toFixed(2)}%`);
@@ -196,9 +194,10 @@
 
       const img = document.createElement('img');
       img.src = item.src;
-      img.loading = 'lazy';
+      img.loading = 'eager';
 
       img.addEventListener('click', (e) => {
+        if (isDragThresholdPassed) return;
         e.stopPropagation();
         modalImg.src = item.src;
         modal.classList.add('active');
@@ -208,7 +207,92 @@
       return card;
     }
 
+    // Главный цикл: стартует немедленно
+    function animate() {
+      // Обновляем фактическую высоту блока динамически
+      const measuredHeight = groupOriginal.offsetHeight;
+      if (measuredHeight > 0) {
+        groupHeight = measuredHeight;
+      }
+
+      if (!isUserInteracting) {
+        userVelocity *= 0.92;
+        if (Math.abs(userVelocity) < 0.05) userVelocity = 0;
+        currentY += (AUTO_SPEED + userVelocity);
+      }
+
+      // Бесшовный цикл
+      if (groupHeight > 0) {
+        if (currentY >= groupHeight) {
+          currentY %= groupHeight;
+        } else if (currentY < 0) {
+          currentY = (currentY % groupHeight) + groupHeight;
+        }
+      }
+
+      track.style.transform = `translate3d(0, ${-currentY}px, 0)`;
+      requestAnimationFrame(animate);
+    }
+
+    // Обработка колеса мыши и трекпада
+    window.addEventListener('wheel', (e) => {
+      userVelocity += e.deltaY * 0.15;
+      userVelocity = Math.max(-20, Math.min(20, userVelocity));
+      
+      clearTimeout(resumeTimeout);
+      resumeTimeout = setTimeout(() => {
+        userVelocity = 0;
+      }, 350);
+    }, { passive: true });
+
+    // Обработка тач-свайпов и мыши
+    function onPointerDown(e) {
+      isUserInteracting = true;
+      isDragThresholdPassed = false;
+      startY = e.clientY || (e.touches && e.touches[0].clientY);
+      lastY = startY;
+      lastTime = performance.now();
+      userVelocity = 0;
+      clearTimeout(resumeTimeout);
+    }
+
+    function onPointerMove(e) {
+      if (!isUserInteracting) return;
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const deltaY = lastY - clientY;
+
+      if (Math.abs(clientY - startY) > 6) {
+        isDragThresholdPassed = true;
+      }
+
+      currentY += deltaY;
+
+      const now = performance.now();
+      const dt = Math.max(10, now - lastTime);
+      userVelocity = (deltaY / dt) * 16;
+
+      lastY = clientY;
+      lastTime = now;
+    }
+
+    function onPointerUp() {
+      if (!isUserInteracting) return;
+      isUserInteracting = false;
+      userVelocity = Math.max(-25, Math.min(25, userVelocity));
+    }
+
+    window.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    window.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp, { passive: true });
+
     async function init() {
+      // Запускаем анимацию сразу же
+      requestAnimationFrame(animate);
+
       try {
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
@@ -221,12 +305,8 @@
           groupClone.appendChild(createPhotoElement(item, index));
         });
 
-        // Скорость ровно в 2 раза быстрее изначальной (60s базовое время, ~2.2s на кадр)
-        const totalDuration = Math.max(60, images.length * 2.2);
-        track.style.animationDuration = `${totalDuration}s`;
-
-        // Навешиваем градиент на ленту
         applyMovingGradient(data, images.length);
+        groupHeight = groupOriginal.offsetHeight;
 
       } catch (err) {
         console.error('Ошибка инициализации потока:', err);
