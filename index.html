@@ -46,8 +46,8 @@
 
     // === АУДИОМОДУЛЬ С КРОССФЕЙДОМ (index.html) ===
     const TARGET_VOLUME = 0.65;
-    const FADE_TIME = 1.8;      // Фейд только для ручного включения/выключения
-    const CROSSFADE_TIME = 2.5; // Время перехлёста конца и начала без падения громкости
+    const FADE_TIME = 1.8;
+    const CROSSFADE_TIME = 2.5;
 
     let audioCtx = null;
     let masterGain = null;
@@ -88,7 +88,6 @@
       return audioCtx;
     }
 
-    // Равномощный перехлест: сумма громкостей постоянна, провал исключен
     function scheduleCrossfade(fromPlayer, toPlayer, fromGain, toGain) {
       if (!isPlaying) return;
 
@@ -138,7 +137,6 @@
       }, timeUntilFade);
     }
 
-    // Старт: плавное открытие общего мастера с 0 до TARGET_VOLUME
     function playAudio() {
       const ctx = getAudioContext();
       isPlaying = true;
@@ -163,7 +161,6 @@
       });
     }
 
-    // Пауза: плавное закрытие общего мастера в ноль
     function pauseAudio() {
       if (!audioCtx) return;
       isPlaying = false;
@@ -357,7 +354,13 @@
           ? data.footer 
           : `[версия без текста для наблюдения](stream.html)\n\n[Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)\n\n© ${currentYear} Антон Ивченко / Rick Antilles. All rights reserved.`;
 
-        footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        // Внутренние ссылки (stream.html) открываются в той же вкладке, внешние — в новой
+        footerRaw = footerRaw.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+          const isExternal = /^https?:\/\//i.test(url);
+          const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+          return `<a href="${url}"${targetAttr}>${text}</a>`;
+        });
+
         footerRaw = footerRaw.replace(/\[year\]/gi, currentYear).replace(/\b20\d{2}\b/g, currentYear);
 
         const footerParts = footerRaw.split(/\n\s*\n/);
