@@ -9,6 +9,9 @@
 Антон Ивченко / Rick Antilles
 
 ---
+
+[версия без текста - для наблюдения](stream.html)
+
 [Telegram](https://t.me/RickAntilles) / [Instagram](https://instagram.com/mefty)
 
 © [year] Антон Ивченко / Rick Antilles. All rights reserved.
