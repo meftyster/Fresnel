@@ -8,6 +8,19 @@
 </head>
 <body class="page-index">
 
+  <!-- Кнопка звука: видна при загрузке, гаснет при бездействии -->
+  <button class="sound-btn visible" id="soundBtn" aria-label="Включить звук">
+    <svg class="icon-mute" viewBox="0 0 24 24">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+    <svg class="icon-sound" viewBox="0 0 24 24">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </svg>
+  </button>
+
   <header>
     <h1 id="title">...</h1>
     <div id="desc" class="description"></div>
@@ -29,6 +42,105 @@
     const pageFooter = document.getElementById('footer');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
+    const soundBtn = document.getElementById('soundBtn');
+
+    // Логика затухания кнопки звука при неактивности
+    let soundUiTimeout = null;
+    let isHoveringSound = false;
+
+    function triggerSoundUi() {
+      soundBtn.classList.add('visible');
+      clearTimeout(soundUiTimeout);
+      if (!isHoveringSound) {
+        soundUiTimeout = setTimeout(() => {
+          soundBtn.classList.remove('visible');
+        }, 2500);
+      }
+    }
+
+    // Инициализация стартового таймера затухания
+    soundUiTimeout = setTimeout(() => {
+      if (!isHoveringSound) soundBtn.classList.remove('visible');
+    }, 2500);
+
+    window.addEventListener('mousemove', triggerSoundUi);
+    window.addEventListener('touchstart', triggerSoundUi, { passive: true });
+    window.addEventListener('scroll', triggerSoundUi, { passive: true });
+
+    soundBtn.addEventListener('mouseenter', () => {
+      isHoveringSound = true;
+      clearTimeout(soundUiTimeout);
+      soundBtn.classList.add('visible');
+    });
+
+    soundBtn.addEventListener('mouseleave', () => {
+      isHoveringSound = false;
+      triggerSoundUi();
+    });
+
+    // Аудиосистема: строго без автозапуска на index.html
+    let audio = null;
+    let fadeInterval = null;
+
+    function initAudio(audioSrc) {
+      audio = new Audio(audioSrc);
+      audio.loop = true;
+      audio.volume = 0;
+    }
+
+    function fadeIn() {
+      clearInterval(fadeInterval);
+      fadeInterval = setInterval(() => {
+        if (audio.volume < 0.65) {
+          audio.volume = Math.min(0.65, audio.volume + 0.04);
+        } else {
+          clearInterval(fadeInterval);
+        }
+      }, 70);
+    }
+
+    function fadeOut(callback) {
+      clearInterval(fadeInterval);
+      fadeInterval = setInterval(() => {
+        if (audio.volume > 0.04) {
+          audio.volume = Math.max(0, audio.volume - 0.06);
+        } else {
+          audio.volume = 0;
+          clearInterval(fadeInterval);
+          if (callback) callback();
+        }
+      }, 50);
+    }
+
+    function startSound() {
+      if (!audio) return;
+      audio.play().then(() => {
+        soundBtn.classList.add('playing');
+        soundBtn.setAttribute('aria-label', 'Выключить звук');
+        fadeIn();
+      }).catch(err => {
+        soundBtn.classList.remove('playing');
+      });
+    }
+
+    function stopSound() {
+      if (!audio) return;
+      soundBtn.classList.remove('playing');
+      soundBtn.setAttribute('aria-label', 'Включить звук');
+      fadeOut(() => {
+        audio.pause();
+      });
+    }
+
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!audio) return;
+      if (audio.paused || audio.volume === 0) {
+        startSound();
+      } else {
+        stopSound();
+      }
+    });
 
     const offsets = [
       7, 3.5, 11, -6, 8, 2.5, 10.5, -4, 6.5, 12,
@@ -42,7 +154,6 @@
       -3.4,  1.5, -2.0, -3.2,  3.6, -1.2,  2.8,  0.0, -3.6,  3.2
     ];
 
-    // Сортировка по числовому индексу в имени файла (1, 2, ... 10)
     function sortImagesByNumericIndex(images) {
       return [...images].sort((a, b) => {
         const nameA = (a.src || '').split('/').pop();
@@ -63,7 +174,6 @@
       return ['#f5f5f7'];
     }
 
-    // Исключаем: 0 (начало), 1 (акцент текста), последний (подвал)
     function getPhotoPalette(allColors) {
       if (allColors.length > 3) {
         return allColors.slice(2, -1);
@@ -117,6 +227,10 @@
       try {
         const res = await fetch('data.json?v=' + Date.now());
         const data = await res.json();
+
+        // Аудио (по умолчанию BalticSea.MP3)
+        const audioSrc = data.audio || 'BalticSea.MP3';
+        initAudio(audioSrc);
 
         // 1. Заголовок
         if (data.title) {
@@ -204,7 +318,6 @@
           const mobileXShift = mobileOffsets[index % mobileOffsets.length];
           el.style.setProperty('--x-offset', `${mobileXShift}%`);
 
-          // JS передает только чистый цвет! Прозрачность и размытие контролирует CSS (:root)
           const pairColorHex = photoColors[pairIndex % photoColors.length];
           el.style.setProperty('--glow-color', pairColorHex);
 
