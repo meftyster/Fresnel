@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Галерея</title>
-  <link rel="stylesheet" href="./styles.css?v=36">
+  <link rel="stylesheet" href="./styles.css?v=37">
   <script src="./gallery-core.js?v=5"></script>
 </head>
 <body class="page-index">
@@ -58,10 +58,11 @@
   <header>
     <h1 id="titleContainer">
       <span id="titleText" class="title-text-box">...</span>
-      <!-- Кнопка переключения со звёздочкой -->
+      <!-- Кнопка с тонким центрированным крестиком -->
       <button class="lang-switch-btn" id="langSwitchBtn" aria-label="Сменить язык">
-        <svg class="icon-star" viewBox="0 0 24 24">
-          <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"></path>
+        <svg class="icon-cross" viewBox="0 0 24 24">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </button>
     </h1>
