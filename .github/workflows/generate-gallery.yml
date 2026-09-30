@@ -7,10 +7,9 @@ on:
     paths:
       - 'content.md'
       - 'images/**'
-      - 'scripts/**'
+      - '.github/workflows/generate-gallery.yml'
   workflow_dispatch:
 
-# Отменяем старые параллельные запуски, чтобы они не мешали друг другу пушить
 concurrency:
   group: generate-gallery-${{ github.ref }}
   cancel-in-progress: true
@@ -34,39 +33,93 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run generation script
+      - name: Generate data.json from content.md & images
         run: |
-          if [ -f scripts/generate.py ]; then
-            python scripts/generate.py
-          elif [ -f generate.py ]; then
-            python generate.py
-          elif [ -f scripts/build.py ]; then
-            python scripts/build.py
-          fi
+          python3 - << 'EOF'
+          import os
+          import json
+          import re
+
+          title = "Галерея"
+          description = ""
+          footer = ""
+
+          # 1. Читаем content.md
+          if os.path.exists("content.md"):
+              with open("content.md", "r", encoding="utf-8") as f:
+                  raw = f.read().strip()
+
+              # Разделяем текст и подвал по "---"
+              parts = re.split(r'\n\s*---\s*\n', raw, maxsplit=1)
+              main_text = parts[0].strip()
+              if len(parts) > 1:
+                  footer = parts[1].strip()
+
+              # Извлекаем заголовок первого уровня (# Заголовок)
+              lines = main_text.splitlines()
+              desc_lines = []
+              for line in lines:
+                  if line.startswith("# ") and title == "Галерея":
+                      title = line[2:].strip()
+                  else:
+                      desc_lines.append(line)
+              description = "\n".join(desc_lines).strip()
+
+          # 2. Собираем фотографии из images/
+          images = []
+          img_dir = "images"
+          if os.path.isdir(img_dir):
+              valid_exts = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
+              files = sorted(os.listdir(img_dir))
+              for file in files:
+                  ext = os.path.splitext(file)[1].lower()
+                  if ext in valid_exts:
+                      images.append({"src": f"images/{file}"})
+
+          # 3. Сохраняем исходные цвета/градиент из старого data.json, если они были
+          colors = []
+          gradient = ""
+          if os.path.exists("data.json"):
+              try:
+                  with open("data.json", "r", encoding="utf-8") as f:
+                      old_data = json.load(f)
+                      colors = old_data.get("colors", [])
+                      gradient = old_data.get("gradient", "")
+              except Exception:
+                  pass
+
+          output_data = {
+              "title": title,
+              "description": description,
+              "footer": footer,
+              "images": images
+          }
+          if colors:
+              output_data["colors"] = colors
+          if gradient:
+              output_data["gradient"] = gradient
+
+          with open("data.json", "w", encoding="utf-8") as f:
+              json.dump(output_data, f, ensure_ascii=False, indent=2)
+
+          print("data.json successfully generated!")
+          EOF
 
       - name: Commit and push data.json
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Проверяем, изменился ли data.json
-          git status
-          if git diff --quiet data.json; then
+          git add data.json
+          if git diff --cached --quiet; then
             echo "Файл data.json не изменился"
             exit 0
           fi
 
-          # Прячем готовый data.json в stash
-          git add data.json
           git stash push -m "generated-data" data.json
-
-          # Забираем самое актуальное состояние ветки
           git fetch origin main
           git reset --hard origin/main
-
-          # Достаем наш data.json поверх актуального состояния
           git stash pop
-
           git add data.json
           git commit -m "Auto-generate data.json [skip ci]"
           git push origin main
