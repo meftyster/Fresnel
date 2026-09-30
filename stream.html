@@ -289,27 +289,21 @@
 
     function applyMovingGradient(data, count) {
       if (!window.GalleryCore) return;
-      const allColors = GalleryCore.extractColors(data);
-      if (allColors.length === 0) return;
-      if (allColors.length === 1) {
-        track.style.backgroundColor = allColors[0];
+      const colors = GalleryCore.extractColors(data);
+      if (colors.length === 0) return;
+      if (colors.length === 1) {
+        track.style.backgroundColor = colors[0];
         return;
       }
 
-      // Новая логика: 1-й цвет (индекс 0) — старт, 2-й (индекс 1) пропускаем, далее берем цвета для потока
-      const rawPalette = allColors.slice(2);
-      const stopsNeeded = Math.max(count + 2, rawPalette.length);
+      // Стандартный полноценный градиент с заменой последнего цвета на первый для петли
+      const stopsNeeded = Math.max(count + 2, colors.length);
       const singleCycleColors = [];
-
-      // Стартовый цвет
-      singleCycleColors.push(allColors[0]);
-
-      for (let i = 0; i < stopsNeeded - 1; i++) {
-        singleCycleColors.push(rawPalette[i % rawPalette.length]);
+      for (let i = 0; i < stopsNeeded; i++) {
+        singleCycleColors.push(colors[i % colors.length]);
       }
 
-      // Заменяем последний цвет на самый первый для идеальной петли
-      singleCycleColors[singleCycleColors.length - 1] = allColors[0];
+      singleCycleColors[singleCycleColors.length - 1] = singleCycleColors[0];
 
       const allStops = [];
       singleCycleColors.forEach((col, idx) => {
@@ -478,8 +472,8 @@
         const images = GalleryCore.sortImages(rawImages);
         const allColors = GalleryCore.extractColors(data);
         
-        // Палитра для карточек (без первых двух цветов, срез под глоу)
-        const photoColors = allColors.slice(2, 20);
+        // Палитра для глоу на стриме начинается со 2-го цвета (индекс 1)
+        const photoColors = allColors.slice(1, 19);
 
         groupOriginal.innerHTML = '';
         groupClone.innerHTML = '';
