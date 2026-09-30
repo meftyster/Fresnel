@@ -95,7 +95,7 @@ header h1 b {
 }
 
 /* ==========================================================================
-   ОБЩИЕ КАРТОЧКИ ФОТО И ЗАДНИЙ СВЕТ
+   ОБЩИЕ КАРТОЧКИ ФОТО И АДАПТИВНЫЙ ЗАДНИЙ СВЕТ ПО ЦВЕТУ ГРАДИЕНТА
    ========================================================================== */
 .photo-item,
 .photo-card {
@@ -115,8 +115,8 @@ header h1 b {
   object-fit: cover;
   display: block;
   border-radius: 4px;
-  /* Мягкий задний свет */
-  box-shadow: 0 14px 30px rgba(245, 245, 247, 0.1);
+  /* Цвет света берется индивидуально для каждой пары из таблицы цветов */
+  box-shadow: 0 14px 30px var(--glow-color, rgba(245, 245, 247, 0.1));
   cursor: zoom-in;
   pointer-events: auto;
   transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s ease;
@@ -129,7 +129,7 @@ header h1 b {
 .photo-item img:hover,
 .photo-card img:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 18px 40px rgba(245, 245, 247, 0.15);
+  box-shadow: 0 18px 40px var(--glow-hover, rgba(245, 245, 247, 0.16));
 }
 
 /* ==========================================================================
@@ -246,7 +246,7 @@ header h1 b {
 }
 
 /* ==========================================================================
-   МОДАЛЬНОЕ ОКНО ФОКУСА
+   МОДАЛЬНОЕ ОКНО ФОКУСА (Глубокое затемнение)
    ========================================================================== */
 .modal {
   position: fixed;
@@ -338,7 +338,7 @@ header h1 b {
 
   .photo-item img,
   .photo-card img {
-    box-shadow: 0 12px 28px rgba(245, 245, 247, 0.09);
+    box-shadow: 0 12px 28px var(--glow-color, rgba(245, 245, 247, 0.09));
   }
 
   .back-btn {
