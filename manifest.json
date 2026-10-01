@@ -1,8 +1,8 @@
 {
   "name": "Эффект Френеля",
   "short_name": "Fresnel",
-  "description": "Эффект Френеля — цифровая фотогалерея и визуальное исследование света и цвета. Автор: Антон Ивченко",
-  "start_url": "./index.html",
+  "description": "Визуальная фотогалерея и бесконечный медитативный аудиовизуальный поток",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
