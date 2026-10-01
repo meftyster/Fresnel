@@ -78,8 +78,14 @@ body.theme-dark .site-footer .footer-copyright {
   opacity: 0.6;
 }
 
-body.theme-dark .modal {
+body.theme-dark .modal,
+body.page-stream .modal {
   background: rgba(10, 11, 14, 0.88);
+}
+
+body.theme-dark .modal-caption,
+body.page-stream .modal-caption {
+  color: #8a8d93;
 }
 
 * {
