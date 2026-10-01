@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fresnel-202610012205-4cbd5be';
+const CACHE_NAME = 'fresnel-__CACHE_VERSION__';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -8,7 +8,9 @@ const STATIC_ASSETS = [
   './data.json',
   './manifest.json',
   './favicon.ico',
-  './apple-touch-icon.png'
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -36,7 +38,6 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Аудиопотоки и большие медиафайлы не кэшируем через Service Worker во избежание проблем с Range-запросами Safari
   if (event.request.url.endsWith('.mp3')) {
     return;
   }
