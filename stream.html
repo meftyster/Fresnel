@@ -355,6 +355,18 @@
       return card;
     }
 
+    // Синхронизация глоу-теней с вертикальной координатой на фоне стрима
+    function updateStreamGlows(container, photoColors) {
+      const cards = container.querySelectorAll('.photo-card');
+      const h = container.offsetHeight || 1;
+      cards.forEach(card => {
+        const relativeY = card.offsetTop / h;
+        const colorIdx = Math.floor((relativeY % 1) * photoColors.length);
+        const glowColor = photoColors[Math.max(0, Math.min(colorIdx, photoColors.length - 1))];
+        card.style.setProperty('--glow-color', glowColor);
+      });
+    }
+
     function openModal(src) {
       modalImg.src = src;
       const fileName = src.split('/').pop().replace(/\.[^/.]+$/, '');
@@ -511,11 +523,17 @@
           GalleryCore.applyPatternToGroup(groupClone, currentActivePattern);
         }
 
+        // Применяем точную синхронизацию глоу по высоте потока
+        updateStreamGlows(groupOriginal, photoColors);
+        updateStreamGlows(groupClone, photoColors);
+
         applyMovingGradient(data, Math.ceil(images.length / 2));
         groupHeight = groupOriginal.offsetHeight;
 
         window.addEventListener('resize', () => {
           groupHeight = groupOriginal.offsetHeight;
+          updateStreamGlows(groupOriginal, photoColors);
+          updateStreamGlows(groupClone, photoColors);
         });
 
         requestAnimationFrame(animate);
