@@ -166,21 +166,21 @@ body.page-stream {
   display: block;
   border-radius: 4px;
   box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.06),
-    0 6px 14px -3px rgba(0, 0, 0, 0.1),
-    0 18px 32px -8px rgba(15, 20, 30, 0.14);
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 12px 28px -6px rgba(10, 16, 26, 0.18),
+    0 28px 48px -12px rgba(10, 16, 26, 0.16);
   cursor: pointer;
   transition: transform 0.45s var(--ease-smooth), box-shadow 0.45s var(--ease-smooth);
 }
 
-/* Ховер на белом фоне: картина приподнимается над стеной, тень падает глубже */
+/* Ховер на белом фоне: картина отделяется от стены */
 .photo-card img:hover,
 .photo-item img:hover {
-  transform: translateY(-4px) scale(1.015);
+  transform: translateY(-5px) scale(1.015);
   box-shadow: 
-    0 3px 6px rgba(0, 0, 0, 0.05),
-    0 16px 28px -6px rgba(0, 0, 0, 0.12),
-    0 34px 54px -12px rgba(15, 20, 30, 0.18);
+    0 4px 8px rgba(0, 0, 0, 0.07),
+    0 20px 36px -6px rgba(10, 16, 26, 0.22),
+    0 40px 64px -14px rgba(10, 16, 26, 0.2);
 }
 
 /* Цветное глоу ТОЛЬКО для тёмной темы и стрима */
