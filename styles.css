@@ -148,7 +148,7 @@ body.page-stream {
   padding: 5rem 1.5rem;
 }
 
-/* === КАРТОЧКИ И ДИНАМИЧЕСКИЕ ТЕНИ ПОД КАРТИНКАМИ === */
+/* === КАРТОЧКИ И ТЕНИ ПОД КАРТИНКАМИ === */
 .photo-card,
 .photo-item {
   width: calc(50% - 2rem);
@@ -158,13 +158,14 @@ body.page-stream {
   transition: transform 0.6s var(--ease-smooth);
 }
 
+/* Стандартные нейтральные тени для светлой темы */
 .photo-card img,
 .photo-item img {
   width: 100%;
   height: auto;
   display: block;
   border-radius: 4px;
-  box-shadow: 0 16px 36px -6px var(--glow-color, rgba(0, 0, 0, 0.4)), 0 6px 14px -2px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.14), 0 6px 14px -2px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: transform 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
 }
@@ -172,6 +173,21 @@ body.page-stream {
 .photo-card img:hover,
 .photo-item img:hover {
   transform: scale(1.02);
+  box-shadow: 0 24px 50px -6px rgba(0, 0, 0, 0.2), 0 8px 18px -2px rgba(0, 0, 0, 0.12);
+}
+
+/* Цветное глоу ТОЛЬКО для тёмной темы и стрима */
+body.theme-dark .photo-card img,
+body.theme-dark .photo-item img,
+body.page-stream .photo-card img,
+body.page-stream .photo-item img {
+  box-shadow: 0 16px 36px -6px var(--glow-color, rgba(0, 0, 0, 0.4)), 0 6px 14px -2px rgba(0, 0, 0, 0.22);
+}
+
+body.theme-dark .photo-card img:hover,
+body.theme-dark .photo-item img:hover,
+body.page-stream .photo-card img:hover,
+body.page-stream .photo-item img:hover {
   box-shadow: 0 24px 50px -6px var(--glow-color, rgba(0, 0, 0, 0.48)), 0 8px 18px -2px rgba(0, 0, 0, 0.26);
 }
 
