@@ -1,0 +1,40 @@
+{
+  "name": "Эффект Френеля",
+  "short_name": "Fresnel",
+  "description": "Эффект Френеля — цифровая фотогалерея и визуальное исследование света и цвета. Автор: Антон Ивченко",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0c10",
+  "theme_color": "#0b0c10",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Поток",
+      "short_name": "Поток",
+      "description": "Непрерывный визуальный поток",
+      "url": "./stream.html",
+      "icons": [{ "src": "apple-touch-icon.png", "sizes": "180x180" }]
+    }
+  ]
+}
