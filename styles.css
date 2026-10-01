@@ -158,7 +158,7 @@ body.page-stream {
   transition: transform 0.6s var(--ease-smooth);
 }
 
-/* Эффект вывески на галерейной стене (светлая тема) */
+/* 1. Эффект вывески на галерейной стене (светлая тема на главной) */
 .photo-card img,
 .photo-item img {
   width: 100%;
@@ -185,11 +185,29 @@ body.page-stream {
     0 54px 90px -18px rgba(10, 16, 26, 0.18);
 }
 
-/* Многослойное цветное галерейное свечение (тёмная тема и стрим) */
-body.theme-dark .photo-card img,
-body.theme-dark .photo-item img,
+/* 2. Теневое галерейное решение для СТРИМА (глубокие темные тени вместо глоу) */
 body.page-stream .photo-card img,
 body.page-stream .photo-item img {
+  box-shadow: 
+    0 2px 5px rgba(0, 0, 0, 0.45),
+    0 12px 24px -4px rgba(0, 0, 0, 0.5),
+    0 28px 52px -8px rgba(0, 0, 0, 0.6),
+    0 50px 84px -16px rgba(0, 0, 0, 0.55);
+}
+
+body.page-stream .photo-card img:hover,
+body.page-stream .photo-item img:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.55),
+    0 18px 32px -6px rgba(0, 0, 0, 0.6),
+    0 38px 68px -8px rgba(0, 0, 0, 0.7),
+    0 65px 105px -16px rgba(0, 0, 0, 0.65);
+}
+
+/* 3. Цветное глоу ТОЛЬКО для темной темы на главной странице */
+body.theme-dark:not(.page-stream) .photo-card img,
+body.theme-dark:not(.page-stream) .photo-item img {
   box-shadow: 
     0 1px 3px rgba(0, 0, 0, 0.5),
     0 8px 18px -4px rgba(0, 0, 0, 0.4),
@@ -197,11 +215,8 @@ body.page-stream .photo-item img {
     0 42px 74px -12px var(--glow-color, rgba(0, 0, 0, 0.25));
 }
 
-/* Ховер в тёмной теме / стриме: приподнимание и расширение свечения */
-body.theme-dark .photo-card img:hover,
-body.theme-dark .photo-item img:hover,
-body.page-stream .photo-card img:hover,
-body.page-stream .photo-item img:hover {
+body.theme-dark:not(.page-stream) .photo-card img:hover,
+body.theme-dark:not(.page-stream) .photo-item img:hover {
   transform: translateY(-6px) scale(1.015);
   box-shadow: 
     0 2px 5px rgba(0, 0, 0, 0.6),
