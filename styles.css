@@ -70,8 +70,8 @@ body.theme-dark .site-footer a {
 }
 
 body.theme-dark .site-footer a:hover {
-  color: var(--accent);
-  text-decoration: none;
+  color: #f3dfc0 !important;
+  text-decoration: none !important;
 }
 
 body.theme-dark .site-footer .footer-copyright {
