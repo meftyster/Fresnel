@@ -4,6 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Эффект Френеля — Поток</title>
+
+  <!-- PWA Manifest & Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0c10">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fresnel">
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('SW зарегистрирован:', reg.scope))
+          .catch((err) => console.warn('Ошибка SW:', err));
+      });
+    }
+  </script>
+  
   <!-- SEO & Open Graph (Поток) -->
   <meta name="description" content="Эффект Френеля — непрерывный визуальный поток и звуковая медитация. Версия без текста для наблюдения.">
   <meta property="og:title" content="Эффект Френеля — Поток">
