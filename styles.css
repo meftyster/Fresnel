@@ -174,7 +174,7 @@ body.page-stream {
   transition: transform 0.45s var(--ease-smooth), box-shadow 0.45s var(--ease-smooth);
 }
 
-/* Ховер на белом фоне: картина аккуратно приподнимается */
+/* Ховер на белом фоне */
 .photo-card img:hover,
 .photo-item img:hover {
   transform: translateY(-6px) scale(1.015);
@@ -185,20 +185,29 @@ body.page-stream {
     0 54px 90px -18px rgba(10, 16, 26, 0.18);
 }
 
-/* Цветное глоу ТОЛЬКО для тёмной темы и стрима */
+/* Многослойное цветное галерейное свечение (тёмная тема и стрим) */
 body.theme-dark .photo-card img,
 body.theme-dark .photo-item img,
 body.page-stream .photo-card img,
 body.page-stream .photo-item img {
-  box-shadow: 0 16px 36px -6px var(--glow-color, rgba(0, 0, 0, 0.4)), 0 6px 14px -2px rgba(0, 0, 0, 0.22);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    0 8px 18px -4px rgba(0, 0, 0, 0.4),
+    0 20px 38px -6px var(--glow-color, rgba(0, 0, 0, 0.35)),
+    0 42px 74px -12px var(--glow-color, rgba(0, 0, 0, 0.25));
 }
 
+/* Ховер в тёмной теме / стриме: приподнимание и расширение свечения */
 body.theme-dark .photo-card img:hover,
 body.theme-dark .photo-item img:hover,
 body.page-stream .photo-card img:hover,
 body.page-stream .photo-item img:hover {
-  transform: scale(1.02);
-  box-shadow: 0 24px 50px -6px var(--glow-color, rgba(0, 0, 0, 0.48)), 0 8px 18px -2px rgba(0, 0, 0, 0.26);
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 
+    0 2px 5px rgba(0, 0, 0, 0.6),
+    0 12px 24px -4px rgba(0, 0, 0, 0.45),
+    0 30px 52px -6px var(--glow-color, rgba(0, 0, 0, 0.45)),
+    0 60px 96px -14px var(--glow-color, rgba(0, 0, 0, 0.3));
 }
 
 /* === ПЛАВАЮЩИЕ КНОПКИ === */
