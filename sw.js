@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fresnel-v1';
+const CACHE_NAME = 'fresnel-202610012205-4cbd5be';
 const STATIC_ASSETS = [
   './',
   './index.html',
