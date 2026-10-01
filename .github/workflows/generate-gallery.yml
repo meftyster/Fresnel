@@ -1,4 +1,4 @@
-name: Generate Gallery Data
+name: Generate Gallery Data & Update PWA
 
 on:
   push:
@@ -8,6 +8,11 @@ on:
       - 'content.md'
       - 'gradient.txt'
       - 'images/**'
+      - 'styles.css'
+      - 'index.html'
+      - 'stream.html'
+      - 'gallery-core.js'
+      - 'manifest.json'
       - '.github/workflows/generate-gallery.yml'
   workflow_dispatch:
 
@@ -99,24 +104,34 @@ jobs:
           with open("data.json", "w", encoding="utf-8") as f:
               json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-          print("data.json successfully generated using gradient.txt!")
+          print("data.json successfully generated!")
           EOF
 
-      - name: Commit and push data.json
+      - name: Auto-update Service Worker Cache Version
+        run: |
+          if [ -f "sw.js" ]; then
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+            BUILD_DATE=$(date -u +"%Y%m%d%H%M")
+            NEW_VERSION="fresnel-${BUILD_DATE}-${SHORT_SHA}"
+            sed -i -E "s/const CACHE_NAME = ['\"][^'\"]+['\"];/const CACHE_NAME = '${NEW_VERSION}';/" sw.js
+            echo "CACHE_NAME в sw.js обновлен на: ${NEW_VERSION}"
+          fi
+
+      - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add data.json
+          git add data.json sw.js
           if git diff --cached --quiet; then
-            echo "Файл data.json не изменился"
+            echo "Файлы data.json и sw.js не изменились"
             exit 0
           fi
 
-          git stash push -m "generated-data" data.json
+          git stash push -m "generated-artifacts" data.json sw.js
           git fetch origin main
           git reset --hard origin/main
           git stash pop
-          git add data.json
-          git commit -m "Auto-generate data.json [skip ci]"
+          git add data.json sw.js
+          git commit -m "Auto-update data.json & sw.js cache [skip ci]"
           git push origin main
